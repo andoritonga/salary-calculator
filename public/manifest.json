@@ -1,0 +1,23 @@
+{
+  "name": "Kalkulator Gaji & Offering (PPh 21 TER + BPJS)",
+  "short_name": "Kalkulator Gaji",
+  "description": "Simulasi gaji bersih (THP), PPh 21 TER PMK 168, BPJS, dan komparasi offering kerja.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Calculator,
   ArrowRight,
@@ -21,11 +21,19 @@ import {
   Gift,
   HelpCircle,
   Sliders,
-  RotateCcw
+  RotateCcw,
+  Eye,
+  EyeOff,
+  Plus,
+  Trash2,
+  Edit2,
+  AlertTriangle,
+  Scale
 } from 'lucide-react'
 import {
   calculateSalary,
   calculateBonusMonthSimulation,
+  calculateDecemberTrueUp,
   findRequiredGrossForTargetNet,
   formatIDR,
   PTKP_LIST,
@@ -33,28 +41,67 @@ import {
 } from './utils/taxCalculator'
 import CurrencyInput from './components/CurrencyInput'
 
+// Default initial offerings
+const INITIAL_OFFERINGS = [
+  {
+    id: 'offering-1',
+    name: 'Offering A (Utama)',
+    basic: 19000000,
+    fixed: 2500000,
+    annualBonus: 25000000,
+    ptkp: 'TK/0',
+    taxMethod: 'gross',
+  }
+]
+
 export default function App() {
-  // Existing salary state
-  const [existingBasic, setExistingBasic] = useState(15000000)
-  const [existingFixed, setExistingFixed] = useState(2000000)
-  const [existingAnnualBonus, setExistingAnnualBonus] = useState(15000000) // Bonus tahunan
-  const [existingPtkp, setExistingPtkp] = useState('TK/0')
-  const [existingTaxMethod, setExistingTaxMethod] = useState('gross') // 'gross' | 'gross_up' | 'nett'
+  // Privacy Mode state (persisted)
+  const [privacyMode, setPrivacyMode] = useState(() => {
+    return localStorage.getItem('salary_privacy_mode') === 'true'
+  })
+
+  // Existing salary state (persisted)
+  const [existingBasic, setExistingBasic] = useState(() => {
+    const saved = localStorage.getItem('salary_calc_existing_basic')
+    return saved !== null ? Number(saved) : 15000000
+  })
+  const [existingFixed, setExistingFixed] = useState(() => {
+    const saved = localStorage.getItem('salary_calc_existing_fixed')
+    return saved !== null ? Number(saved) : 2000000
+  })
+  const [existingAnnualBonus, setExistingAnnualBonus] = useState(() => {
+    const saved = localStorage.getItem('salary_calc_existing_bonus')
+    return saved !== null ? Number(saved) : 15000000
+  })
+  const [existingPtkp, setExistingPtkp] = useState(() => {
+    return localStorage.getItem('salary_calc_existing_ptkp') || 'TK/0'
+  })
+  const [existingTaxMethod, setExistingTaxMethod] = useState(() => {
+    return localStorage.getItem('salary_calc_existing_tax_method') || 'gross'
+  })
+
+  // Multi-Offering state (persisted)
+  const [offerings, setOfferings] = useState(() => {
+    const saved = localStorage.getItem('salary_calc_offerings')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      } catch (e) {}
+    }
+    return INITIAL_OFFERINGS
+  })
+
+  const [activeOfferingId, setActiveOfferingId] = useState(() => {
+    return offerings[0]?.id || 'offering-1'
+  })
 
   // Negotiation target state
   const [negotiationMode, setNegotiationMode] = useState('percentage') // 'percentage' | 'reverse_net'
   const [targetIncreasePct, setTargetIncreasePct] = useState(20)
   const [targetNetInput, setTargetNetInput] = useState(18000000)
 
-  // Offering salary state
-  const [offeringBasic, setOfferingBasic] = useState(19000000)
-  const [offeringFixed, setOfferingFixed] = useState(2500000)
-  const [offeringAnnualBonus, setOfferingAnnualBonus] = useState(25000000) // Bonus tahunan
-  const [offeringPtkp, setOfferingPtkp] = useState('TK/0')
-  const [offeringTaxMethod, setOfferingTaxMethod] = useState('gross') // 'gross' | 'gross_up' | 'nett'
-
-  // THR / Bonus Month Simulator state
-  const [showBonusSimulator, setShowBonusSimulator] = useState(true)
+  // Simulator tabs
   const [selectedSimulatorTarget, setSelectedSimulatorTarget] = useState('offering') // 'existing' | 'offering'
   const [customDisbursedAmount, setCustomDisbursedAmount] = useState(19000000) // THR/Bonus
 
@@ -66,6 +113,63 @@ export default function App() {
   const [annualMultiplier, setAnnualMultiplier] = useState(13) // 12 bulan + 1 bulan THR
   const [activeTab, setActiveTab] = useState('both') // 'monthly' | 'annual' | 'both'
   const [copied, setCopied] = useState(false)
+
+  // Sync to localStorage
+  useEffect(() => {
+    localStorage.setItem('salary_privacy_mode', privacyMode)
+  }, [privacyMode])
+
+  useEffect(() => {
+    localStorage.setItem('salary_calc_existing_basic', existingBasic)
+    localStorage.setItem('salary_calc_existing_fixed', existingFixed)
+    localStorage.setItem('salary_calc_existing_bonus', existingAnnualBonus)
+    localStorage.setItem('salary_calc_existing_ptkp', existingPtkp)
+    localStorage.setItem('salary_calc_existing_tax_method', existingTaxMethod)
+  }, [existingBasic, existingFixed, existingAnnualBonus, existingPtkp, existingTaxMethod])
+
+  useEffect(() => {
+    localStorage.setItem('salary_calc_offerings', JSON.stringify(offerings))
+  }, [offerings])
+
+  // Active Offering helper
+  const activeOffering = useMemo(() => {
+    return offerings.find(o => o.id === activeOfferingId) || offerings[0] || INITIAL_OFFERINGS[0]
+  }, [offerings, activeOfferingId])
+
+  // Update current active offering
+  const updateActiveOffering = (updates) => {
+    setOfferings(prev =>
+      prev.map(off => off.id === activeOffering.id ? { ...off, ...updates } : off)
+    )
+  }
+
+  // Add new offering
+  const handleAddOffering = () => {
+    const count = offerings.length + 1
+    const alphabet = String.fromCharCode(65 + count - 1)
+    const newId = `offering-${Date.now()}`
+    const newOffering = {
+      id: newId,
+      name: `Offering ${alphabet}`,
+      basic: Math.round(existingBasic * 1.25),
+      fixed: existingFixed,
+      annualBonus: existingAnnualBonus,
+      ptkp: existingPtkp,
+      taxMethod: 'gross',
+    }
+    setOfferings(prev => [...prev, newOffering])
+    setActiveOfferingId(newId)
+  }
+
+  // Delete offering
+  const handleDeleteOffering = (id) => {
+    if (offerings.length <= 1) return
+    const remaining = offerings.filter(o => o.id !== id)
+    setOfferings(remaining)
+    if (activeOfferingId === id) {
+      setActiveOfferingId(remaining[0].id)
+    }
+  }
 
   // Calculations: Existing
   const existingCalc = useMemo(() => {
@@ -82,20 +186,20 @@ export default function App() {
     })
   }, [existingBasic, existingFixed, existingAnnualBonus, existingPtkp, existingTaxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk, annualMultiplier])
 
-  // Calculations: Offering
+  // Calculations: Active Offering
   const offeringCalc = useMemo(() => {
     return calculateSalary({
-      basicSalary: offeringBasic,
-      fixedAllowance: offeringFixed,
-      annualBonus: offeringAnnualBonus,
-      ptkpCode: offeringPtkp,
-      taxMethod: offeringTaxMethod,
+      basicSalary: activeOffering.basic,
+      fixedAllowance: activeOffering.fixed,
+      annualBonus: activeOffering.annualBonus,
+      ptkpCode: activeOffering.ptkp,
+      taxMethod: activeOffering.taxMethod,
       includeBpjsCompanyInTax,
       enableBpjsKesehatan: enableBpjsKes,
       enableBpjsKetenagakerjaan: enableBpjsTk,
       annualMonths: annualMultiplier,
     })
-  }, [offeringBasic, offeringFixed, offeringAnnualBonus, offeringPtkp, offeringTaxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk, annualMultiplier])
+  }, [activeOffering, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk, annualMultiplier])
 
   // Reverse Calculation: Target Net -> Required Gross
   const requiredGrossFromTargetNet = useMemo(() => {
@@ -103,12 +207,12 @@ export default function App() {
       targetNet: targetNetInput,
       fixedAllowance: existingFixed,
       ptkpCode: existingPtkp,
-      taxMethod: offeringTaxMethod,
+      taxMethod: activeOffering.taxMethod,
       includeBpjsCompanyInTax,
       enableBpjsKesehatan: enableBpjsKes,
       enableBpjsKetenagakerjaan: enableBpjsTk,
     })
-  }, [targetNetInput, existingFixed, existingPtkp, offeringTaxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk])
+  }, [targetNetInput, existingFixed, existingPtkp, activeOffering.taxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk])
 
   // Target calculation based on active mode
   const targetCalc = useMemo(() => {
@@ -118,14 +222,13 @@ export default function App() {
         fixedAllowance: existingFixed,
         annualBonus: existingAnnualBonus,
         ptkpCode: existingPtkp,
-        taxMethod: offeringTaxMethod,
+        taxMethod: activeOffering.taxMethod,
         includeBpjsCompanyInTax,
         enableBpjsKesehatan: enableBpjsKes,
         enableBpjsKetenagakerjaan: enableBpjsTk,
         annualMonths: annualMultiplier,
       })
     } else {
-      // Percentage mode
       const factor = 1 + targetIncreasePct / 100
       const targetMonthlyGross = Math.round(existingCalc.monthly.cashGross * factor)
       const totalExistingMonthly = existingCalc.monthly.cashGross || 1
@@ -138,22 +241,22 @@ export default function App() {
         fixedAllowance: Math.round(targetMonthlyGross * fixedRatio),
         annualBonus: Math.round(existingAnnualBonus * bonusRatio),
         ptkpCode: existingPtkp,
-        taxMethod: offeringTaxMethod,
+        taxMethod: activeOffering.taxMethod,
         includeBpjsCompanyInTax,
         enableBpjsKesehatan: enableBpjsKes,
         enableBpjsKetenagakerjaan: enableBpjsTk,
         annualMonths: annualMultiplier,
       })
     }
-  }, [negotiationMode, requiredGrossFromTargetNet, targetIncreasePct, existingCalc, existingFixed, existingAnnualBonus, existingPtkp, offeringTaxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk, annualMultiplier])
+  }, [negotiationMode, requiredGrossFromTargetNet, targetIncreasePct, existingCalc, existingFixed, existingAnnualBonus, existingPtkp, activeOffering.taxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk, annualMultiplier])
 
   // Bonus Month Simulator calculation
   const bonusSimulation = useMemo(() => {
     const isOffering = selectedSimulatorTarget === 'offering'
-    const basic = isOffering ? offeringBasic : existingBasic
-    const fixed = isOffering ? offeringFixed : existingFixed
-    const ptkp = isOffering ? offeringPtkp : existingPtkp
-    const taxMethod = isOffering ? offeringTaxMethod : existingTaxMethod
+    const basic = isOffering ? activeOffering.basic : existingBasic
+    const fixed = isOffering ? activeOffering.fixed : existingFixed
+    const ptkp = isOffering ? activeOffering.ptkp : existingPtkp
+    const taxMethod = isOffering ? activeOffering.taxMethod : existingTaxMethod
 
     return calculateBonusMonthSimulation({
       basicSalary: basic,
@@ -165,38 +268,70 @@ export default function App() {
       enableBpjsKesehatan: enableBpjsKes,
       enableBpjsKetenagakerjaan: enableBpjsTk,
     })
-  }, [selectedSimulatorTarget, offeringBasic, existingBasic, offeringFixed, existingFixed, customDisbursedAmount, offeringPtkp, existingPtkp, offeringTaxMethod, existingTaxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk])
+  }, [selectedSimulatorTarget, activeOffering, existingBasic, existingFixed, customDisbursedAmount, existingPtkp, existingTaxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk])
 
-  // Monthly Deltas: Offering vs Existing
+  // December True-Up calculation (Feature 2)
+  const decemberTrueUp = useMemo(() => {
+    const isOffering = selectedSimulatorTarget === 'offering'
+    const basic = isOffering ? activeOffering.basic : existingBasic
+    const fixed = isOffering ? activeOffering.fixed : existingFixed
+    const bonus = isOffering ? activeOffering.annualBonus : existingAnnualBonus
+    const ptkp = isOffering ? activeOffering.ptkp : existingPtkp
+    const taxMethod = isOffering ? activeOffering.taxMethod : existingTaxMethod
+
+    return calculateDecemberTrueUp({
+      basicSalary: basic,
+      fixedAllowance: fixed,
+      annualBonus: bonus,
+      ptkpCode: ptkp,
+      taxMethod,
+      includeBpjsCompanyInTax,
+      enableBpjsKesehatan: enableBpjsKes,
+      enableBpjsKetenagakerjaan: enableBpjsTk,
+      annualMonths: annualMultiplier,
+    })
+  }, [selectedSimulatorTarget, activeOffering, existingBasic, existingFixed, existingAnnualBonus, existingPtkp, existingTaxMethod, includeBpjsCompanyInTax, enableBpjsKes, enableBpjsTk, annualMultiplier])
+
+  // Deltas
   const deltaMonthlyGross = offeringCalc.monthly.cashGross - existingCalc.monthly.cashGross
   const deltaMonthlyGrossPct = existingCalc.monthly.cashGross > 0 ? (deltaMonthlyGross / existingCalc.monthly.cashGross) * 100 : 0
 
   const deltaMonthlyNet = offeringCalc.monthly.netSalary - existingCalc.monthly.netSalary
   const deltaMonthlyNetPct = existingCalc.monthly.netSalary > 0 ? (deltaMonthlyNet / existingCalc.monthly.netSalary) * 100 : 0
 
-  // Annual Deltas: Offering vs Existing
   const deltaAnnualGross = offeringCalc.annual.cashGross - existingCalc.annual.cashGross
   const deltaAnnualGrossPct = existingCalc.annual.cashGross > 0 ? (deltaAnnualGross / existingCalc.annual.cashGross) * 100 : 0
 
   const deltaAnnualNet = offeringCalc.annual.netSalary - existingCalc.annual.netSalary
   const deltaAnnualNetPct = existingCalc.annual.netSalary > 0 ? (deltaAnnualNet / existingCalc.annual.netSalary) * 100 : 0
 
+  // Privacy format wrapper
+  const renderIDR = (val) => {
+    const formatted = formatIDR(val)
+    if (!privacyMode) return formatted
+    return (
+      <span className="blur-[4.5px] select-none hover:blur-none transition-all duration-200 cursor-pointer inline-block" title="Arahkan kursor untuk melihat angka">
+        {formatted}
+      </span>
+    )
+  }
+
   // Copy Summary text
   const copySummary = () => {
-    const text = `📊 Ringkasan Komparasi Gaji & Offering:
+    const text = `📊 Ringkasan Komparasi Gaji & Offering (${activeOffering.name}):
 
-Skema Pajak: Existing (${existingTaxMethod.toUpperCase()}) vs Offering (${offeringTaxMethod.toUpperCase()})
+Skema Pajak: Existing (${existingTaxMethod.toUpperCase()}) vs ${activeOffering.name} (${activeOffering.taxMethod.toUpperCase()})
 
 🗓️ PER BULAN (MONTHLY ROUTINE):
 • Existing: Gross ${formatIDR(existingCalc.monthly.cashGross)} | Net THP: ${formatIDR(existingCalc.monthly.netSalary)}
 • Target: Gross ${formatIDR(targetCalc.monthly.cashGross)} | Net THP: ${formatIDR(targetCalc.monthly.netSalary)}
-• Offering: Gross ${formatIDR(offeringCalc.monthly.cashGross)} | Net THP: ${formatIDR(offeringCalc.monthly.netSalary)}
-• Selisih Net THP Bulanan: ${deltaMonthlyNet >= 0 ? '+' : ''}${formatIDR(deltaMonthlyNet)}/bln (${deltaMonthlyNetPct.toFixed(1)}%)
+• ${activeOffering.name}: Gross ${formatIDR(offeringCalc.monthly.cashGross)} | Net THP: ${formatIDR(offeringCalc.monthly.netSalary)}
+• Selisih Net THP: ${deltaMonthlyNet >= 0 ? '+' : ''}${formatIDR(deltaMonthlyNet)}/bln (${deltaMonthlyNetPct.toFixed(1)}%)
 
-📅 PER TAHUN (ANNUAL - Gaji ${annualMultiplier}x + Bonus/Tunjangan Tidak Tetap):
+📅 PER TAHUN (ANNUAL - Gaji ${annualMultiplier}x + Bonus):
 • Existing: Gross ${formatIDR(existingCalc.annual.cashGross)} | Net THP: ${formatIDR(existingCalc.annual.netSalary)}
 • Target: Gross ${formatIDR(targetCalc.annual.cashGross)} | Net THP: ${formatIDR(targetCalc.annual.netSalary)}
-• Offering: Gross ${formatIDR(offeringCalc.annual.cashGross)} | Net THP: ${formatIDR(offeringCalc.annual.netSalary)}
+• ${activeOffering.name}: Gross ${formatIDR(offeringCalc.annual.cashGross)} | Net THP: ${formatIDR(offeringCalc.annual.netSalary)}
 • Selisih Net THP Tahunan: ${deltaAnnualNet >= 0 ? '+' : ''}${formatIDR(deltaAnnualNet)}/thn (${deltaAnnualNetPct.toFixed(1)}%)
 
 Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan.`
@@ -207,79 +342,96 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
     })
   }
 
-  // Preset helper
+  // Apply target to active offering
   const applyTargetToOffering = () => {
-    setOfferingBasic(targetCalc.basic)
-    setOfferingFixed(targetCalc.fixed)
-    setOfferingAnnualBonus(targetCalc.bonusAnnual)
-  }
-
-  // Print / Save PDF
-  const handlePrint = () => {
-    window.print()
+    updateActiveOffering({
+      basic: targetCalc.basic,
+      fixed: targetCalc.fixed,
+      annualBonus: targetCalc.bonusAnnual,
+    })
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
       {/* Top Navigation */}
       <header className="border-b border-slate-800/80 bg-slate-900/70 backdrop-blur sticky top-0 z-40 no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950 font-bold">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950 font-bold shrink-0">
               <Calculator className="w-5 h-5 text-slate-950" />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
                 Kalkulator Gaji & Offering
-                <span className="text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                  PPh 21 TER (PMK 168)
+                <span className="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                  PPh 21 TER
                 </span>
               </h1>
-              <p className="text-xs text-slate-400">
-                Simulasi gaji bersih, reverse target net-to-gross, skema pajak & simulator THR/bonus
+              <p className="text-[11px] text-slate-400 hidden sm:block">
+                Simulasi gaji bersih, reverse calculator, multi-offering, true-up Desember & PWA
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Feature 3: Privacy Mode Toggle */}
             <button
-              onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+              type="button"
+              onClick={() => setPrivacyMode(!privacyMode)}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${
+                privacyMode
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+              title={privacyMode ? 'Matikan Mode Privasi (Sensor Aktif)' : 'Aktifkan Mode Privasi (Samarkan Angka Gaji)'}
+            >
+              {privacyMode ? <EyeOff className="w-3.5 h-3.5 text-amber-400" /> : <Eye className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">{privacyMode ? 'Sensor Aktif' : 'Privasi'}</span>
+            </button>
+
+            {/* Print / PDF Button */}
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
               title="Cetak atau simpan sebagai file PDF"
             >
               <Printer className="w-3.5 h-3.5 text-sky-400" />
-              <span>Cetak / PDF</span>
+              <span className="hidden sm:inline">Cetak / PDF</span>
             </button>
+
+            {/* Copy Button */}
             <button
               onClick={copySummary}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
               title="Salin ringkasan ke clipboard"
             >
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400 font-semibold">Tersalin!</span>
+                  <span className="text-emerald-400 font-semibold hidden sm:inline">Tersalin!</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5" />
-                  <span>Salin Teks</span>
+                  <span className="hidden sm:inline">Salin Teks</span>
                 </>
               )}
             </button>
+
+            {/* Settings Drawer Button */}
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Pengaturan</span>
+              <span className="hidden md:inline">Pengaturan</span>
               {showAdvanced ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
       </header>
 
-      {/* Advanced Drawer/Panel */}
+      {/* Advanced Settings Drawer */}
       {showAdvanced && (
         <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-4 animate-in slide-in-from-top duration-200 no-print">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-300">
@@ -321,7 +473,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 <span>Sesuai Regulasi: Premi JKK, JKM, BPJS Kes perusahaan menambah bruto PPh 21</span>
               </label>
               <p className="text-[11px] text-slate-400">
-                Nonaktifkan jika kantor Anda memotong PPh 21 murni dari penghasilan tunai karyawan.
+                Data input tersimpan otomatis di perangkat Anda (LocalStorage).
               </p>
             </div>
 
@@ -330,7 +482,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 <TrendingUp className="w-4 h-4 text-emerald-400" /> Multiplier Gaji Tahunan
               </span>
               <label className="block mb-1 text-slate-400">Jumlah Bulan Gaji Pokok (termasuk THR):</label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
                 {[12, 13, 14, 15].map((months) => (
                   <button
                     key={months}
@@ -346,7 +498,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                   </button>
                 ))}
               </div>
-              <span className="text-[11px] text-slate-500 mt-2 block">
+              <span className="text-[11px] text-slate-500 block">
                 Standard: 13x (12 bulan gaji pokok + 1 bulan THR).
               </span>
             </div>
@@ -355,7 +507,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
         
         {/* Printable Document Header (Only shown during printing) */}
         <div className="hidden print:block mb-6 border-b pb-4">
@@ -363,8 +515,61 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
           <p className="text-xs text-slate-600">
             Dihitung berdasarkan PPh 21 TER (PMK No. 168/2023 & PP No. 58/2023) serta BPJS Ketenagakerjaan & Kesehatan.
           </p>
-          <p className="text-[10px] text-slate-400 mt-1">Dicetak pada: {new Date().toLocaleDateString('id-ID', { dateStyle: 'full' })}</p>
+          <p className="text-[10px] text-slate-400 mt-1">
+            Penawaran Aktif: {activeOffering.name} | Dicetak pada: {new Date().toLocaleDateString('id-ID', { dateStyle: 'full' })}
+          </p>
         </div>
+
+        {/* Feature 6: Multi-Offering Tab Bar */}
+        <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/80 p-2.5 rounded-2xl border border-slate-800 no-print">
+          <div className="flex items-center gap-2 overflow-x-auto py-1">
+            <span className="text-xs font-semibold text-slate-400 pl-2 shrink-0 flex items-center gap-1.5">
+              <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
+              Penawaran:
+            </span>
+            {offerings.map((off) => (
+              <div
+                key={off.id}
+                onClick={() => setActiveOfferingId(off.id)}
+                className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer border transition shrink-0 ${
+                  activeOfferingId === off.id
+                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20'
+                    : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700 hover:text-white'
+                }`}
+              >
+                <span>{off.name}</span>
+                {offerings.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteOffering(off.id)
+                    }}
+                    className={`p-0.5 rounded hover:bg-rose-500 hover:text-white transition ${
+                      activeOfferingId === off.id ? 'text-slate-900/70 hover:text-white' : 'text-slate-500'
+                    }`}
+                    title="Hapus penawaran ini"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddOffering}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 border-dashed hover:text-white transition shrink-0"
+              title="Tambah tawaran dari perusahaan lain untuk dibandingkan"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tambah Offering</span>
+            </button>
+          </div>
+
+          <div className="text-[11px] text-slate-400 pr-2 self-end sm:self-auto">
+            Sedang membandingkan: <strong className="text-emerald-400">{activeOffering.name}</strong>
+          </div>
+        </section>
 
         {/* Dual Highlight Card (Per Bulan & Per Tahun) */}
         <section className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-850 rounded-2xl p-5 border border-slate-800 shadow-xl relative overflow-hidden print-clean">
@@ -376,7 +581,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
-                  Kenaikan Bersih Per Bulan (Monthly THP)
+                  Kenaikan Bersih Per Bulan ({activeOffering.name})
                 </span>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                   deltaMonthlyNet >= 0
@@ -390,14 +595,14 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 <span className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${
                   deltaMonthlyNet >= 0 ? 'text-emerald-400' : 'text-rose-400'
                 }`}>
-                  {deltaMonthlyNet >= 0 ? '+' : ''}{formatIDR(deltaMonthlyNet)}
+                  {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)}
                 </span>
                 <span className="text-xs text-slate-400">/bulan</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-400 pt-1">
-                <span>Existing: <strong className="text-slate-200">{formatIDR(existingCalc.monthly.netSalary)}</strong></span>
+                <span>Existing: <strong className="text-slate-200">{renderIDR(existingCalc.monthly.netSalary)}</strong></span>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-600" />
-                <span>Offering: <strong className="text-emerald-400">{formatIDR(offeringCalc.monthly.netSalary)}</strong></span>
+                <span>Offering: <strong className="text-emerald-400">{renderIDR(offeringCalc.monthly.netSalary)}</strong></span>
               </div>
             </div>
 
@@ -420,14 +625,14 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 <span className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${
                   deltaAnnualNet >= 0 ? 'text-sky-400' : 'text-rose-400'
                 }`}>
-                  {deltaAnnualNet >= 0 ? '+' : ''}{formatIDR(deltaAnnualNet)}
+                  {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}
                 </span>
                 <span className="text-xs text-slate-400">/tahun ({annualMultiplier}x + Bonus)</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-400 pt-1">
-                <span>Existing: <strong className="text-slate-200">{formatIDR(existingCalc.annual.netSalary)}</strong></span>
+                <span>Existing: <strong className="text-slate-200">{renderIDR(existingCalc.annual.netSalary)}</strong></span>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-600" />
-                <span>Offering: <strong className="text-sky-400">{formatIDR(offeringCalc.annual.netSalary)}</strong></span>
+                <span>Offering: <strong className="text-sky-400">{renderIDR(offeringCalc.annual.netSalary)}</strong></span>
               </div>
             </div>
           </div>
@@ -470,6 +675,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                   value={existingBasic}
                   onChange={setExistingBasic}
                   placeholder="0"
+                  isPrivacy={privacyMode}
                 />
 
                 <CurrencyInput
@@ -478,6 +684,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                   value={existingFixed}
                   onChange={setExistingFixed}
                   placeholder="0"
+                  isPrivacy={privacyMode}
                 />
 
                 {/* Tunjangan Tidak Tetap / Bonus (Pertahun) */}
@@ -489,6 +696,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                     value={existingAnnualBonus}
                     onChange={setExistingAnnualBonus}
                     placeholder="0"
+                    isPrivacy={privacyMode}
                   />
                 </div>
 
@@ -525,15 +733,15 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 </div>
                 <div className="flex justify-between text-xs mb-1 text-slate-400">
                   <span>Bruto Bulanan</span>
-                  <span className="text-slate-200 font-medium">{formatIDR(existingCalc.monthly.cashGross)}</span>
+                  <span className="text-slate-200 font-medium">{renderIDR(existingCalc.monthly.cashGross)}</span>
                 </div>
                 <div className="flex justify-between text-xs mb-1 text-slate-400">
                   <span>Potongan Karyawan</span>
-                  <span className="text-rose-400 font-medium">-{formatIDR(existingCalc.monthly.totalDeductions)}</span>
+                  <span className="text-rose-400 font-medium">-{renderIDR(existingCalc.monthly.totalDeductions)}</span>
                 </div>
                 <div className="flex justify-between text-xs pt-1 border-t border-slate-800 font-bold">
                   <span className="text-white">Net THP Bulanan</span>
-                  <span className="text-emerald-400">{formatIDR(existingCalc.monthly.netSalary)}</span>
+                  <span className="text-emerald-400">{renderIDR(existingCalc.monthly.netSalary)}</span>
                 </div>
               </div>
 
@@ -541,15 +749,15 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 <span className="text-[11px] font-bold text-sky-400 block mb-1">HASIL PER TAHUN:</span>
                 <div className="flex justify-between text-xs mb-1 text-slate-400">
                   <span>Bruto Tahunan (+Bonus)</span>
-                  <span className="text-slate-200 font-medium">{formatIDR(existingCalc.annual.cashGross)}</span>
+                  <span className="text-slate-200 font-medium">{renderIDR(existingCalc.annual.cashGross)}</span>
                 </div>
                 <div className="flex justify-between text-xs mb-1 text-slate-400">
                   <span>Total Potongan Setahun</span>
-                  <span className="text-rose-400 font-medium">-{formatIDR(existingCalc.annual.totalDeductions)}</span>
+                  <span className="text-rose-400 font-medium">-{renderIDR(existingCalc.annual.totalDeductions)}</span>
                 </div>
                 <div className="flex justify-between text-xs pt-1 border-t border-slate-800 font-bold">
                   <span className="text-white">Net THP Tahunan</span>
-                  <span className="text-sky-400">{formatIDR(existingCalc.annual.netSalary)}</span>
+                  <span className="text-sky-400">{renderIDR(existingCalc.annual.netSalary)}</span>
                 </div>
               </div>
             </div>
@@ -654,6 +862,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                       onChange={setTargetNetInput}
                       placeholder="Contoh: 18000000"
                       highlight={true}
+                      isPrivacy={privacyMode}
                     />
                   </div>
 
@@ -661,7 +870,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                     <span className="text-[11px] text-slate-400 block font-semibold">HASIL PERHITUNGAN BALIK:</span>
                     <div className="flex justify-between">
                       <span className="text-slate-300">Gaji Pokok Gross yang Harus Diminta:</span>
-                      <strong className="text-emerald-400 text-sm">{formatIDR(requiredGrossFromTargetNet)}</strong>
+                      <strong className="text-emerald-400 text-sm">{renderIDR(requiredGrossFromTargetNet)}</strong>
                     </div>
                     <div className="flex justify-between text-[11px] text-slate-400">
                       <span>Kenaikan dari gaji saat ini:</span>
@@ -681,11 +890,11 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                   <span className="text-[11px] font-bold text-sky-300 block">TARGET HASIL PER BULAN:</span>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400">Target Bruto Bulanan</span>
-                    <span className="font-semibold text-white">{formatIDR(targetCalc.monthly.cashGross)}</span>
+                    <span className="font-semibold text-white">{renderIDR(targetCalc.monthly.cashGross)}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400">Estimasi Net THP Bulanan</span>
-                    <span className="font-bold text-emerald-400">{formatIDR(targetCalc.monthly.netSalary)}</span>
+                    <span className="font-bold text-emerald-400">{renderIDR(targetCalc.monthly.netSalary)}</span>
                   </div>
                 </div>
 
@@ -693,11 +902,11 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                   <span className="text-[11px] font-bold text-sky-300 block">TARGET HASIL PER TAHUN:</span>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400">Target Bruto Tahunan</span>
-                    <span className="font-semibold text-white">{formatIDR(targetCalc.annual.cashGross)}</span>
+                    <span className="font-semibold text-white">{renderIDR(targetCalc.annual.cashGross)}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400">Estimasi Net THP Tahunan</span>
-                    <span className="font-bold text-sky-400">{formatIDR(targetCalc.annual.netSalary)}</span>
+                    <span className="font-bold text-sky-400">{renderIDR(targetCalc.annual.netSalary)}</span>
                   </div>
                 </div>
               </div>
@@ -710,13 +919,13 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 onClick={applyTargetToOffering}
                 className="w-full py-2.5 px-3 rounded-lg text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center justify-center gap-1.5 transition"
               >
-                <span>Terapkan Target ini ke Kolom Offering</span>
+                <span>Terapkan Target ini ke {activeOffering.name}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
-          {/* Card 3: New Offering */}
+          {/* Card 3: New Offering (Active Offering Editor) */}
           <div className="bg-slate-900/90 rounded-2xl p-5 border border-emerald-900/40 flex flex-col justify-between shadow-lg">
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
@@ -725,16 +934,23 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                     <Briefcase className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white">3. Tawaran Gaji (Offering)</h2>
+                    {/* Rename Offering Input */}
+                    <input
+                      type="text"
+                      value={activeOffering.name}
+                      onChange={(e) => updateActiveOffering({ name: e.target.value })}
+                      className="bg-transparent text-sm font-bold text-white border-b border-transparent hover:border-slate-700 focus:border-emerald-500 focus:outline-none px-0.5 py-0.5"
+                      title="Klik untuk mengubah nama penawaran"
+                    />
                     <p className="text-[11px] text-slate-400">Perusahaan baru</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <select
-                    value={offeringTaxMethod}
-                    onChange={(e) => setOfferingTaxMethod(e.target.value)}
+                    value={activeOffering.taxMethod}
+                    onChange={(e) => updateActiveOffering({ taxMethod: e.target.value })}
                     className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 focus:outline-none"
-                    title="Pilih skema pemotongan pajak di perusahaan baru"
+                    title="Pilih skema pemotongan pajak di penawaran ini"
                   >
                     <option value="gross">Gross (Standar)</option>
                     <option value="gross_up">Gross-Up (Tunjangan Pajak)</option>
@@ -747,18 +963,20 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 <CurrencyInput
                   label="Gaji Pokok Ditawarkan"
                   badge="Per Bulan"
-                  value={offeringBasic}
-                  onChange={setOfferingBasic}
+                  value={activeOffering.basic}
+                  onChange={(val) => updateActiveOffering({ basic: val })}
                   placeholder="0"
                   highlight={true}
+                  isPrivacy={privacyMode}
                 />
 
                 <CurrencyInput
                   label="Tunjangan Tetap Ditawarkan"
                   badge="Per Bulan"
-                  value={offeringFixed}
-                  onChange={setOfferingFixed}
+                  value={activeOffering.fixed}
+                  onChange={(val) => updateActiveOffering({ fixed: val })}
                   placeholder="0"
+                  isPrivacy={privacyMode}
                 />
 
                 {/* Tunjangan Tidak Tetap / Bonus Tahunan Ditawarkan */}
@@ -767,9 +985,10 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                     label="Tunjangan Tidak Tetap / Bonus Ditawarkan"
                     badge="Pertahun"
                     subtitle="*Hanya dihitung dalam akumulasi tahunan (tidak masuk komponen bulanan rutin)"
-                    value={offeringAnnualBonus}
-                    onChange={setOfferingAnnualBonus}
+                    value={activeOffering.annualBonus}
+                    onChange={(val) => updateActiveOffering({ annualBonus: val })}
                     placeholder="0"
+                    isPrivacy={privacyMode}
                   />
                 </div>
 
@@ -783,8 +1002,8 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                     </span>
                   </div>
                   <select
-                    value={offeringPtkp}
-                    onChange={(e) => setOfferingPtkp(e.target.value)}
+                    value={activeOffering.ptkp}
+                    onChange={(e) => updateActiveOffering({ ptkp: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
                   >
                     {PTKP_LIST.map((p) => (
@@ -802,19 +1021,19 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
               <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-800/60">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-[11px] font-bold text-emerald-400">HASIL PER BULAN:</span>
-                  <span className="text-[10px] text-emerald-400 uppercase font-semibold">Skema {offeringTaxMethod}</span>
+                  <span className="text-[10px] text-emerald-400 uppercase font-semibold">Skema {activeOffering.taxMethod}</span>
                 </div>
                 <div className="flex justify-between text-xs mb-1 text-slate-400">
                   <span>Bruto Bulanan</span>
-                  <span className="text-slate-200 font-medium">{formatIDR(offeringCalc.monthly.cashGross)}</span>
+                  <span className="text-slate-200 font-medium">{renderIDR(offeringCalc.monthly.cashGross)}</span>
                 </div>
                 <div className="flex justify-between text-xs mb-1 text-slate-400">
                   <span>Potongan Karyawan</span>
-                  <span className="text-rose-400 font-medium">-{formatIDR(offeringCalc.monthly.totalDeductions)}</span>
+                  <span className="text-rose-400 font-medium">-{renderIDR(offeringCalc.monthly.totalDeductions)}</span>
                 </div>
                 <div className="flex justify-between text-xs pt-1 border-t border-slate-800 font-bold">
                   <span className="text-white">Net THP Bulanan</span>
-                  <span className="text-emerald-400">{formatIDR(offeringCalc.monthly.netSalary)}</span>
+                  <span className="text-emerald-400">{renderIDR(offeringCalc.monthly.netSalary)}</span>
                 </div>
               </div>
 
@@ -822,22 +1041,132 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 <span className="text-[11px] font-bold text-sky-400 block mb-1">HASIL PER TAHUN:</span>
                 <div className="flex justify-between text-xs mb-1 text-slate-400">
                   <span>Bruto Tahunan (+Bonus)</span>
-                  <span className="text-slate-200 font-medium">{formatIDR(offeringCalc.annual.cashGross)}</span>
+                  <span className="text-slate-200 font-medium">{renderIDR(offeringCalc.annual.cashGross)}</span>
                 </div>
                 <div className="flex justify-between text-xs mb-1 text-slate-400">
                   <span>Total Potongan Setahun</span>
-                  <span className="text-rose-400 font-medium">-{formatIDR(offeringCalc.annual.totalDeductions)}</span>
+                  <span className="text-rose-400 font-medium">-{renderIDR(offeringCalc.annual.totalDeductions)}</span>
                 </div>
                 <div className="flex justify-between text-xs pt-1 border-t border-slate-800 font-bold">
                   <span className="text-white">Net THP Tahunan</span>
-                  <span className="text-sky-400">{formatIDR(offeringCalc.annual.netSalary)}</span>
+                  <span className="text-sky-400">{renderIDR(offeringCalc.annual.netSalary)}</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Feature 3: Simulator Bulan THR / Bonus Cair (Lonjakan Tarif TER) */}
+        {/* Feature 2: Simulasi PPh 21 Masa Desember (True-Up Pajak Akhir Tahun) */}
+        <section className="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/30 rounded-2xl border border-amber-900/40 p-5 shadow-xl relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+                <Scale className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  Simulasi PPh 21 Masa Desember (True-Up Pajak Akhir Tahun)
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                    decemberTrueUp.status === 'underpaid'
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      : decemberTrueUp.status === 'overpaid'
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      : 'bg-slate-800 text-slate-300 border-slate-700'
+                  }`}>
+                    {decemberTrueUp.status === 'underpaid'
+                      ? 'Potensi Kurang Bayar di Desember ⚠️'
+                      : decemberTrueUp.status === 'overpaid'
+                      ? 'Potensi Lebih Bayar (Restitusi) 🎉'
+                      : 'Pajak Seimbang'}
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Sesuai PMK 168/2023: Jan–Nov dipotong tarif TER, lalu dihitung ulang di Desember dengan tarif Pasal 17 UU HPP dikurangi akumulasi TER yang sudah dipotong.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 no-print">
+              <span className="text-xs text-slate-400">Target Simulasi:</span>
+              <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setSelectedSimulatorTarget('existing')}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded transition ${
+                    selectedSimulatorTarget === 'existing'
+                      ? 'bg-slate-800 text-white shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Existing
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedSimulatorTarget('offering')}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded transition ${
+                    selectedSimulatorTarget === 'offering'
+                      ? 'bg-emerald-600 text-white shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {activeOffering.name}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            {/* Box 1: Akumulasi Jan-Nov */}
+            <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2">
+              <span className="text-[11px] font-bold text-slate-300 block">1. Akumulasi Pajak Jan–Nov (11 Bulan)</span>
+              <div className="flex justify-between text-slate-400">
+                <span>Potongan Rutin / Bulan (TER)</span>
+                <span className="text-slate-200 font-semibold">{renderIDR(decemberTrueUp.regularMonthlyTerTax)}</span>
+              </div>
+              <div className="flex justify-between text-slate-400 pt-1 border-t border-slate-800">
+                <span>Total PPh 21 Terpotong Jan–Nov:</span>
+                <span className="text-white font-bold">{renderIDR(decemberTrueUp.totalPaidJanNov)}</span>
+              </div>
+            </div>
+
+            {/* Box 2: Total Pajak Setahun Pasal 17 */}
+            <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2">
+              <span className="text-[11px] font-bold text-slate-300 block">2. Total Pajak Seharusnya Setahun</span>
+              <div className="flex justify-between text-slate-400">
+                <span>Kalkulasi Pasal 17 UU HPP</span>
+                <span className="text-white font-bold">{renderIDR(decemberTrueUp.totalAnnualTax)}</span>
+              </div>
+              <div className="flex justify-between text-slate-400 pt-1 border-t border-slate-800">
+                <span>Sisa Beban Pajak Desember:</span>
+                <span className="text-amber-400 font-bold">{renderIDR(decemberTrueUp.decemberPph21)}</span>
+              </div>
+            </div>
+
+            {/* Box 3: Dampak di Slip Desember */}
+            <div className={`p-4 rounded-xl border space-y-2 ${
+              decemberTrueUp.status === 'underpaid'
+                ? 'bg-amber-950/30 border-amber-800/40 text-amber-200'
+                : 'bg-emerald-950/30 border-emerald-800/40 text-emerald-200'
+            }`}>
+              <span className="text-[11px] font-bold block text-white">3. Dampak di Slip Gaji Desember</span>
+              <div className="flex justify-between">
+                <span>PPh 21 Khusus Desember:</span>
+                <strong className="text-sm font-extrabold text-white">{renderIDR(decemberTrueUp.decemberPph21)}</strong>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-slate-800/60">
+                <span>Net THP Masuk Rekening di Des:</span>
+                <strong className="text-sm font-extrabold text-emerald-400">{renderIDR(decemberTrueUp.decemberNetSalary)}</strong>
+              </div>
+              <span className="text-[10px] text-slate-400 block pt-0.5">
+                {decemberTrueUp.deltaVsRegular > 0
+                  ? `*Potongan pajak Desember lebih besar Rp ${formatNumberWithDots(decemberTrueUp.deltaVsRegular)} dibanding bulan biasa.`
+                  : '*Potongan pajak Desember sama atau lebih kecil dari bulan biasa.'}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature: Simulator Bulan THR / Bonus Cair */}
         <section className="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40 rounded-2xl border border-indigo-900/40 p-5 shadow-xl relative overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
             <div className="flex items-center gap-2.5">
@@ -856,40 +1185,6 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 </p>
               </div>
             </div>
-
-            <div className="flex items-center gap-2 no-print">
-              <span className="text-xs text-slate-400">Simulasikan untuk:</span>
-              <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedSimulatorTarget('existing')
-                    setCustomDisbursedAmount(existingBasic)
-                  }}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded transition ${
-                    selectedSimulatorTarget === 'existing'
-                      ? 'bg-slate-800 text-white shadow'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Existing
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedSimulatorTarget('offering')
-                    setCustomDisbursedAmount(offeringBasic)
-                  }}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded transition ${
-                    selectedSimulatorTarget === 'offering'
-                      ? 'bg-indigo-600 text-white shadow'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Offering
-                </button>
-              </div>
-            </div>
           </div>
 
           <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-5 items-center">
@@ -902,18 +1197,19 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 value={customDisbursedAmount}
                 onChange={setCustomDisbursedAmount}
                 placeholder="0"
+                isPrivacy={privacyMode}
               />
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setCustomDisbursedAmount(selectedSimulatorTarget === 'offering' ? offeringBasic : existingBasic)}
+                  onClick={() => setCustomDisbursedAmount(selectedSimulatorTarget === 'offering' ? activeOffering.basic : existingBasic)}
                   className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px] border border-slate-700"
                 >
                   Setara 1x Basic (THR)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setCustomDisbursedAmount((selectedSimulatorTarget === 'offering' ? offeringBasic : existingBasic) * 2)}
+                  onClick={() => setCustomDisbursedAmount((selectedSimulatorTarget === 'offering' ? activeOffering.basic : existingBasic) * 2)}
                   className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px] border border-slate-700"
                 >
                   Setara 2x Basic
@@ -934,15 +1230,15 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 </div>
                 <div className="flex justify-between text-xs text-slate-400">
                   <span>Bruto Bulan Biasa</span>
-                  <span className="text-slate-200 font-semibold">{formatIDR(bonusSimulation.regularMonthlyGross)}</span>
+                  <span className="text-slate-200 font-semibold">{renderIDR(bonusSimulation.regularMonthlyGross)}</span>
                 </div>
                 <div className="flex justify-between text-xs text-slate-400">
                   <span>Potongan PPh 21 TER</span>
-                  <span className="text-rose-400 font-medium">-{formatIDR(bonusSimulation.regularPph21)}</span>
+                  <span className="text-rose-400 font-medium">-{renderIDR(bonusSimulation.regularPph21)}</span>
                 </div>
                 <div className="flex justify-between text-xs pt-2 border-t border-slate-800">
                   <span className="font-bold text-white">Net Diterima di Rekening:</span>
-                  <span className="font-bold text-emerald-400">{formatIDR(bonusSimulation.regularMonthlyNet)}</span>
+                  <span className="font-bold text-emerald-400">{renderIDR(bonusSimulation.regularMonthlyNet)}</span>
                 </div>
               </div>
 
@@ -956,15 +1252,15 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 </div>
                 <div className="flex justify-between text-xs text-slate-300">
                   <span>Total Bruto di Bulan Ini</span>
-                  <span className="text-white font-semibold">{formatIDR(bonusSimulation.disbursedCashGross)}</span>
+                  <span className="text-white font-semibold">{renderIDR(bonusSimulation.disbursedCashGross)}</span>
                 </div>
                 <div className="flex justify-between text-xs text-slate-300">
                   <span>Potongan PPh 21 TER Bulan Ini</span>
-                  <span className="text-rose-400 font-bold">-{formatIDR(bonusSimulation.disbursedPph21)}</span>
+                  <span className="text-rose-400 font-bold">-{renderIDR(bonusSimulation.disbursedPph21)}</span>
                 </div>
                 <div className="flex justify-between text-xs pt-2 border-t border-indigo-900/60">
                   <span className="font-bold text-white">Total Masuk Rekening di Bulan Ini:</span>
-                  <span className="font-extrabold text-indigo-300 text-sm">{formatIDR(bonusSimulation.disbursedNetSalary)}</span>
+                  <span className="font-extrabold text-indigo-300 text-sm">{renderIDR(bonusSimulation.disbursedNetSalary)}</span>
                 </div>
               </div>
 
@@ -981,7 +1277,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                 Tabel Komparasi Rinci & Rincian Potongan
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Bandingkan hasil per bulan dan per tahun secara akurat (Existing: {existingTaxMethod.toUpperCase()} vs Offering: {offeringTaxMethod.toUpperCase()})
+                Bandingkan hasil per bulan dan per tahun secara akurat (Existing: {existingTaxMethod.toUpperCase()} vs {activeOffering.name}: {activeOffering.taxMethod.toUpperCase()})
               </p>
             </div>
 
@@ -1033,7 +1329,7 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                   </th>
                   <th className="py-3.5 px-4 font-semibold text-right text-sky-400">Target Negosiasi</th>
                   <th className="py-3.5 px-4 font-semibold text-right text-emerald-400">
-                    Offering ({offeringTaxMethod.toUpperCase()})
+                    {activeOffering.name} ({activeOffering.taxMethod.toUpperCase()})
                   </th>
                   <th className="py-3.5 px-4 font-semibold text-right">Selisih Offering</th>
                 </tr>
@@ -1054,33 +1350,33 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
 
                     <tr className="hover:bg-slate-850/40">
                       <td className="py-3 px-4 font-medium text-slate-200">Gaji Pokok (Basic Salary)</td>
-                      <td className="py-3 px-4 text-right text-slate-300">{formatIDR(existingCalc.basic)}</td>
-                      <td className="py-3 px-4 text-right text-sky-300">{formatIDR(targetCalc.basic)}</td>
-                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{formatIDR(offeringCalc.basic)}</td>
+                      <td className="py-3 px-4 text-right text-slate-300">{renderIDR(existingCalc.basic)}</td>
+                      <td className="py-3 px-4 text-right text-sky-300">{renderIDR(targetCalc.basic)}</td>
+                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{renderIDR(offeringCalc.basic)}</td>
                       <td className="py-3 px-4 text-right font-medium text-slate-300">
                         {offeringCalc.basic - existingCalc.basic >= 0 ? '+' : ''}
-                        {formatIDR(offeringCalc.basic - existingCalc.basic)}
+                        {renderIDR(offeringCalc.basic - existingCalc.basic)}
                       </td>
                     </tr>
 
                     <tr className="hover:bg-slate-850/40">
                       <td className="py-3 px-4 font-medium text-slate-200">Tunjangan Tetap</td>
-                      <td className="py-3 px-4 text-right text-slate-300">{formatIDR(existingCalc.fixed)}</td>
-                      <td className="py-3 px-4 text-right text-sky-300">{formatIDR(targetCalc.fixed)}</td>
-                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{formatIDR(offeringCalc.fixed)}</td>
+                      <td className="py-3 px-4 text-right text-slate-300">{renderIDR(existingCalc.fixed)}</td>
+                      <td className="py-3 px-4 text-right text-sky-300">{renderIDR(targetCalc.fixed)}</td>
+                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{renderIDR(offeringCalc.fixed)}</td>
                       <td className="py-3 px-4 text-right font-medium text-slate-300">
                         {offeringCalc.fixed - existingCalc.fixed >= 0 ? '+' : ''}
-                        {formatIDR(offeringCalc.fixed - existingCalc.fixed)}
+                        {renderIDR(offeringCalc.fixed - existingCalc.fixed)}
                       </td>
                     </tr>
 
                     <tr className="bg-slate-950/40 font-bold border-y border-slate-700/60">
                       <td className="py-3 px-4 text-slate-100">Total Penghasilan Bruto Bulanan</td>
-                      <td className="py-3 px-4 text-right text-white">{formatIDR(existingCalc.monthly.cashGross)}</td>
-                      <td className="py-3 px-4 text-right text-sky-400">{formatIDR(targetCalc.monthly.cashGross)}</td>
-                      <td className="py-3 px-4 text-right text-emerald-400">{formatIDR(offeringCalc.monthly.cashGross)}</td>
+                      <td className="py-3 px-4 text-right text-white">{renderIDR(existingCalc.monthly.cashGross)}</td>
+                      <td className="py-3 px-4 text-right text-sky-400">{renderIDR(targetCalc.monthly.cashGross)}</td>
+                      <td className="py-3 px-4 text-right text-emerald-400">{renderIDR(offeringCalc.monthly.cashGross)}</td>
                       <td className={`py-3 px-4 text-right ${deltaMonthlyGross >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {deltaMonthlyGross >= 0 ? '+' : ''}{formatIDR(deltaMonthlyGross)} ({deltaMonthlyGrossPct.toFixed(1)}%)
+                        {deltaMonthlyGross >= 0 ? '+' : ''}{renderIDR(deltaMonthlyGross)} ({deltaMonthlyGrossPct.toFixed(1)}%)
                       </td>
                     </tr>
 
@@ -1089,19 +1385,19 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                         <span className="font-medium">PPh 21 TER Bulanan</span>
                         <span className="block text-[10px] text-slate-500">
                           Tarif Efektif: {existingCalc.terPercentage}% vs {offeringCalc.terPercentage}%
-                          {offeringTaxMethod === 'gross_up' && ' (Ditanggung Kantor via Tunjangan Pajak)'}
-                          {offeringTaxMethod === 'nett' && ' (Ditanggung Penuh Perusahaan)'}
+                          {activeOffering.taxMethod === 'gross_up' && ' (Ditanggung Kantor via Tunjangan Pajak)'}
+                          {activeOffering.taxMethod === 'nett' && ' (Ditanggung Penuh Perusahaan)'}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
                         {existingTaxMethod === 'gross' ? `-${formatIDR(existingCalc.monthly.pph21)}` : 'Ditanggung Kantor'}
                       </td>
-                      <td className="py-3 px-4 text-right text-rose-300/80">-{formatIDR(targetCalc.monthly.pph21)}</td>
+                      <td className="py-3 px-4 text-right text-rose-300/80">-{renderIDR(targetCalc.monthly.pph21)}</td>
                       <td className="py-3 px-4 text-right text-rose-400 font-semibold">
-                        {offeringTaxMethod === 'gross' ? `-${formatIDR(offeringCalc.monthly.pph21)}` : 'Ditanggung Kantor'}
+                        {activeOffering.taxMethod === 'gross' ? `-${formatIDR(offeringCalc.monthly.pph21)}` : 'Ditanggung Kantor'}
                       </td>
                       <td className="py-3 px-4 text-right text-slate-400">
-                        {formatIDR(offeringCalc.monthly.pph21 - existingCalc.monthly.pph21)}
+                        {renderIDR(offeringCalc.monthly.pph21 - existingCalc.monthly.pph21)}
                       </td>
                     </tr>
 
@@ -1110,12 +1406,12 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                         <span className="font-medium">BPJS Kesehatan (1% Pekerja)</span>
                         <span className="block text-[10px] text-slate-500">Dasar maks Rp 12.000.000 (plafon Rp 120.000)</span>
                       </td>
-                      <td className="py-3 px-4 text-right">-{formatIDR(existingCalc.monthly.bpjs.kesEmployee)}</td>
-                      <td className="py-3 px-4 text-right text-rose-300/80">-{formatIDR(targetCalc.monthly.bpjs.kesEmployee)}</td>
-                      <td className="py-3 px-4 text-right text-rose-400 font-semibold">-{formatIDR(offeringCalc.monthly.bpjs.kesEmployee)}</td>
+                      <td className="py-3 px-4 text-right">-{renderIDR(existingCalc.monthly.bpjs.kesEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-300/80">-{renderIDR(targetCalc.monthly.bpjs.kesEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-400 font-semibold">-{renderIDR(offeringCalc.monthly.bpjs.kesEmployee)}</td>
                       <td className="py-3 px-4 text-right text-slate-400">
                         {offeringCalc.monthly.bpjs.kesEmployee - existingCalc.monthly.bpjs.kesEmployee !== 0
-                          ? formatIDR(offeringCalc.monthly.bpjs.kesEmployee - existingCalc.monthly.bpjs.kesEmployee)
+                          ? renderIDR(offeringCalc.monthly.bpjs.kesEmployee - existingCalc.monthly.bpjs.kesEmployee)
                           : 'Rp 0'}
                       </td>
                     </tr>
@@ -1125,22 +1421,22 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                         <span className="font-medium">BPJS Ketenagakerjaan (JHT 2% + JP 1%)</span>
                         <span className="block text-[10px] text-slate-500">JHT tanpa batas plafon, JP plafon Rp 10.04 Jt</span>
                       </td>
-                      <td className="py-3 px-4 text-right">-{formatIDR(existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee)}</td>
-                      <td className="py-3 px-4 text-right text-rose-300/80">-{formatIDR(targetCalc.monthly.bpjs.jhtEmployee + targetCalc.monthly.bpjs.jpEmployee)}</td>
-                      <td className="py-3 px-4 text-right text-rose-400 font-semibold">-{formatIDR(offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee)}</td>
+                      <td className="py-3 px-4 text-right">-{renderIDR(existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-300/80">-{renderIDR(targetCalc.monthly.bpjs.jhtEmployee + targetCalc.monthly.bpjs.jpEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-400 font-semibold">-{renderIDR(offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee)}</td>
                       <td className="py-3 px-4 text-right text-slate-400">
-                        -{formatIDR((offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee) - (existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee))}
+                        -{renderIDR((offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee) - (existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee))}
                       </td>
                     </tr>
 
                     <tr className="bg-rose-950/20 font-semibold text-rose-400 border-t border-rose-900/30">
                       <td className="py-3 px-4">Total Potongan Karyawan / Bulan</td>
-                      <td className="py-3 px-4 text-right">-{formatIDR(existingCalc.monthly.totalDeductions)}</td>
-                      <td className="py-3 px-4 text-right">-{formatIDR(targetCalc.monthly.totalDeductions)}</td>
-                      <td className="py-3 px-4 text-right">-{formatIDR(offeringCalc.monthly.totalDeductions)}</td>
+                      <td className="py-3 px-4 text-right">-{renderIDR(existingCalc.monthly.totalDeductions)}</td>
+                      <td className="py-3 px-4 text-right">-{renderIDR(targetCalc.monthly.totalDeductions)}</td>
+                      <td className="py-3 px-4 text-right">-{renderIDR(offeringCalc.monthly.totalDeductions)}</td>
                       <td className="py-3 px-4 text-right text-slate-400">
                         {offeringCalc.monthly.totalDeductions - existingCalc.monthly.totalDeductions > 0 ? '+' : ''}
-                        {formatIDR(offeringCalc.monthly.totalDeductions - existingCalc.monthly.totalDeductions)}
+                        {renderIDR(offeringCalc.monthly.totalDeductions - existingCalc.monthly.totalDeductions)}
                       </td>
                     </tr>
 
@@ -1149,11 +1445,11 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                         <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                         <span>NET TAKE HOME PAY (THP) / BULAN</span>
                       </td>
-                      <td className="py-4 px-4 text-right text-slate-200">{formatIDR(existingCalc.monthly.netSalary)}</td>
-                      <td className="py-4 px-4 text-right text-sky-400">{formatIDR(targetCalc.monthly.netSalary)}</td>
-                      <td className="py-4 px-4 text-right text-emerald-400 text-base">{formatIDR(offeringCalc.monthly.netSalary)}</td>
+                      <td className="py-4 px-4 text-right text-slate-200">{renderIDR(existingCalc.monthly.netSalary)}</td>
+                      <td className="py-4 px-4 text-right text-sky-400">{renderIDR(targetCalc.monthly.netSalary)}</td>
+                      <td className="py-4 px-4 text-right text-emerald-400 text-base">{renderIDR(offeringCalc.monthly.netSalary)}</td>
                       <td className={`py-4 px-4 text-right text-base ${deltaMonthlyNet >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {deltaMonthlyNet >= 0 ? '+' : ''}{formatIDR(deltaMonthlyNet)} ({deltaMonthlyNetPct.toFixed(1)}%)
+                        {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)} ({deltaMonthlyNetPct.toFixed(1)}%)
                       </td>
                     </tr>
                   </>
@@ -1175,11 +1471,11 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                       <td className="py-3 px-4 font-medium text-slate-200">
                         Akumulasi Gaji Pokok ({annualMultiplier}x Bulan termasuk THR)
                       </td>
-                      <td className="py-3 px-4 text-right text-slate-300">{formatIDR(existingCalc.annual.basic)}</td>
-                      <td className="py-3 px-4 text-right text-sky-300">{formatIDR(targetCalc.annual.basic)}</td>
-                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{formatIDR(offeringCalc.annual.basic)}</td>
+                      <td className="py-3 px-4 text-right text-slate-300">{renderIDR(existingCalc.annual.basic)}</td>
+                      <td className="py-3 px-4 text-right text-sky-300">{renderIDR(targetCalc.annual.basic)}</td>
+                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{renderIDR(offeringCalc.annual.basic)}</td>
                       <td className="py-3 px-4 text-right font-medium text-slate-300">
-                        +{formatIDR(offeringCalc.annual.basic - existingCalc.annual.basic)}
+                        +{renderIDR(offeringCalc.annual.basic - existingCalc.annual.basic)}
                       </td>
                     </tr>
 
@@ -1187,11 +1483,11 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                       <td className="py-3 px-4 font-medium text-slate-200">
                         Akumulasi Tunjangan Tetap ({annualMultiplier}x Bulan)
                       </td>
-                      <td className="py-3 px-4 text-right text-slate-300">{formatIDR(existingCalc.annual.fixed)}</td>
-                      <td className="py-3 px-4 text-right text-sky-300">{formatIDR(targetCalc.annual.fixed)}</td>
-                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{formatIDR(offeringCalc.annual.fixed)}</td>
+                      <td className="py-3 px-4 text-right text-slate-300">{renderIDR(existingCalc.annual.fixed)}</td>
+                      <td className="py-3 px-4 text-right text-sky-300">{renderIDR(targetCalc.annual.fixed)}</td>
+                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{renderIDR(offeringCalc.annual.fixed)}</td>
                       <td className="py-3 px-4 text-right font-medium text-slate-300">
-                        +{formatIDR(offeringCalc.annual.fixed - existingCalc.annual.fixed)}
+                        +{renderIDR(offeringCalc.annual.fixed - existingCalc.annual.fixed)}
                       </td>
                     </tr>
 
@@ -1203,22 +1499,22 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                           Variabel / bonus kinerja yang dibayarkan per tahun
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right text-slate-300">{formatIDR(existingCalc.annual.bonus)}</td>
-                      <td className="py-3 px-4 text-right text-sky-300">{formatIDR(targetCalc.annual.bonus)}</td>
-                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{formatIDR(offeringCalc.annual.bonus)}</td>
+                      <td className="py-3 px-4 text-right text-slate-300">{renderIDR(existingCalc.annual.bonus)}</td>
+                      <td className="py-3 px-4 text-right text-sky-300">{renderIDR(targetCalc.annual.bonus)}</td>
+                      <td className="py-3 px-4 text-right text-emerald-300 font-semibold">{renderIDR(offeringCalc.annual.bonus)}</td>
                       <td className="py-3 px-4 text-right font-medium text-slate-300">
                         {offeringCalc.annual.bonus - existingCalc.annual.bonus >= 0 ? '+' : ''}
-                        {formatIDR(offeringCalc.annual.bonus - existingCalc.annual.bonus)}
+                        {renderIDR(offeringCalc.annual.bonus - existingCalc.annual.bonus)}
                       </td>
                     </tr>
 
                     <tr className="bg-slate-950/40 font-bold border-y border-slate-700/60">
                       <td className="py-3 px-4 text-slate-100">Total Penghasilan Bruto Setahun</td>
-                      <td className="py-3 px-4 text-right text-white">{formatIDR(existingCalc.annual.cashGross)}</td>
-                      <td className="py-3 px-4 text-right text-sky-400">{formatIDR(targetCalc.annual.cashGross)}</td>
-                      <td className="py-3 px-4 text-right text-emerald-400">{formatIDR(offeringCalc.annual.cashGross)}</td>
+                      <td className="py-3 px-4 text-right text-white">{renderIDR(existingCalc.annual.cashGross)}</td>
+                      <td className="py-3 px-4 text-right text-sky-400">{renderIDR(targetCalc.annual.cashGross)}</td>
+                      <td className="py-3 px-4 text-right text-emerald-400">{renderIDR(offeringCalc.annual.cashGross)}</td>
                       <td className={`py-3 px-4 text-right ${deltaAnnualGross >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {deltaAnnualGross >= 0 ? '+' : ''}{formatIDR(deltaAnnualGross)} ({deltaAnnualGrossPct.toFixed(1)}%)
+                        {deltaAnnualGross >= 0 ? '+' : ''}{renderIDR(deltaAnnualGross)} ({deltaAnnualGrossPct.toFixed(1)}%)
                       </td>
                     </tr>
 
@@ -1230,14 +1526,14 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        {existingTaxMethod === 'gross' ? `-${formatIDR(existingCalc.annual.pph21)}` : 'Ditanggung Kantor'}
+                        {existingTaxMethod === 'gross' ? `-${renderIDR(existingCalc.annual.pph21)}` : 'Ditanggung Kantor'}
                       </td>
-                      <td className="py-3 px-4 text-right text-rose-300/80">-{formatIDR(targetCalc.annual.pph21)}</td>
+                      <td className="py-3 px-4 text-right text-rose-300/80">-{renderIDR(targetCalc.annual.pph21)}</td>
                       <td className="py-3 px-4 text-right text-rose-400 font-semibold">
-                        {offeringTaxMethod === 'gross' ? `-${formatIDR(offeringCalc.annual.pph21)}` : 'Ditanggung Kantor'}
+                        {activeOffering.taxMethod === 'gross' ? `-${renderIDR(offeringCalc.annual.pph21)}` : 'Ditanggung Kantor'}
                       </td>
                       <td className="py-3 px-4 text-right text-slate-400">
-                        {formatIDR(offeringCalc.annual.pph21 - existingCalc.annual.pph21)}
+                        {renderIDR(offeringCalc.annual.pph21 - existingCalc.annual.pph21)}
                       </td>
                     </tr>
 
@@ -1246,11 +1542,11 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                         <span className="font-medium">Total Iuran BPJS Pekerja Setahun</span>
                         <span className="block text-[10px] text-slate-500">BPJS Kes (12x) + BPJS TK (JHT & JP)</span>
                       </td>
-                      <td className="py-3 px-4 text-right">-{formatIDR(existingCalc.annual.bpjs.totalEmployee)}</td>
-                      <td className="py-3 px-4 text-right text-rose-300/80">-{formatIDR(targetCalc.annual.bpjs.totalEmployee)}</td>
-                      <td className="py-3 px-4 text-right text-rose-400 font-semibold">-{formatIDR(offeringCalc.annual.bpjs.totalEmployee)}</td>
+                      <td className="py-3 px-4 text-right">-{renderIDR(existingCalc.annual.bpjs.totalEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-300/80">-{renderIDR(targetCalc.annual.bpjs.totalEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-400 font-semibold">-{renderIDR(offeringCalc.annual.bpjs.totalEmployee)}</td>
                       <td className="py-3 px-4 text-right text-slate-400">
-                        -{formatIDR(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee)}
+                        -{renderIDR(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee)}
                       </td>
                     </tr>
 
@@ -1259,11 +1555,11 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
                         <CheckCircle2 className="w-5 h-5 text-sky-400" />
                         <span>NET TAKE HOME PAY (THP) / TAHUN</span>
                       </td>
-                      <td className="py-4 px-4 text-right text-slate-200">{formatIDR(existingCalc.annual.netSalary)}</td>
-                      <td className="py-4 px-4 text-right text-sky-400">{formatIDR(targetCalc.annual.netSalary)}</td>
-                      <td className="py-4 px-4 text-right text-sky-300 text-base">{formatIDR(offeringCalc.annual.netSalary)}</td>
+                      <td className="py-4 px-4 text-right text-slate-200">{renderIDR(existingCalc.annual.netSalary)}</td>
+                      <td className="py-4 px-4 text-right text-sky-400">{renderIDR(targetCalc.annual.netSalary)}</td>
+                      <td className="py-4 px-4 text-right text-sky-300 text-base">{renderIDR(offeringCalc.annual.netSalary)}</td>
                       <td className={`py-4 px-4 text-right text-base ${deltaAnnualNet >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>
-                        {deltaAnnualNet >= 0 ? '+' : ''}{formatIDR(deltaAnnualNet)} ({deltaAnnualNetPct.toFixed(1)}%)
+                        {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)} ({deltaAnnualNetPct.toFixed(1)}%)
                       </td>
                     </tr>
                   </>
@@ -1289,13 +1585,13 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
           </div>
 
           <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex gap-3 items-start">
-            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 shrink-0">
-              <Gift className="w-4 h-4" />
+            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 shrink-0">
+              <Scale className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-1">Lonjakan Bracket TER Saat THR</h4>
+              <h4 className="font-semibold text-white mb-1">True-Up PPh 21 Masa Desember</h4>
               <p className="text-slate-400 leading-relaxed">
-                Di bulan saat THR atau Bonus tahunan dicairkan, bruto Anda melonjak sehingga tarif TER bulan tersebut otomatis berpindah ke bracket yang lebih tinggi. Simulator di atas membantu Anda mengantisipasi nominal bersih slip bulan tersebut.
+                Skema TER memudahkan administrasi Jan–Nov. Pada bulan Desember, HRD akan melakukan rekonsiliasi tahunan (Pasal 17) dikurangi akumulasi TER yang telah dibayar, sehingga slip Desember mencerminkan penyesuaian akhir tahun.
               </p>
             </div>
           </div>
@@ -1305,9 +1601,9 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
               <RotateCcw className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-1">Reverse Calculator (Net ➔ Gross)</h4>
+              <h4 className="font-semibold text-white mb-1">PWA & Multi-Offering</h4>
               <p className="text-slate-400 leading-relaxed">
-                Gunakan tab <em>Reverse</em> di kolom ekspektasi negosiasi untuk mengetahui persis berapa nominal Basic Salary Gross yang harus diminta ke pihak rekruter/HRD agar THP bersih di rekening sesuai harapan Anda.
+                Aplikasi ini mendukung PWA (dapat di-install di homescreen smartphone) dan multi-offering dengan penyimpanan otomatis di browser, aman tanpa database eksternal.
               </p>
             </div>
           </div>

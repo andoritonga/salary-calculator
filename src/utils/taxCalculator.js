@@ -560,6 +560,83 @@ export function findRequiredGrossForTargetNet({
   return bestBasic
 }
 
+// Simulasi PPh 21 Masa Desember (True-Up Pajak Akhir Tahun sesuai PMK 168/2023)
+export function calculateDecemberTrueUp({
+  basicSalary = 0,
+  fixedAllowance = 0,
+  annualBonus = 0,
+  ptkpCode = 'TK/0',
+  taxMethod = 'gross',
+  includeBpjsCompanyInTax = true,
+  enableBpjsKesehatan = true,
+  enableBpjsKetenagakerjaan = true,
+  annualMonths = 13,
+}) {
+  const calc = calculateSalary({
+    basicSalary,
+    fixedAllowance,
+    annualBonus,
+    ptkpCode,
+    taxMethod,
+    includeBpjsCompanyInTax,
+    enableBpjsKesehatan,
+    enableBpjsKetenagakerjaan,
+    annualMonths,
+  })
+
+  // Tarif dan nominal TER bulanan rutin
+  const monthlyTerTax = calc.monthly.pph21
+
+  // Tambahan pajak TER atas bonus jika ada bonus cair di Jan-Nov
+  let bonusTerTax = 0
+  if (annualBonus > 0) {
+    const bonusSim = calculateBonusMonthSimulation({
+      basicSalary,
+      fixedAllowance,
+      disbursedAmount: annualBonus,
+      ptkpCode,
+      taxMethod,
+      includeBpjsCompanyInTax,
+      enableBpjsKesehatan,
+      enableBpjsKetenagakerjaan,
+    })
+    bonusTerTax = Math.max(0, bonusSim.disbursedPph21 - monthlyTerTax)
+  }
+
+  // Akumulasi PPh 21 yang sudah dipotong masa Jan - Nov (11 bulan)
+  const totalPaidJanNov = (11 * monthlyTerTax) + bonusTerTax
+  const totalAnnualTax = calc.annual.pph21
+
+  // PPh 21 masa Desember = Total Pajak Setahun (Pasal 17) - Total yang sudah dipotong (Jan-Nov)
+  const rawDecemberPph21 = totalAnnualTax - totalPaidJanNov
+  const decemberPph21 = Math.max(0, rawDecemberPph21)
+  const deltaVsRegular = decemberPph21 - monthlyTerTax
+
+  // Status: underpaid (kurang bayar / potongan naik), overpaid (lebih bayar / potongan turun), balanced (normal)
+  let status = 'balanced'
+  if (deltaVsRegular > 10000) {
+    status = 'underpaid'
+  } else if (deltaVsRegular < -10000 || rawDecemberPph21 < 0) {
+    status = 'overpaid'
+  }
+
+  const decemberNetSalary = Math.max(0, calc.monthly.cashGross - (decemberPph21 + calc.monthly.bpjs.totalEmployee))
+
+  return {
+    monthlyCashGross: calc.monthly.cashGross,
+    regularMonthlyTerTax: monthlyTerTax,
+    totalAnnualTax,
+    totalPaidJanNov,
+    decemberPph21,
+    rawDecemberPph21,
+    deltaVsRegular,
+    status,
+    decemberNetSalary,
+    regularNetSalary: calc.monthly.netSalary,
+    bpjsEmployeeTotal: calc.monthly.bpjs.totalEmployee,
+  }
+}
+
 export function formatIDR(amount) {
   if (amount === undefined || amount === null || isNaN(amount)) return 'Rp 0'
   return new Intl.NumberFormat('id-ID', {
@@ -583,3 +660,4 @@ export function parseNumberFromDots(str) {
   const cleaned = String(str).replace(/\D/g, '')
   return cleaned ? parseInt(cleaned, 10) : 0
 }
+
