@@ -1,4 +1,4 @@
-// PPh 21 Tarif Efektif Rata-Rata (TER) berdasarkan PP 58/2023 & PMK 168/2023
+// PPh 21 Tarif Efektif Rata-Rata (TER) PP 58/2023 & PMK 168/2023 + Pasal 17 UU HPP
 
 export const PTKP_LIST = [
   { code: 'TK/0', label: 'TK/0 - Tidak Kawin, 0 Tanggungan (Rp 54 Jt)', category: 'A', ptkp: 54000000 },
@@ -167,105 +167,214 @@ export function getTerRate(grossMonthly, category) {
   return bracket ? bracket.rate : 0.34
 }
 
+// Perhitungan PPh 21 Tarif Pasal 17 UU HPP Tahunan
+export function calculateAnnualPph21(pkp) {
+  if (pkp <= 0) return 0
+  let remaining = pkp
+  let tax = 0
+
+  // Lapisan 1: 0 - 60 jt @ 5%
+  const t1 = Math.min(remaining, 60000000)
+  tax += t1 * 0.05
+  remaining -= t1
+
+  // Lapisan 2: > 60 jt - 250 jt (190 jt) @ 15%
+  if (remaining > 0) {
+    const t2 = Math.min(remaining, 190000000)
+    tax += t2 * 0.15
+    remaining -= t2
+  }
+
+  // Lapisan 3: > 250 jt - 500 jt (250 jt) @ 25%
+  if (remaining > 0) {
+    const t3 = Math.min(remaining, 250000000)
+    tax += t3 * 0.25
+    remaining -= t3
+  }
+
+  // Lapisan 4: > 500 jt - 5 Miliar (4.5 M) @ 30%
+  if (remaining > 0) {
+    const t4 = Math.min(remaining, 4500000000)
+    tax += t4 * 0.30
+    remaining -= t4
+  }
+
+  // Lapisan 5: > 5 Miliar @ 35%
+  if (remaining > 0) {
+    tax += remaining * 0.35
+  }
+
+  return Math.round(tax)
+}
+
 export function calculateSalary({
   basicSalary = 0,
   fixedAllowance = 0,
-  otherAllowance = 0,
+  annualBonus = 0, // Tunjangan tidak tetap / bonus tahunan (dihitung per tahun)
   ptkpCode = 'TK/0',
   includeBpjsCompanyInTax = true,
   enableBpjsKesehatan = true,
   enableBpjsKetenagakerjaan = true,
+  annualMonths = 13, // 12 bulan gaji pokok + 1 bulan THR
   jpMaxCap = BPJS_CONFIG.JP_MAX_CAP,
   kesMaxCap = BPJS_CONFIG.KESEHATAN_MAX_CAP,
 }) {
   const basic = Math.max(0, Number(basicSalary) || 0)
   const fixed = Math.max(0, Number(fixedAllowance) || 0)
-  const other = Math.max(0, Number(otherAllowance) || 0)
+  const bonusAnnual = Math.max(0, Number(annualBonus) || 0)
 
-  // Dasar perhitungan BPJS (Gaji Pokok + Tunjangan Tetap)
+  // ==========================================
+  // 1. PERHITUNGAN BULANAN (MONTHLY ROUTINE)
+  // Tunjangan tidak tetap TIDAK dihitung per bulan!
+  // ==========================================
+  const monthlyCashGross = basic + fixed
   const bpjsBase = basic + fixed
-  const cashGross = basic + fixed + other
 
-  // BPJS Kesehatan
+  // BPJS Bulanan
   const kesBase = Math.min(bpjsBase, kesMaxCap)
-  const bpjsKesEmployee = enableBpjsKesehatan ? kesBase * BPJS_CONFIG.KESEHATAN_EMPLOYEE_RATE : 0
-  const bpjsKesEmployer = enableBpjsKesehatan ? kesBase * BPJS_CONFIG.KESEHATAN_EMPLOYER_RATE : 0
+  const monthlyBpjsKesEmployee = enableBpjsKesehatan ? kesBase * BPJS_CONFIG.KESEHATAN_EMPLOYEE_RATE : 0
+  const monthlyBpjsKesEmployer = enableBpjsKesehatan ? kesBase * BPJS_CONFIG.KESEHATAN_EMPLOYER_RATE : 0
 
-  // BPJS Ketenagakerjaan
-  const bpjsJhtEmployee = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JHT_EMPLOYEE_RATE : 0
-  const bpjsJhtEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JHT_EMPLOYER_RATE : 0
+  const monthlyBpjsJhtEmployee = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JHT_EMPLOYEE_RATE : 0
+  const monthlyBpjsJhtEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JHT_EMPLOYER_RATE : 0
 
   const jpBase = Math.min(bpjsBase, jpMaxCap)
-  const bpjsJpEmployee = enableBpjsKetenagakerjaan ? jpBase * BPJS_CONFIG.JP_EMPLOYEE_RATE : 0
-  const bpjsJpEmployer = enableBpjsKetenagakerjaan ? jpBase * BPJS_CONFIG.JP_EMPLOYER_RATE : 0
+  const monthlyBpjsJpEmployee = enableBpjsKetenagakerjaan ? jpBase * BPJS_CONFIG.JP_EMPLOYEE_RATE : 0
+  const monthlyBpjsJpEmployer = enableBpjsKetenagakerjaan ? jpBase * BPJS_CONFIG.JP_EMPLOYER_RATE : 0
 
-  const bpjsJkkEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JKK_EMPLOYER_RATE : 0
-  const bpjsJkmEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JKM_EMPLOYER_RATE : 0
+  const monthlyBpjsJkkEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JKK_EMPLOYER_RATE : 0
+  const monthlyBpjsJkmEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JKM_EMPLOYER_RATE : 0
 
-  // Total premi perusahaan yang menambah penghasilan bruto untuk PPh 21
-  const companyPremiTaxable = bpjsKesEmployer + bpjsJkkEmployer + bpjsJkmEmployer
+  // Premi perusahaan yang menambah bruto pajak PPh 21 bulanan
+  const monthlyCompanyPremiTaxable = monthlyBpjsKesEmployer + monthlyBpjsJkkEmployer + monthlyBpjsJkmEmployer
+  const monthlyTaxableGross = includeBpjsCompanyInTax ? (monthlyCashGross + monthlyCompanyPremiTaxable) : monthlyCashGross
 
-  // Penghasilan Bruto untuk Pajak PPh 21
-  const taxableGross = includeBpjsCompanyInTax ? (cashGross + companyPremiTaxable) : cashGross
-
-  // PPh 21 TER
+  // PPh 21 TER Bulanan
   const ptkp = PTKP_LIST.find(p => p.code === ptkpCode) || PTKP_LIST[0]
-  const terRate = getTerRate(taxableGross, ptkp.category)
-  const pph21TerMonthly = Math.round(taxableGross * terRate)
+  const terRate = getTerRate(monthlyTaxableGross, ptkp.category)
+  const monthlyPph21 = Math.round(monthlyTaxableGross * terRate)
 
-  // Total Potongan Karyawan
-  const totalEmployeeDeductions =
-    bpjsKesEmployee +
-    bpjsJhtEmployee +
-    bpjsJpEmployee +
-    pph21TerMonthly
+  const monthlyEmployeeBpjsTotal = monthlyBpjsKesEmployee + monthlyBpjsJhtEmployee + monthlyBpjsJpEmployee
+  const monthlyTotalDeductions = monthlyPph21 + monthlyEmployeeBpjsTotal
+  const monthlyEmployerContributions =
+    monthlyBpjsKesEmployer +
+    monthlyBpjsJhtEmployer +
+    monthlyBpjsJpEmployer +
+    monthlyBpjsJkkEmployer +
+    monthlyBpjsJkmEmployer
 
-  // Total Beban Perusahaan
-  const totalEmployerContributions =
-    bpjsKesEmployer +
-    bpjsJhtEmployer +
-    bpjsJpEmployer +
-    bpjsJkkEmployer +
-    bpjsJkmEmployer
+  const monthlyNetSalary = Math.max(0, monthlyCashGross - monthlyTotalDeductions)
+  const monthlyTotalEmployerCost = monthlyCashGross + monthlyEmployerContributions
 
-  // Net Take Home Pay (THP)
-  const netSalary = Math.max(0, cashGross - totalEmployeeDeductions)
+  // ==========================================
+  // 2. PERHITUNGAN TAHUNAN (ANNUAL CALCULATION)
+  // Termasuk gaji pokok x multiplier (13x dengan THR),
+  // tunjangan tetap 12x, dan tunjangan tidak tetap / bonus tahunan
+  // ==========================================
+  const thrMultiplier = annualMonths > 12 ? (annualMonths - 12) : 0
+  const annualBasic = (basic * 12) + (basic * thrMultiplier)
+  const annualFixed = (fixed * 12) + (fixed * thrMultiplier)
+  const annualCashGross = annualBasic + annualFixed + bonusAnnual
+
+  // BPJS Tahunan
+  const annualBpjsKesEmployee = monthlyBpjsKesEmployee * 12
+  const annualBpjsKesEmployer = monthlyBpjsKesEmployer * 12
+  const annualBpjsJhtEmployee = monthlyBpjsJhtEmployee * annualMonths
+  const annualBpjsJhtEmployer = monthlyBpjsJhtEmployer * annualMonths
+  const annualBpjsJpEmployee = monthlyBpjsJpEmployee * 12
+  const annualBpjsJpEmployer = monthlyBpjsJpEmployer * 12
+  const annualBpjsJkkEmployer = monthlyBpjsJkkEmployer * annualMonths
+  const annualBpjsJkmEmployer = monthlyBpjsJkmEmployer * annualMonths
+
+  const annualEmployeeBpjsTotal =
+    annualBpjsKesEmployee +
+    annualBpjsJhtEmployee +
+    annualBpjsJpEmployee
+
+  const annualEmployerBpjsTotal =
+    annualBpjsKesEmployer +
+    annualBpjsJhtEmployer +
+    annualBpjsJpEmployer +
+    annualBpjsJkkEmployer +
+    annualBpjsJkmEmployer
+
+  // PPh 21 Tahunan (Pasal 17 UU HPP & PMK 168)
+  const annualCompanyPremiTaxable = annualBpjsKesEmployer + annualBpjsJkkEmployer + annualBpjsJkmEmployer
+  const annualTaxableGross = includeBpjsCompanyInTax ? (annualCashGross + annualCompanyPremiTaxable) : annualCashGross
+
+  // Biaya jabatan: 5% dari Bruto, maksimal Rp 6.000.000 / tahun
+  const annualBiayaJabatan = Math.min(annualTaxableGross * 0.05, 6000000)
+  // Iuran pensiun & JHT ditanggung pekerja
+  const annualEmployeePensionDeduction = annualBpjsJhtEmployee + annualBpjsJpEmployee
+
+  const annualNetIncome = Math.max(0, annualTaxableGross - annualBiayaJabatan - annualEmployeePensionDeduction)
+  const annualPkp = Math.max(0, Math.floor((annualNetIncome - ptkp.ptkp) / 1000) * 1000)
+  const annualPph21 = calculateAnnualPph21(annualPkp)
+
+  const annualTotalDeductions = annualPph21 + annualEmployeeBpjsTotal
+  const annualNetSalary = Math.max(0, annualCashGross - annualTotalDeductions)
+  const annualTotalEmployerCost = annualCashGross + annualEmployerBpjsTotal
 
   return {
     basic,
     fixed,
-    other,
-    cashGross,
-    taxableGross,
+    bonusAnnual,
+    annualMonths,
     ptkp,
     terCategory: ptkp.category,
     terRate,
     terPercentage: (terRate * 100).toFixed(2),
-    pph21Monthly: pph21TerMonthly,
-    bpjs: {
-      employee: {
-        kesehatan: bpjsKesEmployee,
-        jht: bpjsJhtEmployee,
-        jp: bpjsJpEmployee,
-        total: bpjsKesEmployee + bpjsJhtEmployee + bpjsJpEmployee,
+
+    // Data Per Bulan
+    monthly: {
+      basic,
+      fixed,
+      cashGross: monthlyCashGross,
+      taxableGross: monthlyTaxableGross,
+      pph21: monthlyPph21,
+      bpjs: {
+        kesEmployee: monthlyBpjsKesEmployee,
+        jhtEmployee: monthlyBpjsJhtEmployee,
+        jpEmployee: monthlyBpjsJpEmployee,
+        totalEmployee: monthlyEmployeeBpjsTotal,
+        kesEmployer: monthlyBpjsKesEmployer,
+        jhtEmployer: monthlyBpjsJhtEmployer,
+        jpEmployer: monthlyBpjsJpEmployer,
+        jkkEmployer: monthlyBpjsJkkEmployer,
+        jkmEmployer: monthlyBpjsJkmEmployer,
+        totalEmployer: monthlyEmployerContributions,
       },
-      employer: {
-        kesehatan: bpjsKesEmployer,
-        jht: bpjsJhtEmployer,
-        jp: bpjsJpEmployer,
-        jkk: bpjsJkkEmployer,
-        jkm: bpjsJkmEmployer,
-        total: totalEmployerContributions,
-      },
-      bases: {
-        kesBase,
-        jpBase,
-        regularBase: bpjsBase,
-      }
+      totalDeductions: monthlyTotalDeductions,
+      netSalary: monthlyNetSalary,
+      totalEmployerCost: monthlyTotalEmployerCost,
     },
-    totalDeductions: totalEmployeeDeductions,
-    totalEmployerCost: cashGross + totalEmployerContributions,
-    netSalary,
+
+    // Data Per Tahun
+    annual: {
+      basic: annualBasic,
+      fixed: annualFixed,
+      bonus: bonusAnnual,
+      cashGross: annualCashGross,
+      taxableGross: annualTaxableGross,
+      biayaJabatan: annualBiayaJabatan,
+      pkp: annualPkp,
+      pph21: annualPph21,
+      bpjs: {
+        kesEmployee: annualBpjsKesEmployee,
+        jhtEmployee: annualBpjsJhtEmployee,
+        jpEmployee: annualBpjsJpEmployee,
+        totalEmployee: annualEmployeeBpjsTotal,
+        kesEmployer: annualBpjsKesEmployer,
+        jhtEmployer: annualBpjsJhtEmployer,
+        jpEmployer: annualBpjsJpEmployer,
+        jkkEmployer: annualBpjsJkkEmployer,
+        jkmEmployer: annualBpjsJkmEmployer,
+        totalEmployer: annualEmployerBpjsTotal,
+      },
+      totalDeductions: annualTotalDeductions,
+      netSalary: annualNetSalary,
+      totalEmployerCost: annualTotalEmployerCost,
+    }
   }
 }
 
@@ -276,4 +385,19 @@ export function formatIDR(amount) {
     currency: 'IDR',
     maximumFractionDigits: 0,
   }).format(amount)
+}
+
+// Format integer dengan pemisah ribuan titik (contoh: 15.000.000)
+export function formatNumberWithDots(val) {
+  if (val === undefined || val === null || val === '') return ''
+  const num = typeof val === 'number' ? val : Number(String(val).replace(/\D/g, ''))
+  if (isNaN(num)) return ''
+  return num.toLocaleString('id-ID')
+}
+
+// Parse string berpemisah titik ke integer murni
+export function parseNumberFromDots(str) {
+  if (!str) return 0
+  const cleaned = String(str).replace(/\D/g, '')
+  return cleaned ? parseInt(cleaned, 10) : 0
 }
