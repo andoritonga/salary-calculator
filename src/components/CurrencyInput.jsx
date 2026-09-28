@@ -24,18 +24,18 @@ export default function CurrencyInput({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between mb-1.5">
         <label className="text-xs font-medium text-slate-300">
           {label}
         </label>
         {badge && (
-          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-400 border border-slate-700/50">
             {badge}
           </span>
         )}
       </div>
       <div className="relative">
-        <span className="absolute left-3 top-2.5 text-xs font-medium text-slate-500">Rp</span>
+        <span className="absolute left-3.5 top-2.5 text-xs font-semibold text-slate-500 select-none">Rp</span>
         <input
           type="text"
           inputMode="numeric"
@@ -45,17 +45,17 @@ export default function CurrencyInput({
           onBlur={() => setIsFocused(false)}
           disabled={disabled}
           placeholder={placeholder}
-          className={`w-full pl-9 pr-3 py-2 bg-slate-950 border rounded-lg text-sm font-semibold transition focus:outline-none ${
-            isPrivacy && !isFocused ? 'blur-[4px] select-none hover:blur-none' : ''
+          className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-950/70 hover:bg-slate-950/90 focus:bg-slate-950 border rounded-xl text-sm font-semibold transition-all duration-150 focus:outline-none ${
+            isPrivacy && !isFocused ? 'blur-[4.5px] select-none hover:blur-none' : ''
           } ${
             highlight
-              ? 'border-emerald-500/60 text-white focus:ring-1 focus:ring-emerald-500'
-              : 'border-slate-700 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
+              ? 'border-emerald-500/50 text-emerald-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 shadow-sm shadow-emerald-500/5'
+              : 'border-slate-800 text-slate-100 hover:border-slate-750 focus:border-emerald-500/70 focus:ring-2 focus:ring-emerald-500/20'
           }`}
         />
       </div>
       {subtitle && (
-        <p className="text-[10px] text-slate-400 mt-0.5">{subtitle}</p>
+        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{subtitle}</p>
       )}
     </div>
   )
