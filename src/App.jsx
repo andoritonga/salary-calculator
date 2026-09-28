@@ -642,28 +642,28 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
           
           {/* Card 1: Existing Salary */}
-          <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 flex flex-col justify-between shadow-lg">
+          <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 flex flex-col justify-between shadow-lg overflow-hidden">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-slate-800 text-slate-300">
+              <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-800 mb-4 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="p-2 rounded-lg bg-slate-800 text-slate-300 shrink-0">
                     <Building2 className="w-4 h-4" />
                   </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-white">1. Gaji Existing</h2>
-                    <p className="text-[11px] text-slate-400">Pekerjaan saat ini</p>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-sm font-bold text-white truncate">1. Gaji Existing</h2>
+                    <p className="text-[11px] text-slate-400 truncate">Pekerjaan saat ini</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="shrink-0">
                   <select
                     value={existingTaxMethod}
                     onChange={(e) => setExistingTaxMethod(e.target.value)}
-                    className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700 focus:outline-none"
+                    className="px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-600 max-w-[125px] cursor-pointer"
                     title="Pilih skema pemotongan pajak"
                   >
                     <option value="gross">Gross (Standar)</option>
-                    <option value="gross_up">Gross-Up (Tunjangan Pajak)</option>
-                    <option value="nett">Nett (Pajak Ditanggung)</option>
+                    <option value="gross_up">Gross-Up</option>
+                    <option value="nett">Nett</option>
                   </select>
                 </div>
               </div>
@@ -764,16 +764,16 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
           </div>
 
           {/* Card 2: Negotiation Target & Reverse Calculator */}
-          <div className="bg-slate-900/90 rounded-2xl p-5 border border-sky-900/40 flex flex-col justify-between shadow-lg relative">
+          <div className="bg-slate-900/90 rounded-2xl p-5 border border-sky-900/40 flex flex-col justify-between shadow-lg relative overflow-hidden">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400">
+              <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-800 mb-3 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 shrink-0">
                     <TrendingUp className="w-4 h-4" />
                   </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-white">2. Ekspektasi Negosiasi</h2>
-                    <p className="text-[11px] text-slate-400">Target kenaikan yang wajar</p>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-sm font-bold text-white truncate">2. Ekspektasi Negosiasi</h2>
+                    <p className="text-[11px] text-slate-400 truncate">Target kenaikan yang wajar</p>
                   </div>
                 </div>
               </div>
@@ -926,35 +926,35 @@ Dihitung berdasarkan PPh 21 TER PMK 168/PP 58 & BPJS Ketenagakerjaan & Kesehatan
           </div>
 
           {/* Card 3: New Offering (Active Offering Editor) */}
-          <div className="bg-slate-900/90 rounded-2xl p-5 border border-emerald-900/40 flex flex-col justify-between shadow-lg">
+          <div className="bg-slate-900/90 rounded-2xl p-5 border border-emerald-900/40 flex flex-col justify-between shadow-lg overflow-hidden">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-800 mb-4 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
                     <Briefcase className="w-4 h-4" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     {/* Rename Offering Input */}
                     <input
                       type="text"
                       value={activeOffering.name}
                       onChange={(e) => updateActiveOffering({ name: e.target.value })}
-                      className="bg-transparent text-sm font-bold text-white border-b border-transparent hover:border-slate-700 focus:border-emerald-500 focus:outline-none px-0.5 py-0.5"
+                      className="bg-transparent text-sm font-bold text-white border-b border-transparent hover:border-slate-700 focus:border-emerald-500 focus:outline-none w-full min-w-0 py-0.5 truncate"
                       title="Klik untuk mengubah nama penawaran"
                     />
-                    <p className="text-[11px] text-slate-400">Perusahaan baru</p>
+                    <p className="text-[11px] text-slate-400 truncate">Perusahaan baru</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="shrink-0">
                   <select
                     value={activeOffering.taxMethod}
                     onChange={(e) => updateActiveOffering({ taxMethod: e.target.value })}
-                    className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 focus:outline-none"
+                    className="px-2 py-1 rounded-lg text-[11px] font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800/80 focus:outline-none focus:ring-1 focus:ring-emerald-500 max-w-[125px] cursor-pointer"
                     title="Pilih skema pemotongan pajak di penawaran ini"
                   >
                     <option value="gross">Gross (Standar)</option>
-                    <option value="gross_up">Gross-Up (Tunjangan Pajak)</option>
-                    <option value="nett">Nett (Pajak Ditanggung)</option>
+                    <option value="gross_up">Gross-Up</option>
+                    <option value="nett">Nett</option>
                   </select>
                 </div>
               </div>
