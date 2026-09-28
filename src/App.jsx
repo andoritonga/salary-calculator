@@ -314,6 +314,36 @@ export default function App() {
     )
   }
 
+  // Render pill badge for deltas
+  const renderDeltaBadge = (delta, isDeduction = false) => {
+    if (Math.round(delta) === 0) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-800/80 text-slate-400 border border-slate-700/60 font-mono tabular-nums">
+          Rp 0
+        </span>
+      )
+    }
+
+    const isPositive = delta > 0
+    let colorClass = ''
+    if (isDeduction) {
+      colorClass = isPositive
+        ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+        : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+    } else {
+      colorClass = isPositive
+        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+        : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+    }
+
+    const sign = isPositive ? '+' : '-'
+    return (
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold border font-mono tabular-nums ${colorClass}`}>
+        {sign}{renderIDR(Math.abs(delta))}
+      </span>
+    )
+  }
+
   // Copy Summary text
   const copySummary = () => {
     const text = `📊 Ringkasan Komparasi Gaji & Offering (${activeOffering.name}):
@@ -811,244 +841,412 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
         </div>
 
         {/* 4. Rincian Detail Komparasi (High-End Financial Breakdown) */}
-        <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl overflow-hidden shadow-lg shadow-black/20 print-clean">
+        <div className="space-y-6 print-clean">
           
-          {/* Table Header Bar */}
-          <div className="p-4 sm:px-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/95 no-print">
-            <div>
-              <span className="text-sm font-bold text-white flex items-center gap-2">
-                <Layers className="w-4 h-4 text-emerald-400" />
-                Rincian Detail Komparasi
-              </span>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Perbandingan mendalam komponen bruto, potongan pajak, iuran BPJS, dan gaji bersih
-              </p>
+          {/* Top Control Bar for Comparison */}
+          <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm no-print">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  Rincian Detail Komparasi
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Perbandingan mendalam komponen bruto, potongan pajak PPh 21, iuran BPJS, dan Take Home Pay
+                </p>
+              </div>
             </div>
             
-            {/* Table Period Selector */}
-            <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => setTablePeriod('both')}
-                className={`px-3 py-1 rounded-lg font-semibold transition ${
-                  tablePeriod === 'both' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Semua
-              </button>
+            {/* Period Selector Tabs */}
+            <div className="flex bg-slate-950/80 p-1 rounded-xl border border-slate-800 text-xs self-start sm:self-auto gap-1">
               <button
                 type="button"
                 onClick={() => setTablePeriod('monthly')}
-                className={`px-3 py-1 rounded-lg font-semibold transition ${
-                  tablePeriod === 'monthly' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  tablePeriod === 'monthly' ? 'bg-slate-800 text-white shadow-sm ring-1 ring-white/10' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Bulanan
+                <span>Bulanan</span>
               </button>
               <button
                 type="button"
                 onClick={() => setTablePeriod('annual')}
-                className={`px-3 py-1 rounded-lg font-semibold transition ${
-                  tablePeriod === 'annual' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  tablePeriod === 'annual' ? 'bg-slate-800 text-white shadow-sm ring-1 ring-white/10' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Tahunan
+                <span>Tahunan</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTablePeriod('both')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  tablePeriod === 'both' ? 'bg-slate-800 text-white shadow-sm ring-1 ring-white/10' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>Semua (Lengkap)</span>
               </button>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
-                  <th className="py-3.5 px-4 sm:px-6 font-semibold w-2/5">Komponen Rincian</th>
-                  <th className="py-3.5 px-4 font-semibold text-right w-1/5">
-                    Gaji Saat Ini <span className="text-[10px] font-normal text-slate-500">({existingTaxMethod.toUpperCase()})</span>
-                  </th>
-                  <th className="py-3.5 px-4 font-semibold text-right text-emerald-400 w-1/5">
-                    {activeOffering.name} <span className="text-[10px] font-normal text-emerald-500/80">({activeOffering.taxMethod.toUpperCase()})</span>
-                  </th>
-                  <th className="py-3.5 px-4 sm:px-6 font-semibold text-right w-1/5">Selisih (Delta)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                
-                {/* ======================================================== */}
-                {/* 1. SECTION: KOMPONEN BULANAN                             */}
-                {/* ======================================================== */}
-                {(tablePeriod === 'both' || tablePeriod === 'monthly') && (
-                  <>
-                    {/* Header Group: Pendapatan Kas Bulanan */}
+          {/* CARD 1: ARUS KAS BULANAN (MONTHLY ROUTINE) */}
+          {(tablePeriod === 'both' || tablePeriod === 'monthly') && (
+            <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+              {/* Card Subheader */}
+              <div className="px-5 py-4 bg-slate-950/50 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" />
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-white tracking-wide">
+                      1. Arus Kas Bulanan (Monthly Routine)
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      Rincian penerimaan rutin dan potongan wajib yang menentukan gaji bersih masuk rekening setiap bulan
+                    </p>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs self-start sm:self-auto">
+                  <span className="text-slate-400 text-[11px]">Delta Net THP:</span>
+                  <span className="font-extrabold text-emerald-400 font-mono">
+                    {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)}/bln
+                  </span>
+                  <span className="font-bold text-emerald-400 text-[11px]">
+                    ({deltaMonthlyNetPct >= 0 ? '+' : ''}{deltaMonthlyNetPct.toFixed(1)}%)
+                  </span>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 sm:px-6 font-semibold w-5/12">Komponen Bulanan</th>
+                      <th className="py-3 px-4 font-semibold text-right w-7/32">
+                        Gaji Saat Ini <span className="text-[10px] font-normal text-slate-500">({existingTaxMethod.toUpperCase()})</span>
+                      </th>
+                      <th className="py-3 px-4 font-semibold text-right text-emerald-400 w-7/32">
+                        {activeOffering.name} <span className="text-[10px] font-normal text-emerald-500/80">({activeOffering.taxMethod.toUpperCase()})</span>
+                      </th>
+                      <th className="py-3 px-4 sm:px-6 font-semibold text-right w-1/4">Selisih (Delta)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/40">
+                    {/* Header Group: Pendapatan Bruto Bulanan */}
                     <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
-                      <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                        1. Pendapatan Rutin Bulanan (Gross)
+                      <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        Penerimaan Bruto Bulanan (Cash Gross)
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6 text-slate-300">
+                        <div className="font-medium text-white">Gaji Pokok (Basic Salary)</div>
+                        <div className="text-[10px] text-slate-400">Komponen upah dasar tetap bulanan</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">{renderIDR(existingCalc.basic)}</td>
+                      <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">{renderIDR(offeringCalc.basic)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.basic - existingCalc.basic)}
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6 text-slate-300">
+                        <div className="font-medium text-white">Tunjangan Tetap (Fixed Allowance)</div>
+                        <div className="text-[10px] text-slate-400">Tunjangan jabatan, makan, transport rutin</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">{renderIDR(existingCalc.fixed)}</td>
+                      <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">{renderIDR(offeringCalc.fixed)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.fixed - existingCalc.fixed)}
+                      </td>
+                    </tr>
+                    <tr className="bg-slate-950/40 border-y border-slate-800 font-bold text-slate-100">
+                      <td className="py-2.5 px-4 sm:px-6 text-white font-semibold">Subtotal Bruto Bulanan</td>
+                      <td className="py-2.5 px-4 text-right text-slate-200 font-mono tabular-nums">{renderIDR(existingCalc.monthly.cashGross)}</td>
+                      <td className="py-2.5 px-4 text-right text-slate-100 font-mono tabular-nums">{renderIDR(offeringCalc.monthly.cashGross)}</td>
+                      <td className="py-2.5 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(deltaMonthlyGross)}
                       </td>
                     </tr>
 
-                    <tr className="hover:bg-slate-850/30 transition">
-                      <td className="py-2.5 px-4 sm:px-6 text-slate-300">Gaji Pokok (Basic Salary)</td>
-                      <td className="py-2.5 px-4 text-right text-slate-400">{renderIDR(existingCalc.basic)}</td>
-                      <td className="py-2.5 px-4 text-right text-slate-200">{renderIDR(offeringCalc.basic)}</td>
-                      <td className={`py-2.5 px-4 sm:px-6 text-right font-medium ${(offeringCalc.basic - existingCalc.basic) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {(offeringCalc.basic - existingCalc.basic) >= 0 ? '+' : ''}{renderIDR(offeringCalc.basic - existingCalc.basic)}
-                      </td>
-                    </tr>
-
-                    <tr className="hover:bg-slate-850/30 transition">
-                      <td className="py-2.5 px-4 sm:px-6 text-slate-300">Tunjangan Tetap (Fixed Allowance)</td>
-                      <td className="py-2.5 px-4 text-right text-slate-400">{renderIDR(existingCalc.fixed)}</td>
-                      <td className="py-2.5 px-4 text-right text-slate-200">{renderIDR(offeringCalc.fixed)}</td>
-                      <td className={`py-2.5 px-4 sm:px-6 text-right font-medium ${(offeringCalc.fixed - existingCalc.fixed) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {(offeringCalc.fixed - existingCalc.fixed) >= 0 ? '+' : ''}{renderIDR(offeringCalc.fixed - existingCalc.fixed)}
-                      </td>
-                    </tr>
-
-                    <tr className="font-semibold text-slate-200 bg-slate-950/30 border-y border-slate-800/80">
-                      <td className="py-2.5 px-4 sm:px-6 text-white font-bold">Total Bruto Bulanan (Cash Gross)</td>
-                      <td className="py-2.5 px-4 text-right text-slate-200">{renderIDR(existingCalc.monthly.cashGross)}</td>
-                      <td className="py-2.5 px-4 text-right text-slate-100 font-bold">{renderIDR(offeringCalc.monthly.cashGross)}</td>
-                      <td className={`py-2.5 px-4 sm:px-6 text-right font-bold ${deltaMonthlyGross >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {deltaMonthlyGross >= 0 ? '+' : ''}{renderIDR(deltaMonthlyGross)}
-                      </td>
-                    </tr>
-
-                    {/* Header Group: Potongan Karyawan */}
+                    {/* Header Group: Potongan Karyawan Bulanan */}
                     <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
-                      <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block" />
-                        2. Potongan Karyawan Bulanan (Pajak & BPJS)
+                      <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-rose-400/90 font-semibold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                        Potongan Karyawan (Pajak & BPJS)
                       </td>
                     </tr>
-
-                    <tr className="hover:bg-slate-850/30 transition text-rose-300/90">
-                      <td className="py-2.5 px-4 sm:px-6 flex items-center gap-2">
-                        <span>PPh 21 TER</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                          {existingCalc.terPercentage}% vs {offeringCalc.terPercentage}%
-                        </span>
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6">
+                        <div className="font-medium text-rose-200 flex items-center gap-2">
+                          <span>PPh 21 TER Bulanan</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono font-medium">
+                            {existingCalc.terCategory} {existingCalc.terPercentage}% vs {offeringCalc.terCategory} {offeringCalc.terPercentage}%
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-400">Tarif Efektif Rata-Rata PP 58/2023 & PMK 168/2023</div>
                       </td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(existingCalc.monthly.pph21)}</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(offeringCalc.monthly.pph21)}</td>
-                      <td className="py-2.5 px-4 sm:px-6 text-right text-slate-400 font-medium">
-                        {(offeringCalc.monthly.pph21 - existingCalc.monthly.pph21) >= 0 ? '+' : ''}{renderIDR(offeringCalc.monthly.pph21 - existingCalc.monthly.pph21)}
-                      </td>
-                    </tr>
-
-                    <tr className="hover:bg-slate-850/30 transition text-rose-300/90">
-                      <td className="py-2.5 px-4 sm:px-6">BPJS Kesehatan (1% Karyawan)</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(existingCalc.monthly.bpjs.kesehatanEmployee)}</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(offeringCalc.monthly.bpjs.kesehatanEmployee)}</td>
-                      <td className="py-2.5 px-4 sm:px-6 text-right text-slate-400 font-medium">
-                        {(offeringCalc.monthly.bpjs.kesehatanEmployee - existingCalc.monthly.bpjs.kesehatanEmployee) >= 0 ? '+' : ''}{renderIDR(offeringCalc.monthly.bpjs.kesehatanEmployee - existingCalc.monthly.bpjs.kesehatanEmployee)}
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.monthly.pph21)}</td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.monthly.pph21)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.monthly.pph21 - existingCalc.monthly.pph21, true)}
                       </td>
                     </tr>
-
-                    <tr className="hover:bg-slate-850/30 transition text-rose-300/90">
-                      <td className="py-2.5 px-4 sm:px-6">BPJS Ketenagakerjaan (JHT 2% + JP 1%)</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee)}</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee)}</td>
-                      <td className="py-2.5 px-4 sm:px-6 text-right text-slate-400 font-medium">
-                        {( (offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee) - (existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee) ) >= 0 ? '+' : ''}{renderIDR((offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee) - (existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee))}
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6">
+                        <div className="font-medium text-rose-200">BPJS Kesehatan (1% Karyawan)</div>
+                        <div className="text-[10px] text-slate-400">Plafon maksimal penghasilan Rp 12.000.000/bln</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.monthly.bpjs.kesEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.monthly.bpjs.kesEmployee)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.monthly.bpjs.kesEmployee - existingCalc.monthly.bpjs.kesEmployee, true)}
                       </td>
                     </tr>
-
-                    <tr className="font-semibold text-rose-300 bg-rose-950/15 border-y border-rose-900/30">
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6">
+                        <div className="font-medium text-rose-200">BPJS Ketenagakerjaan (JHT 2% + JP 1%)</div>
+                        <div className="text-[10px] text-slate-400">Jaminan Hari Tua (2%) dan Jaminan Pensiun (1% capped)</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(
+                          (offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee) -
+                          (existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee),
+                          true
+                        )}
+                      </td>
+                    </tr>
+                    <tr className="bg-rose-950/20 border-y border-rose-900/30 font-semibold text-rose-300">
                       <td className="py-2.5 px-4 sm:px-6">Total Potongan Karyawan / Bulan</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(existingCalc.monthly.totalDeductions)}</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(offeringCalc.monthly.totalDeductions)}</td>
-                      <td className="py-2.5 px-4 sm:px-6 text-right font-medium">
-                        {(offeringCalc.monthly.totalDeductions - existingCalc.monthly.totalDeductions) >= 0 ? '+' : ''}{renderIDR(offeringCalc.monthly.totalDeductions - existingCalc.monthly.totalDeductions)}
+                      <td className="py-2.5 px-4 text-right font-mono tabular-nums">-{renderIDR(existingCalc.monthly.totalDeductions)}</td>
+                      <td className="py-2.5 px-4 text-right font-mono tabular-nums">-{renderIDR(offeringCalc.monthly.totalDeductions)}</td>
+                      <td className="py-2.5 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.monthly.totalDeductions - existingCalc.monthly.totalDeductions, true)}
                       </td>
                     </tr>
-
-                    {/* Executive Hero Row: NET THP BULANAN */}
-                    <tr className="bg-gradient-to-r from-emerald-950/40 via-emerald-900/25 to-emerald-950/40 border-y-2 border-emerald-500/40 font-extrabold text-white text-sm">
-                      <td className="py-3.5 px-4 sm:px-6 text-emerald-300 flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>NET TAKE HOME PAY / BULAN</span>
+                  </tbody>
+                  {/* Hero Summary Footer for Monthly */}
+                  <tfoot>
+                    <tr className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-emerald-950/60 border-t-2 border-emerald-500/40 text-white">
+                      <td className="py-4 px-4 sm:px-6">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                          <div>
+                            <span className="text-xs sm:text-sm font-extrabold tracking-wide text-emerald-300 uppercase block">
+                              NET TAKE HOME PAY / BULAN
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-normal">Gaji bersih yang diterima di rekening</span>
+                          </div>
+                        </div>
                       </td>
-                      <td className="py-3.5 px-4 text-right text-slate-200">{renderIDR(existingCalc.monthly.netSalary)}</td>
-                      <td className="py-3.5 px-4 text-right text-emerald-400 text-base">{renderIDR(offeringCalc.monthly.netSalary)}</td>
-                      <td className={`py-3.5 px-4 sm:px-6 text-right ${deltaMonthlyNet >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)}
-                        <span className="block text-[11px] font-semibold text-emerald-400/90 mt-0.5">
-                          ({deltaMonthlyNetPct >= 0 ? '+' : ''}{deltaMonthlyNetPct.toFixed(1)}%)
-                        </span>
+                      <td className="py-4 px-4 text-right text-slate-200 font-mono tabular-nums text-xs sm:text-sm font-bold">
+                        {renderIDR(existingCalc.monthly.netSalary)}
+                      </td>
+                      <td className="py-4 px-4 text-right text-emerald-400 font-mono tabular-nums text-sm sm:text-base font-extrabold">
+                        {renderIDR(offeringCalc.monthly.netSalary)}
+                      </td>
+                      <td className="py-4 px-4 sm:px-6 text-right">
+                        <div className="inline-flex flex-col items-end">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border shadow-sm font-mono tabular-nums ${
+                            deltaMonthlyNet >= 0
+                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                              : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                          }`}>
+                            {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)}
+                          </span>
+                          <span className="text-[11px] font-bold text-emerald-400 mt-1">
+                            ({deltaMonthlyNetPct >= 0 ? '+' : ''}{deltaMonthlyNetPct.toFixed(1)}%)
+                          </span>
+                        </div>
                       </td>
                     </tr>
-                  </>
-                )}
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          )}
 
-                {/* ======================================================== */}
-                {/* 2. SECTION: AKUMULASI TAHUNAN                           */}
-                {/* ======================================================== */}
-                {(tablePeriod === 'both' || tablePeriod === 'annual') && (
-                  <>
+          {/* CARD 2: PROYEKSI AKUMULASI TAHUNAN (ANNUALIZED PACKAGE) */}
+          {(tablePeriod === 'both' || tablePeriod === 'annual') && (
+            <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+              {/* Card Subheader */}
+              <div className="px-5 py-4 bg-slate-950/50 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-sky-400 shrink-0" />
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-white tracking-wide">
+                      2. Proyeksi Akumulasi Tahunan ({annualMultiplier}x Gaji + Bonus)
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      Total paket pendapatan satu tahun termasuk THR/bonus, rekonsiliasi PPh 21 Pasal 17 progresif, dan kontribusi fasilitas perusahaan
+                    </p>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-sky-500/10 border border-sky-500/20 text-xs self-start sm:self-auto">
+                  <span className="text-slate-400 text-[11px]">Delta Net Tahunan:</span>
+                  <span className="font-extrabold text-sky-400 font-mono">
+                    {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}/thn
+                  </span>
+                  <span className="font-bold text-sky-400 text-[11px]">
+                    ({deltaAnnualNetPct >= 0 ? '+' : ''}{deltaAnnualNetPct.toFixed(1)}%)
+                  </span>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 sm:px-6 font-semibold w-5/12">Komponen Tahunan</th>
+                      <th className="py-3 px-4 font-semibold text-right w-7/32">
+                        Gaji Saat Ini <span className="text-[10px] font-normal text-slate-500">({existingTaxMethod.toUpperCase()})</span>
+                      </th>
+                      <th className="py-3 px-4 font-semibold text-right text-sky-400 w-7/32">
+                        {activeOffering.name} <span className="text-[10px] font-normal text-sky-500/80">({activeOffering.taxMethod.toUpperCase()})</span>
+                      </th>
+                      <th className="py-3 px-4 sm:px-6 font-semibold text-right w-1/4">Selisih (Delta)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/40">
+                    {/* Header Group: Penerimaan Bruto Kas Setahun */}
                     <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
-                      <td colSpan={4} className="py-3 px-4 sm:px-6 uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-sky-400 inline-block" />
-                        3. Akumulasi Tahunan ({annualMultiplier}x Gaji Pokok + Bonus)
+                      <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                        Penerimaan Bruto Setahun (Annual Gross)
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6 text-slate-300">
+                        <div className="font-medium text-white">Gaji Pokok & Tunjangan Rutin ({annualMultiplier}x Bulan)</div>
+                        <div className="text-[10px] text-slate-400">Akumulasi gaji pokok 12 bulan + {annualMultiplier - 12} bulan THR</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">{renderIDR(existingCalc.monthly.cashGross * annualMultiplier)}</td>
+                      <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">{renderIDR(offeringCalc.monthly.cashGross * annualMultiplier)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge((offeringCalc.monthly.cashGross - existingCalc.monthly.cashGross) * annualMultiplier)}
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6 text-slate-300">
+                        <div className="font-medium text-white">Tunjangan Tidak Tetap / Bonus Tahunan</div>
+                        <div className="text-[10px] text-slate-400">Bonus kinerja tahunan / insentif project</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">{renderIDR(existingCalc.annual.bonus)}</td>
+                      <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">{renderIDR(offeringCalc.annual.bonus)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.annual.bonus - existingCalc.annual.bonus)}
+                      </td>
+                    </tr>
+                    <tr className="bg-slate-950/40 border-y border-slate-800 font-bold text-slate-100">
+                      <td className="py-2.5 px-4 sm:px-6 text-white font-semibold">Subtotal Bruto Kas Setahun</td>
+                      <td className="py-2.5 px-4 text-right text-slate-200 font-mono tabular-nums">{renderIDR(existingCalc.annual.cashGross)}</td>
+                      <td className="py-2.5 px-4 text-right text-slate-100 font-mono tabular-nums">{renderIDR(offeringCalc.annual.cashGross)}</td>
+                      <td className="py-2.5 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(deltaAnnualGross)}
                       </td>
                     </tr>
 
-                    <tr className="hover:bg-slate-850/30 transition">
-                      <td className="py-2.5 px-4 sm:px-6 text-slate-300">Tunjangan Tidak Tetap / Bonus Tahunan</td>
-                      <td className="py-2.5 px-4 text-right text-slate-400">{renderIDR(existingCalc.annual.bonus)}</td>
-                      <td className="py-2.5 px-4 text-right text-slate-200">{renderIDR(offeringCalc.annual.bonus)}</td>
-                      <td className="py-2.5 px-4 sm:px-6 text-right text-slate-300 font-medium">
-                        {(offeringCalc.annual.bonus - existingCalc.annual.bonus) >= 0 ? '+' : ''}{renderIDR(offeringCalc.annual.bonus - existingCalc.annual.bonus)}
+                    {/* Header Group: Beban Pajak & Iuran Setahun */}
+                    <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
+                      <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-rose-400/90 font-semibold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                        Beban Pajak & Iuran Karyawan Setahun
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6">
+                        <div className="font-medium text-rose-200">Total PPh 21 Setahun (Pasal 17 UU HPP)</div>
+                        <div className="text-[10px] text-slate-400">Perhitungan final tarif progresif lapisan 5% s/d 35% setelah PTKP</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.annual.pph21)}</td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.annual.pph21)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.annual.pph21 - existingCalc.annual.pph21, true)}
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6">
+                        <div className="font-medium text-rose-200">Total Iuran BPJS Karyawan Setahun</div>
+                        <div className="text-[10px] text-slate-400">Akumulasi iuran tahunan BPJS Kesehatan (1%) + JHT (2%) + JP (1%)</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.annual.bpjs.totalEmployee)}</td>
+                      <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.annual.bpjs.totalEmployee)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee, true)}
+                      </td>
+                    </tr>
+                    <tr className="bg-rose-950/20 border-y border-rose-900/30 font-semibold text-rose-300">
+                      <td className="py-2.5 px-4 sm:px-6">Total Potongan Karyawan Setahun</td>
+                      <td className="py-2.5 px-4 text-right font-mono tabular-nums">-{renderIDR(existingCalc.annual.totalDeductions)}</td>
+                      <td className="py-2.5 px-4 text-right font-mono tabular-nums">-{renderIDR(offeringCalc.annual.totalDeductions)}</td>
+                      <td className="py-2.5 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.annual.totalDeductions - existingCalc.annual.totalDeductions, true)}
                       </td>
                     </tr>
 
-                    <tr className="font-semibold text-slate-200 bg-slate-950/30">
-                      <td className="py-2.5 px-4 sm:px-6">Total Bruto Setahun (Cash Gross)</td>
-                      <td className="py-2.5 px-4 text-right">{renderIDR(existingCalc.annual.cashGross)}</td>
-                      <td className="py-2.5 px-4 text-right">{renderIDR(offeringCalc.annual.cashGross)}</td>
-                      <td className={`py-2.5 px-4 sm:px-6 text-right font-semibold ${deltaAnnualGross >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {deltaAnnualGross >= 0 ? '+' : ''}{renderIDR(deltaAnnualGross)}
+                    {/* Header Group: Kontribusi BPJS Ditanggung Perusahaan */}
+                    <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
+                      <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-sky-400/90 font-semibold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                        Fasilitas Jaminan Sosial (Ditanggung Perusahaan)
                       </td>
                     </tr>
-
-                    <tr className="hover:bg-slate-850/30 transition text-rose-300/90">
-                      <td className="py-2.5 px-4 sm:px-6">Total PPh 21 Setahun (Pasal 17 Tarif Progresif)</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(existingCalc.annual.pph21)}</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(offeringCalc.annual.pph21)}</td>
-                      <td className="py-2.5 px-4 sm:px-6 text-right text-slate-400 font-medium">
-                        {(offeringCalc.annual.pph21 - existingCalc.annual.pph21) >= 0 ? '+' : ''}{renderIDR(offeringCalc.annual.pph21 - existingCalc.annual.pph21)}
+                    <tr className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 sm:px-6 text-slate-300">
+                        <div className="font-medium text-slate-200">Iuran BPJS Kantor Setahun</div>
+                        <div className="text-[10px] text-slate-400">BPJS Kes (4%) + JHT (3.7%) + JP (2%) + JKK (0.24%) + JKM (0.3%)</div>
+                      </td>
+                      <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">+{renderIDR(existingCalc.annual.bpjs.totalEmployer)}</td>
+                      <td className="py-3 px-4 text-right text-sky-300 font-mono tabular-nums font-medium">+{renderIDR(offeringCalc.annual.bpjs.totalEmployer)}</td>
+                      <td className="py-3 px-4 sm:px-6 text-right">
+                        {renderDeltaBadge(offeringCalc.annual.bpjs.totalEmployer - existingCalc.annual.bpjs.totalEmployer)}
                       </td>
                     </tr>
-
-                    <tr className="hover:bg-slate-850/30 transition text-rose-300/90">
-                      <td className="py-2.5 px-4 sm:px-6">Total Iuran BPJS Karyawan Setahun</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(existingCalc.annual.bpjs.totalEmployee)}</td>
-                      <td className="py-2.5 px-4 text-right">-{renderIDR(offeringCalc.annual.bpjs.totalEmployee)}</td>
-                      <td className="py-2.5 px-4 sm:px-6 text-right text-slate-400 font-medium">
-                        {(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee) >= 0 ? '+' : ''}{renderIDR(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee)}
+                  </tbody>
+                  {/* Hero Summary Footer for Annual */}
+                  <tfoot>
+                    <tr className="bg-gradient-to-r from-sky-950/60 via-slate-900 to-sky-950/60 border-t-2 border-sky-500/40 text-white">
+                      <td className="py-4 px-4 sm:px-6">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-5 h-5 text-sky-400 shrink-0" />
+                          <div>
+                            <span className="text-xs sm:text-sm font-extrabold tracking-wide text-sky-300 uppercase block">
+                              NET TAKE HOME PAY / TAHUN
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-normal">Total estimasi dana bersih setahun (setelah THR & bonus)</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-right text-slate-200 font-mono tabular-nums text-xs sm:text-sm font-bold">
+                        {renderIDR(existingCalc.annual.netSalary)}
+                      </td>
+                      <td className="py-4 px-4 text-right text-sky-400 font-mono tabular-nums text-sm sm:text-base font-extrabold">
+                        {renderIDR(offeringCalc.annual.netSalary)}
+                      </td>
+                      <td className="py-4 px-4 sm:px-6 text-right">
+                        <div className="inline-flex flex-col items-end">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border shadow-sm font-mono tabular-nums ${
+                            deltaAnnualNet >= 0
+                              ? 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+                              : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                          }`}>
+                            {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}
+                          </span>
+                          <span className="text-[11px] font-bold text-sky-400 mt-1">
+                            ({deltaAnnualNetPct >= 0 ? '+' : ''}{deltaAnnualNetPct.toFixed(1)}%)
+                          </span>
+                        </div>
                       </td>
                     </tr>
-
-                    {/* Executive Hero Row: NET THP TAHUNAN */}
-                    <tr className="bg-gradient-to-r from-sky-950/40 via-sky-900/25 to-sky-950/40 border-y-2 border-sky-500/40 font-extrabold text-white text-sm">
-                      <td className="py-3.5 px-4 sm:px-6 text-sky-300 flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-sky-400 shrink-0" />
-                        <span>NET TAKE HOME PAY / TAHUN</span>
-                      </td>
-                      <td className="py-3.5 px-4 text-right text-slate-200">{renderIDR(existingCalc.annual.netSalary)}</td>
-                      <td className="py-3.5 px-4 text-right text-sky-400 text-base">{renderIDR(offeringCalc.annual.netSalary)}</td>
-                      <td className={`py-3.5 px-4 sm:px-6 text-right ${deltaAnnualNet >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>
-                        {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}
-                        <span className="block text-[11px] font-semibold text-sky-400/90 mt-0.5">
-                          ({deltaAnnualNetPct >= 0 ? '+' : ''}{deltaAnnualNetPct.toFixed(1)}%)
-                        </span>
-                      </td>
-                    </tr>
-                  </>
-                )}
-
-              </tbody>
-            </table>
-          </div>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
       </main>
