@@ -212,6 +212,7 @@ export function calculateSalary({
   fixedAllowance = 0,
   annualBonus = 0, // Tunjangan tidak tetap / bonus tahunan (dihitung per tahun)
   ptkpCode = 'TK/0',
+  taxMethod = 'gross', // 'gross' | 'gross_up' | 'nett'
   includeBpjsCompanyInTax = true,
   enableBpjsKesehatan = true,
   enableBpjsKetenagakerjaan = true,
@@ -225,7 +226,6 @@ export function calculateSalary({
 
   // ==========================================
   // 1. PERHITUNGAN BULANAN (MONTHLY ROUTINE)
-  // Tunjangan tidak tetap TIDAK dihitung per bulan!
   // ==========================================
   const monthlyCashGross = basic + fixed
   const bpjsBase = basic + fixed
@@ -255,21 +255,36 @@ export function calculateSalary({
   const monthlyPph21 = Math.round(monthlyTaxableGross * terRate)
 
   const monthlyEmployeeBpjsTotal = monthlyBpjsKesEmployee + monthlyBpjsJhtEmployee + monthlyBpjsJpEmployee
-  const monthlyTotalDeductions = monthlyPph21 + monthlyEmployeeBpjsTotal
+
+  // Skema Pajak (Tax Method):
+  // - gross: Karyawan menanggung PPh 21
+  // - gross_up: Perusahaan menanggung tunjangan PPh 21 sehingga PPh 21 tidak memotong THP
+  // - nett: Perusahaan menanggung PPh 21 dan BPJS Karyawan
+  let monthlyTaxAllowance = 0
+  let monthlyEmployeeDeductions = monthlyPph21 + monthlyEmployeeBpjsTotal
+
+  if (taxMethod === 'gross_up') {
+    monthlyTaxAllowance = monthlyPph21
+    monthlyEmployeeDeductions = monthlyEmployeeBpjsTotal
+  } else if (taxMethod === 'nett') {
+    monthlyTaxAllowance = monthlyPph21
+    monthlyEmployeeDeductions = 0
+  }
+
   const monthlyEmployerContributions =
     monthlyBpjsKesEmployer +
     monthlyBpjsJhtEmployer +
     monthlyBpjsJpEmployer +
     monthlyBpjsJkkEmployer +
-    monthlyBpjsJkmEmployer
+    monthlyBpjsJkmEmployer +
+    monthlyTaxAllowance +
+    (taxMethod === 'nett' ? monthlyEmployeeBpjsTotal : 0)
 
-  const monthlyNetSalary = Math.max(0, monthlyCashGross - monthlyTotalDeductions)
+  const monthlyNetSalary = Math.max(0, monthlyCashGross - monthlyEmployeeDeductions)
   const monthlyTotalEmployerCost = monthlyCashGross + monthlyEmployerContributions
 
   // ==========================================
   // 2. PERHITUNGAN TAHUNAN (ANNUAL CALCULATION)
-  // Termasuk gaji pokok x multiplier (13x dengan THR),
-  // tunjangan tetap 12x, dan tunjangan tidak tetap / bonus tahunan
   // ==========================================
   const thrMultiplier = annualMonths > 12 ? (annualMonths - 12) : 0
   const annualBasic = (basic * 12) + (basic * thrMultiplier)
@@ -291,28 +306,38 @@ export function calculateSalary({
     annualBpjsJhtEmployee +
     annualBpjsJpEmployee
 
-  const annualEmployerBpjsTotal =
-    annualBpjsKesEmployer +
-    annualBpjsJhtEmployer +
-    annualBpjsJpEmployer +
-    annualBpjsJkkEmployer +
-    annualBpjsJkmEmployer
-
-  // PPh 21 Tahunan (Pasal 17 UU HPP & PMK 168)
   const annualCompanyPremiTaxable = annualBpjsKesEmployer + annualBpjsJkkEmployer + annualBpjsJkmEmployer
   const annualTaxableGross = includeBpjsCompanyInTax ? (annualCashGross + annualCompanyPremiTaxable) : annualCashGross
 
   // Biaya jabatan: 5% dari Bruto, maksimal Rp 6.000.000 / tahun
   const annualBiayaJabatan = Math.min(annualTaxableGross * 0.05, 6000000)
-  // Iuran pensiun & JHT ditanggung pekerja
   const annualEmployeePensionDeduction = annualBpjsJhtEmployee + annualBpjsJpEmployee
 
   const annualNetIncome = Math.max(0, annualTaxableGross - annualBiayaJabatan - annualEmployeePensionDeduction)
   const annualPkp = Math.max(0, Math.floor((annualNetIncome - ptkp.ptkp) / 1000) * 1000)
   const annualPph21 = calculateAnnualPph21(annualPkp)
 
-  const annualTotalDeductions = annualPph21 + annualEmployeeBpjsTotal
-  const annualNetSalary = Math.max(0, annualCashGross - annualTotalDeductions)
+  let annualTaxAllowance = 0
+  let annualEmployeeDeductions = annualPph21 + annualEmployeeBpjsTotal
+
+  if (taxMethod === 'gross_up') {
+    annualTaxAllowance = annualPph21
+    annualEmployeeDeductions = annualEmployeeBpjsTotal
+  } else if (taxMethod === 'nett') {
+    annualTaxAllowance = annualPph21
+    annualEmployeeDeductions = 0
+  }
+
+  const annualEmployerBpjsTotal =
+    annualBpjsKesEmployer +
+    annualBpjsJhtEmployer +
+    annualBpjsJpEmployer +
+    annualBpjsJkkEmployer +
+    annualBpjsJkmEmployer +
+    annualTaxAllowance +
+    (taxMethod === 'nett' ? annualEmployeeBpjsTotal : 0)
+
+  const annualNetSalary = Math.max(0, annualCashGross - annualEmployeeDeductions)
   const annualTotalEmployerCost = annualCashGross + annualEmployerBpjsTotal
 
   return {
@@ -321,6 +346,7 @@ export function calculateSalary({
     bonusAnnual,
     annualMonths,
     ptkp,
+    taxMethod,
     terCategory: ptkp.category,
     terRate,
     terPercentage: (terRate * 100).toFixed(2),
@@ -332,6 +358,7 @@ export function calculateSalary({
       cashGross: monthlyCashGross,
       taxableGross: monthlyTaxableGross,
       pph21: monthlyPph21,
+      taxAllowance: monthlyTaxAllowance,
       bpjs: {
         kesEmployee: monthlyBpjsKesEmployee,
         jhtEmployee: monthlyBpjsJhtEmployee,
@@ -344,7 +371,7 @@ export function calculateSalary({
         jkmEmployer: monthlyBpjsJkmEmployer,
         totalEmployer: monthlyEmployerContributions,
       },
-      totalDeductions: monthlyTotalDeductions,
+      totalDeductions: monthlyEmployeeDeductions,
       netSalary: monthlyNetSalary,
       totalEmployerCost: monthlyTotalEmployerCost,
     },
@@ -359,6 +386,7 @@ export function calculateSalary({
       biayaJabatan: annualBiayaJabatan,
       pkp: annualPkp,
       pph21: annualPph21,
+      taxAllowance: annualTaxAllowance,
       bpjs: {
         kesEmployee: annualBpjsKesEmployee,
         jhtEmployee: annualBpjsJhtEmployee,
@@ -371,11 +399,165 @@ export function calculateSalary({
         jkmEmployer: annualBpjsJkmEmployer,
         totalEmployer: annualEmployerBpjsTotal,
       },
-      totalDeductions: annualTotalDeductions,
+      totalDeductions: annualEmployeeDeductions,
       netSalary: annualNetSalary,
       totalEmployerCost: annualTotalEmployerCost,
     }
   }
+}
+
+// Simulasi Bulan Pencairan THR / Bonus Khusus (Lonjakan TER Bulanan)
+export function calculateBonusMonthSimulation({
+  basicSalary = 0,
+  fixedAllowance = 0,
+  disbursedAmount = 0, // Nominal THR atau Bonus yang cair di bulan tsb
+  ptkpCode = 'TK/0',
+  taxMethod = 'gross',
+  includeBpjsCompanyInTax = true,
+  enableBpjsKesehatan = true,
+  enableBpjsKetenagakerjaan = true,
+}) {
+  const basic = Math.max(0, Number(basicSalary) || 0)
+  const fixed = Math.max(0, Number(fixedAllowance) || 0)
+  const extra = Math.max(0, Number(disbursedAmount) || 0)
+
+  // Regular month calculation
+  const regular = calculateSalary({
+    basicSalary: basic,
+    fixedAllowance: fixed,
+    annualBonus: 0,
+    ptkpCode,
+    taxMethod,
+    includeBpjsCompanyInTax,
+    enableBpjsKesehatan,
+    enableBpjsKetenagakerjaan,
+  })
+
+  // Disbursed month
+  const disbursedCashGross = basic + fixed + extra
+  const bpjsBase = basic + fixed // BPJS tetap berdasar gaji pokok + tunjangan tetap
+
+  const kesBase = Math.min(bpjsBase, BPJS_CONFIG.KESEHATAN_MAX_CAP)
+  const kesEmployee = enableBpjsKesehatan ? kesBase * BPJS_CONFIG.KESEHATAN_EMPLOYEE_RATE : 0
+  const kesEmployer = enableBpjsKesehatan ? kesBase * BPJS_CONFIG.KESEHATAN_EMPLOYER_RATE : 0
+
+  const jhtEmployee = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JHT_EMPLOYEE_RATE : 0
+  const jhtEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JHT_EMPLOYER_RATE : 0
+
+  const jpBase = Math.min(bpjsBase, BPJS_CONFIG.JP_MAX_CAP)
+  const jpEmployee = enableBpjsKetenagakerjaan ? jpBase * BPJS_CONFIG.JP_EMPLOYEE_RATE : 0
+  const jpEmployer = enableBpjsKetenagakerjaan ? jpBase * BPJS_CONFIG.JP_EMPLOYER_RATE : 0
+
+  const jkkEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JKK_EMPLOYER_RATE : 0
+  const jkmEmployer = enableBpjsKetenagakerjaan ? bpjsBase * BPJS_CONFIG.JKM_EMPLOYER_RATE : 0
+
+  const companyPremiTaxable = kesEmployer + jkkEmployer + jkmEmployer
+  const disbursedTaxableGross = includeBpjsCompanyInTax ? (disbursedCashGross + companyPremiTaxable) : disbursedCashGross
+
+  const ptkp = PTKP_LIST.find(p => p.code === ptkpCode) || PTKP_LIST[0]
+  const bonusMonthTerRate = getTerRate(disbursedTaxableGross, ptkp.category)
+  const bonusMonthPph21 = Math.round(disbursedTaxableGross * bonusMonthTerRate)
+
+  const employeeBpjsTotal = kesEmployee + jhtEmployee + jpEmployee
+
+  let employeeDeductions = bonusMonthPph21 + employeeBpjsTotal
+  if (taxMethod === 'gross_up') {
+    employeeDeductions = employeeBpjsTotal
+  } else if (taxMethod === 'nett') {
+    employeeDeductions = 0
+  }
+
+  const disbursedNetSalary = Math.max(0, disbursedCashGross - employeeDeductions)
+
+  return {
+    regularMonthlyGross: regular.monthly.cashGross,
+    regularMonthlyNet: regular.monthly.netSalary,
+    regularTerRate: regular.terRate,
+    regularTerPct: regular.terPercentage,
+    regularPph21: regular.monthly.pph21,
+
+    disbursedExtra: extra,
+    disbursedCashGross,
+    disbursedTerRate: bonusMonthTerRate,
+    disbursedTerPct: (bonusMonthTerRate * 100).toFixed(2),
+    disbursedPph21: bonusMonthPph21,
+    disbursedBpjs: employeeBpjsTotal,
+    disbursedTotalDeductions: employeeDeductions,
+    disbursedNetSalary,
+    extraNetReceived: disbursedNetSalary - regular.monthly.netSalary,
+  }
+}
+
+// Reverse Calculator: Hitung Gross Salary yang dibutuhkan dari Target Net THP Bulanan
+export function findRequiredGrossForTargetNet({
+  targetNet = 0,
+  fixedAllowance = 0,
+  ptkpCode = 'TK/0',
+  taxMethod = 'gross',
+  includeBpjsCompanyInTax = true,
+  enableBpjsKesehatan = true,
+  enableBpjsKetenagakerjaan = true,
+}) {
+  const target = Math.max(0, Number(targetNet) || 0)
+  if (target <= 0) return 0
+
+  if (taxMethod === 'nett') {
+    // Di skema nett murni, basic = targetNet - fixed
+    return Math.max(0, target - fixedAllowance)
+  }
+
+  // Binary search target basic
+  let low = Math.max(0, target - fixedAllowance)
+  let high = (target + fixedAllowance) * 2.5
+  let bestBasic = low
+  let bestDiff = Infinity
+
+  for (let i = 0; i < 40; i++) {
+    const mid = (low + high) / 2
+    const calc = calculateSalary({
+      basicSalary: mid,
+      fixedAllowance,
+      annualBonus: 0,
+      ptkpCode,
+      taxMethod,
+      includeBpjsCompanyInTax,
+      enableBpjsKesehatan,
+      enableBpjsKetenagakerjaan,
+    })
+
+    const net = calc.monthly.netSalary
+    const diff = net - target
+
+    if (Math.abs(diff) < bestDiff) {
+      bestDiff = Math.abs(diff)
+      bestBasic = Math.round(mid)
+    }
+
+    if (net < target) {
+      low = mid
+    } else {
+      high = mid
+    }
+  }
+
+  // Linear scan +/- 50.000 to find exact round amount
+  for (let candidate = Math.max(0, bestBasic - 50000); candidate <= bestBasic + 60000; candidate += 1000) {
+    const calc = calculateSalary({
+      basicSalary: candidate,
+      fixedAllowance,
+      annualBonus: 0,
+      ptkpCode,
+      taxMethod,
+      includeBpjsCompanyInTax,
+      enableBpjsKesehatan,
+      enableBpjsKetenagakerjaan,
+    })
+    if (calc.monthly.netSalary >= target) {
+      return candidate
+    }
+  }
+
+  return bestBasic
 }
 
 export function formatIDR(amount) {

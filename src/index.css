@@ -30,3 +30,36 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Print / PDF Export Styling */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-clean {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+  }
+
+  table, tr, td, th {
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+    background-color: #ffffff !important;
+  }
+}
