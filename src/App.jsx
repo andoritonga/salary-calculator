@@ -294,6 +294,9 @@ export default function App() {
   const deltaMonthlyNet = offeringCalc.monthly.netSalary - existingCalc.monthly.netSalary
   const deltaMonthlyNetPct = existingCalc.monthly.netSalary > 0 ? (deltaMonthlyNet / existingCalc.monthly.netSalary) * 100 : 0
 
+  const deltaAnnualGross = offeringCalc.annual.cashGross - existingCalc.annual.cashGross
+  const deltaAnnualGrossPct = existingCalc.annual.cashGross > 0 ? (deltaAnnualGross / existingCalc.annual.cashGross) * 100 : 0
+
   const deltaAnnualNet = offeringCalc.annual.netSalary - existingCalc.annual.netSalary
   const deltaAnnualNetPct = existingCalc.annual.netSalary > 0 ? (deltaAnnualNet / existingCalc.annual.netSalary) * 100 : 0
 
@@ -835,31 +838,31 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                           <td className="py-2 px-4 text-slate-300">Tunjangan Tetap</td>
                           <td className="py-2 px-4 text-right text-slate-400">{renderIDR(existingCalc.fixed)}</td>
                           <td className="py-2 px-4 text-right text-slate-200">{renderIDR(offeringCalc.fixed)}</td>
-                          <td className="py-2 px-4 text-right text-slate-400">+{renderIDR(offeringCalc.fixed - existingCalc.fixed)}</td>
+                          <td className="py-2 px-4 text-right text-slate-400">{(offeringCalc.fixed - existingCalc.fixed) >= 0 ? '+' : ''}{renderIDR(offeringCalc.fixed - existingCalc.fixed)}</td>
                         </tr>
                         <tr className="font-semibold text-slate-200 bg-slate-950/20">
                           <td className="py-2 px-4">Bruto Bulanan</td>
                           <td className="py-2 px-4 text-right">{renderIDR(existingCalc.monthly.cashGross)}</td>
                           <td className="py-2 px-4 text-right">{renderIDR(offeringCalc.monthly.cashGross)}</td>
-                          <td className="py-2 px-4 text-right text-emerald-400">+{renderIDR(deltaMonthlyGross)}</td>
+                          <td className={`py-2 px-4 text-right ${deltaMonthlyGross >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{deltaMonthlyGross >= 0 ? '+' : ''}{renderIDR(deltaMonthlyGross)}</td>
                         </tr>
                         <tr className="text-rose-400/90">
                           <td className="py-2 px-4">PPh 21 TER ({existingCalc.terPercentage}% vs {offeringCalc.terPercentage}%)</td>
                           <td className="py-2 px-4 text-right">-{renderIDR(existingCalc.monthly.pph21)}</td>
                           <td className="py-2 px-4 text-right">-{renderIDR(offeringCalc.monthly.pph21)}</td>
-                          <td className="py-2 px-4 text-right text-slate-400">{renderIDR(offeringCalc.monthly.pph21 - existingCalc.monthly.pph21)}</td>
+                          <td className="py-2 px-4 text-right text-slate-400">{(offeringCalc.monthly.pph21 - existingCalc.monthly.pph21) >= 0 ? '+' : ''}{renderIDR(offeringCalc.monthly.pph21 - existingCalc.monthly.pph21)}</td>
                         </tr>
                         <tr className="text-rose-400/90">
                           <td className="py-2 px-4">Iuran BPJS Karyawan (Kes + TK)</td>
                           <td className="py-2 px-4 text-right">-{renderIDR(existingCalc.monthly.bpjs.totalEmployee)}</td>
                           <td className="py-2 px-4 text-right">-{renderIDR(offeringCalc.monthly.bpjs.totalEmployee)}</td>
-                          <td className="py-2 px-4 text-right text-slate-400">-{renderIDR(offeringCalc.monthly.bpjs.totalEmployee - existingCalc.monthly.bpjs.totalEmployee)}</td>
+                          <td className="py-2 px-4 text-right text-slate-400">{(offeringCalc.monthly.bpjs.totalEmployee - existingCalc.monthly.bpjs.totalEmployee) >= 0 ? '+' : ''}{renderIDR(offeringCalc.monthly.bpjs.totalEmployee - existingCalc.monthly.bpjs.totalEmployee)}</td>
                         </tr>
                         <tr className="font-bold text-white bg-emerald-950/20 border-t border-slate-700/50">
                           <td className="py-2.5 px-4 text-emerald-400">NET THP / BULAN</td>
                           <td className="py-2.5 px-4 text-right">{renderIDR(existingCalc.monthly.netSalary)}</td>
                           <td className="py-2.5 px-4 text-right text-emerald-400">{renderIDR(offeringCalc.monthly.netSalary)}</td>
-                          <td className="py-2.5 px-4 text-right text-emerald-400">+{renderIDR(deltaMonthlyNet)} ({deltaMonthlyNetPct.toFixed(1)}%)</td>
+                          <td className={`py-2.5 px-4 text-right ${deltaMonthlyNet >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)} ({deltaMonthlyNetPct >= 0 ? '+' : ''}{deltaMonthlyNetPct.toFixed(1)}%)</td>
                         </tr>
                       </>
                     )}
@@ -874,31 +877,31 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                           <td className="py-2 px-4 text-slate-300">Tunjangan Tidak Tetap / Bonus</td>
                           <td className="py-2 px-4 text-right text-slate-400">{renderIDR(existingCalc.annual.bonus)}</td>
                           <td className="py-2 px-4 text-right text-slate-200">{renderIDR(offeringCalc.annual.bonus)}</td>
-                          <td className="py-2 px-4 text-right text-slate-400">+{renderIDR(offeringCalc.annual.bonus - existingCalc.annual.bonus)}</td>
+                          <td className="py-2 px-4 text-right text-slate-400">{(offeringCalc.annual.bonus - existingCalc.annual.bonus) >= 0 ? '+' : ''}{renderIDR(offeringCalc.annual.bonus - existingCalc.annual.bonus)}</td>
                         </tr>
                         <tr className="font-semibold text-slate-200 bg-slate-950/20">
                           <td className="py-2 px-4">Total Bruto Setahun</td>
                           <td className="py-2 px-4 text-right">{renderIDR(existingCalc.annual.cashGross)}</td>
                           <td className="py-2 px-4 text-right">{renderIDR(offeringCalc.annual.cashGross)}</td>
-                          <td className="py-2 px-4 text-right text-emerald-400">+{renderIDR(deltaAnnualGross)}</td>
+                          <td className={`py-2 px-4 text-right ${deltaAnnualGross >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{deltaAnnualGross >= 0 ? '+' : ''}{renderIDR(deltaAnnualGross)}</td>
                         </tr>
                         <tr className="text-rose-400/90">
                           <td className="py-2 px-4">PPh 21 Setahun (Pasal 17)</td>
                           <td className="py-2 px-4 text-right">-{renderIDR(existingCalc.annual.pph21)}</td>
                           <td className="py-2 px-4 text-right">-{renderIDR(offeringCalc.annual.pph21)}</td>
-                          <td className="py-2 px-4 text-right text-slate-400">{renderIDR(offeringCalc.annual.pph21 - existingCalc.annual.pph21)}</td>
+                          <td className="py-2 px-4 text-right text-slate-400">{(offeringCalc.annual.pph21 - existingCalc.annual.pph21) >= 0 ? '+' : ''}{renderIDR(offeringCalc.annual.pph21 - existingCalc.annual.pph21)}</td>
                         </tr>
                         <tr className="text-rose-400/90">
                           <td className="py-2 px-4">Total Iuran BPJS Setahun</td>
                           <td className="py-2 px-4 text-right">-{renderIDR(existingCalc.annual.bpjs.totalEmployee)}</td>
                           <td className="py-2 px-4 text-right">-{renderIDR(offeringCalc.annual.bpjs.totalEmployee)}</td>
-                          <td className="py-2 px-4 text-right text-slate-400">-{renderIDR(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee)}</td>
+                          <td className="py-2 px-4 text-right text-slate-400">{(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee) >= 0 ? '+' : ''}{renderIDR(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee)}</td>
                         </tr>
                         <tr className="font-bold text-white bg-sky-950/20 border-t border-slate-700/50">
                           <td className="py-2.5 px-4 text-sky-400">NET THP / TAHUN</td>
                           <td className="py-2.5 px-4 text-right">{renderIDR(existingCalc.annual.netSalary)}</td>
                           <td className="py-2.5 px-4 text-right text-sky-400">{renderIDR(offeringCalc.annual.netSalary)}</td>
-                          <td className="py-2.5 px-4 text-right text-sky-400">+{renderIDR(deltaAnnualNet)} ({deltaAnnualNetPct.toFixed(1)}%)</td>
+                          <td className={`py-2.5 px-4 text-right ${deltaAnnualNet >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>{deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)} ({deltaAnnualNetPct >= 0 ? '+' : ''}{deltaAnnualNetPct.toFixed(1)}%)</td>
                         </tr>
                       </>
                     )}
