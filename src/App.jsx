@@ -53,6 +53,7 @@ export default function App() {
   // Modal Pop-ups
   const [showNegotiateModal, setShowNegotiateModal] = useState(false)
   const [showSpecialSlipsModal, setShowSpecialSlipsModal] = useState(false)
+  const [showResetModal, setShowResetModal] = useState(false)
 
   // Unified PTKP status (Global for both existing and all offerings)
   const [ptkpStatus, setPtkpStatus] = useState(() => {
@@ -378,6 +379,49 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
     setShowNegotiateModal(false)
   }
 
+  // Clear all salary figures to zero
+  const handleClearAllToZero = () => {
+    setExistingBasic(0)
+    setExistingFixed(0)
+    setExistingAnnualBonus(0)
+    setOfferings(prev => prev.map(o => ({
+      ...o,
+      basic: 0,
+      fixed: 0,
+      annualBonus: 0
+    })))
+    setShowResetModal(false)
+  }
+
+  // Reset all state to default demo values
+  const handleResetToDemo = () => {
+    setExistingBasic(15000000)
+    setExistingFixed(2000000)
+    setExistingAnnualBonus(15000000)
+    setExistingTaxMethod('gross')
+    setPtkpStatus('TK/0')
+    setOfferings(INITIAL_OFFERINGS)
+    setActiveOfferingId('offering-1')
+    setAnnualMultiplier(13)
+    setShowResetModal(false)
+  }
+
+  // Clear specific existing card
+  const handleClearExisting = () => {
+    setExistingBasic(0)
+    setExistingFixed(0)
+    setExistingAnnualBonus(0)
+  }
+
+  // Clear specific active offering card
+  const handleClearActiveOffering = () => {
+    updateActiveOffering({
+      basic: 0,
+      fixed: 0,
+      annualBonus: 0
+    })
+  }
+
   return (
     <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-300 relative">
       {/* Ambient background glow */}
@@ -433,6 +477,16 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
               <span className="hidden sm:inline">{copied ? 'Tersalin' : 'Salin'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowResetModal(true)}
+              className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
+              title="Reset atau kosongkan data input"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+              <span className="hidden sm:inline">Reset</span>
             </button>
 
             <button
@@ -691,16 +745,26 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     <p className="text-[11px] text-slate-400">Kondisi pekerjaan saat ini</p>
                   </div>
                 </div>
-                <select
-                  value={existingTaxMethod}
-                  onChange={(e) => setExistingTaxMethod(e.target.value)}
-                  className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 text-slate-300 border border-slate-800 focus:outline-none cursor-pointer"
-                  title="Skema Pajak"
-                >
-                  <option value="gross">Gross (Standar)</option>
-                  <option value="gross_up">Gross-Up</option>
-                  <option value="nett">Nett</option>
-                </select>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleClearExisting}
+                    className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 border border-slate-800 transition"
+                    title="Kosongkan angka gaji saat ini"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </button>
+                  <select
+                    value={existingTaxMethod}
+                    onChange={(e) => setExistingTaxMethod(e.target.value)}
+                    className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 text-slate-300 border border-slate-800 focus:outline-none cursor-pointer"
+                    title="Skema Pajak"
+                  >
+                    <option value="gross">Gross (Standar)</option>
+                    <option value="gross_up">Gross-Up</option>
+                    <option value="nett">Nett</option>
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-3.5">
@@ -768,16 +832,26 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     <p className="text-[11px] text-emerald-400">Penawaran yang dievaluasi</p>
                   </div>
                 </div>
-                <select
-                  value={activeOffering.taxMethod}
-                  onChange={(e) => updateActiveOffering({ taxMethod: e.target.value })}
-                  className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 text-slate-300 border border-slate-800 focus:outline-none cursor-pointer"
-                  title="Skema Pajak"
-                >
-                  <option value="gross">Gross (Standar)</option>
-                  <option value="gross_up">Gross-Up</option>
-                  <option value="nett">Nett</option>
-                </select>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleClearActiveOffering}
+                    className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 border border-slate-800 transition"
+                    title="Kosongkan angka penawaran ini"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </button>
+                  <select
+                    value={activeOffering.taxMethod}
+                    onChange={(e) => updateActiveOffering({ taxMethod: e.target.value })}
+                    className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 text-slate-300 border border-slate-800 focus:outline-none cursor-pointer"
+                    title="Skema Pajak"
+                  >
+                    <option value="gross">Gross (Standar)</option>
+                    <option value="gross_up">Gross-Up</option>
+                    <option value="nett">Nett</option>
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-3.5">
@@ -1602,6 +1676,68 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* POP-UP MODAL 3: RESET / CLEAR ALL                        */}
+      {/* ======================================================== */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150 no-print">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 relative">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                  <RotateCcw className="w-5 h-5 text-rose-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Reset & Kosongkan Data</h3>
+                  <p className="text-xs text-slate-400">Pilih opsi pengosongan data input</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowResetModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Apakah Anda ingin mengosongkan seluruh angka gaji saat ini dan seluruh penawaran, atau mengembalikan ke data contoh bawaan?
+            </p>
+
+            <div className="space-y-2.5 pt-1">
+              <button
+                type="button"
+                onClick={handleClearAllToZero}
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 flex items-center justify-center gap-2 transition"
+              >
+                <Trash2 className="w-4 h-4 text-rose-400" />
+                <span>Kosongkan Semua Angka (Set ke Rp 0)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetToDemo}
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-2 transition"
+              >
+                <RotateCcw className="w-4 h-4 text-slate-400" />
+                <span>Kembalikan ke Contoh Bawaan (Demo)</span>
+              </button>
+            </div>
+
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={() => setShowResetModal(false)}
+                className="text-xs text-slate-400 hover:text-slate-200 transition"
+              >
+                Batal
+              </button>
+            </div>
           </div>
         </div>
       )}

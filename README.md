@@ -71,11 +71,17 @@ Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di 
 - **Simulasi Slip Bulan THR**: Mensimulasikan lonjakan tarif TER bulanan ketika menerima gaji pokok + THR sekaligus dalam 1 bulan kalender.
 - **Simulasi Slip Bulan Desember (True-up)**: Menghitung penyesuaian pajak akhir tahun dengan rumus PPh 21 Pasal 17 setahun dikurangi kredit pajak TER yang telah dipotong (Jan–Nov).
 
-### 6. 🔒 Mode Privasi & Utilitas Tambahan
+### 6. 🔄 Fitur Reset & Clear All (Kosongkan Data)
+- **Global Reset Modal**: Tombol `Reset` di bilah atas untuk memilih antara:
+  - **Kosongkan Semua Angka (0)**: Mengosongkan seluruh angka gaji saat ini dan seluruh offering ke Rp 0 untuk input baru dari awal.
+  - **Kembalikan ke Contoh Bawaan (Demo)**: Mengembalikan form ke data simulasi bawaan.
+- **Per-Card Quick Reset**: Tombol ikon *rotate/clear* di masing-masing kartu Existing dan Offering untuk pengosongan cepat secara granular.
+
+### 7. 🔒 Mode Privasi & Utilitas Tambahan
 - **Mode Privasi (Sensor Angka)**: Mengaburkan seluruh nominal rupiah dengan efek blur interaktif (cukup arahkan kursor untuk melihat angka), aman saat digunakan di ruang publik / kantor.
 - **Salin Ringkasan (Copy Summary)**: Menyalin format ringkasan negosiasi siap kirim ke clipboard.
 - **Ekspor / Cetak PDF**: Format cetak bersih (`@media print`) yang menghilangkan elemen navigasi dan tombol.
-- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`v4`) dan manifest untuk instalasi di smartphone / desktop dan dapat diakses saat offline.
+- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`v6`) dan manifest untuk instalasi di smartphone / desktop dan dapat diakses saat offline.
 
 ---
 
