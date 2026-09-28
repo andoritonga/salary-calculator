@@ -1,0 +1,11 @@
+services:
+  salary-calculator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salary-calculator-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
