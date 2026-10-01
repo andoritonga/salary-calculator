@@ -4,9 +4,10 @@
   "description": "Simulasi gaji bersih (THP), PPh 21 TER PMK 168, BPJS, dan komparasi offering kerja.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#0f172a",
+  "background_color": "#0B0F19",
+  "theme_color": "#0B0F19",
   "orientation": "portrait-primary",
+  "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
       "src": "/icon.svg",

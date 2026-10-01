@@ -203,7 +203,24 @@ export const translations = {
     copySummaryFooter: 'Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.',
 
     // Footer
-    footerText: 'Kalkulator Gaji & Offering © 2026. PPh 21 TER (PMK 168/2023) & BPJS.'
+    footerText: 'Kalkulator Gaji & Offering © 2026. PPh 21 TER (PMK 168/2023) & BPJS.',
+
+    // Mobile / PWA App Features
+    pwaBannerTitle: 'Pasang Aplikasi Kalkulator Gaji',
+    pwaBannerDesc: 'Simulasi gaji instan & offline langsung dari layar utama.',
+    pwaInstallBtn: 'Pasang App',
+    pwaDismiss: 'Nanti',
+    mobileTabForm: 'Input',
+    mobileTabBreakdown: 'Rincian',
+    mobileTabNegotiate: 'Negosiasi',
+    mobileTabSlips: 'Slip THR',
+    mobileTabMenu: 'Menu',
+    mobileFilterExisting: 'Saat Ini',
+    mobileFilterOffering: 'Penawaran',
+    mobileFilterBoth: 'Berdampingan',
+    mobileTableScrollHint: 'Geser tabel ke samping untuk melihat seluruh detail angka',
+    mobileQuickKpiTitle: 'Kenaikan Bersih:',
+    appModeActive: 'Mode Aplikasi Standalone'
   },
   en: {
     // Header
@@ -409,7 +426,24 @@ export const translations = {
     copySummaryFooter: 'Calculated using Indonesian PPh 21 TER (PMK 168/2023) & BPJS regulations.',
 
     // Footer
-    footerText: 'Salary & Offering Calculator © 2026. PPh 21 TER (PMK 168/2023) & BPJS.'
+    footerText: 'Salary & Offering Calculator © 2026. PPh 21 TER (PMK 168/2023) & BPJS.',
+
+    // Mobile / PWA App Features
+    pwaBannerTitle: 'Install Salary Calculator App',
+    pwaBannerDesc: 'Instant & offline salary simulation right on your home screen.',
+    pwaInstallBtn: 'Install App',
+    pwaDismiss: 'Later',
+    mobileTabForm: 'Input',
+    mobileTabBreakdown: 'Breakdown',
+    mobileTabNegotiate: 'Negotiate',
+    mobileTabSlips: 'THR Slips',
+    mobileTabMenu: 'Menu',
+    mobileFilterExisting: 'Current',
+    mobileFilterOffering: 'Offering',
+    mobileFilterBoth: 'Side-by-Side',
+    mobileTableScrollHint: 'Swipe table horizontally to inspect all detailed figures',
+    mobileQuickKpiTitle: 'Net Increase:',
+    appModeActive: 'Standalone App Mode'
   }
 }
 
