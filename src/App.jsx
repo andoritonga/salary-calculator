@@ -504,35 +504,36 @@ ${t('copySummaryFooter')}`
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-80 bg-gradient-to-b from-emerald-500/5 via-slate-800/10 to-transparent blur-3xl pointer-events-none -z-10" />
 
       {/* 1. Header (Sticky App Bar with Safe Area) */}
-      <header className="border-b border-slate-800/70 bg-[#0B0F19]/90 backdrop-blur-md sticky top-0 z-40 pt-safe no-print transition-all">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-3">
+      <header className="border-b border-slate-800/70 bg-[#0B0F19]/90 backdrop-blur-md sticky top-0 z-40 pt-safe no-print transition-all w-full max-w-full overflow-hidden">
+        <div className="max-w-6xl mx-auto px-3.5 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between gap-2">
+          {/* Logo & Title */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-emerald-500/15 shrink-0">
               <Calculator className="w-4 h-4 text-slate-950" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-xs sm:text-sm font-bold text-white tracking-tight">{t('appTitle')}</span>
-                <span className="text-[9px] sm:text-[10px] font-semibold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="text-xs sm:text-sm font-bold text-white tracking-tight truncate">{t('appTitle')}</span>
+                <span className="text-[9px] sm:text-[10px] font-semibold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
                   PPh 21 TER
                 </span>
                 {isStandalone && (
-                  <span className="hidden xs:inline-flex text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                  <span className="hidden xs:inline-flex text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 shrink-0">
                     APP
                   </span>
                 )}
               </div>
-              <span className="text-[11px] text-slate-400 block truncate max-w-[200px] sm:max-w-none">{t('appSubtitle')}</span>
+              <span className="text-[11px] text-slate-400 hidden sm:block truncate">{t('appSubtitle')}</span>
             </div>
           </div>
 
           {/* Quick Header Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Language Toggle: ID / EN */}
             <button
               type="button"
               onClick={() => setLang(lang === 'id' ? 'en' : 'id')}
-              className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
+              className="px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1 sm:gap-1.5 shadow-sm"
               title={t('langToggleTitle')}
             >
               <Globe className="w-3.5 h-3.5 text-emerald-400" />
@@ -547,7 +548,7 @@ ${t('copySummaryFooter')}`
             <button
               type="button"
               onClick={() => setPrivacyMode(!privacyMode)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all duration-150 flex items-center gap-1.5 shadow-sm ${
+              className={`p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-medium border transition-all duration-150 flex items-center gap-1.5 shadow-sm ${
                 privacyMode
                   ? 'bg-amber-500/15 text-amber-300 border-amber-500/40 shadow-amber-500/10'
                   : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
@@ -558,41 +559,41 @@ ${t('copySummaryFooter')}`
               <span className="hidden sm:inline">{privacyMode ? t('privacyActive') : t('privacyInactive')}</span>
             </button>
 
-            {/* PDF */}
+            {/* PDF (Desktop Only) */}
             <button
               onClick={() => window.print()}
-              className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
+              className="hidden sm:flex px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all items-center gap-1.5 shadow-sm"
               title={t('pdfTitle')}
             >
               <Printer className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden sm:inline">{t('pdf')}</span>
+              <span>{t('pdf')}</span>
             </button>
 
-            {/* Copy */}
+            {/* Copy (Desktop Only) */}
             <button
               onClick={copySummary}
-              className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
+              className="hidden sm:flex px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all items-center gap-1.5 shadow-sm"
               title={t('copyTitle')}
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
-              <span className="hidden sm:inline">{copied ? t('copied') : t('copy')}</span>
+              <span>{copied ? t('copied') : t('copy')}</span>
             </button>
 
             {/* Reset */}
             <button
               type="button"
               onClick={() => setShowResetModal(true)}
-              className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
+              className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
               title={t('resetTitle')}
             >
               <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
               <span className="hidden sm:inline">{t('reset')}</span>
             </button>
 
-            {/* Options */}
+            {/* Options (Desktop Only - mobile uses bottom dock Tab 5) */}
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all flex items-center gap-1.5 shadow-sm ${
+              className={`hidden md:flex px-3 py-1.5 rounded-xl text-xs font-medium border transition-all items-center gap-1.5 shadow-sm ${
                 showAdvanced
                   ? 'bg-slate-800 text-white border-slate-700'
                   : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
@@ -600,7 +601,7 @@ ${t('copySummaryFooter')}`
               title={t('optionsTitle')}
             >
               <Sliders className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden md:inline">{t('options')}</span>
+              <span>{t('options')}</span>
             </button>
           </div>
         </div>
@@ -608,63 +609,118 @@ ${t('copySummaryFooter')}`
 
       {/* Advanced Settings Drawer */}
       {showAdvanced && (
-        <div className="bg-slate-900/90 border-b border-slate-800/80 px-4 sm:px-6 py-4 animate-in slide-in-from-top duration-200 no-print">
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-300">
-            <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
-              <span className="font-semibold text-white block mb-2.5">{t('bpjsComponentTitle')}</span>
-              <label className="flex items-center gap-2 mb-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={enableBpjsKes}
-                  onChange={(e) => setEnableBpjsKes(e.target.checked)}
-                  className="rounded border-slate-700 text-emerald-500 bg-slate-800"
-                />
-                <span>{t('bpjsKesLabel')}</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={enableBpjsTk}
-                  onChange={(e) => setEnableBpjsTk(e.target.checked)}
-                  className="rounded border-slate-700 text-emerald-500 bg-slate-800"
-                />
-                <span>{t('bpjsTkLabel')}</span>
-              </label>
-            </div>
-
-            <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
-              <span className="font-semibold text-white block mb-2.5">{t('taxBaseTitle')}</span>
-              <label className="flex items-center gap-2 cursor-pointer mb-2">
-                <input
-                  type="checkbox"
-                  checked={includeBpjsCompanyInTax}
-                  onChange={(e) => setIncludeBpjsCompanyInTax(e.target.checked)}
-                  className="rounded border-slate-700 text-emerald-500 bg-slate-800"
-                />
-                <span>{t('taxBaseLabel')}</span>
-              </label>
-              <span className="text-[11px] text-slate-400 block leading-relaxed">{t('taxBaseNote')}</span>
-            </div>
-
-            <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
-              <span className="font-semibold text-white block mb-2.5">{t('multiplierTitle')}</span>
-              <div className="flex gap-2 mb-2">
-                {[12, 13, 14, 15].map((months) => (
-                  <button
-                    key={months}
-                    type="button"
-                    onClick={() => setAnnualMultiplier(months)}
-                    className={`px-3 py-1 rounded-lg text-xs font-semibold border transition ${
-                      annualMultiplier === months
-                        ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-                        : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
-                    }`}
-                  >
-                    {months}x
-                  </button>
-                ))}
+        <div className="bg-slate-900/95 border-b border-slate-800/80 px-4 sm:px-6 py-4 animate-in slide-in-from-top duration-200 no-print">
+          <div className="max-w-6xl mx-auto space-y-4">
+            {/* Header of Drawer */}
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800/60">
+              <div className="flex items-center gap-2">
+                <Settings2 className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs sm:text-sm font-bold text-white">{t('optionsTitle')}</span>
               </div>
-              <span className="text-[11px] text-slate-400 block">{t('multiplierNote')}</span>
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                title={t('closeMenu')}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 text-xs text-slate-300">
+              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
+                <span className="font-semibold text-white block mb-2.5">{t('bpjsComponentTitle')}</span>
+                <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={enableBpjsKes}
+                    onChange={(e) => setEnableBpjsKes(e.target.checked)}
+                    className="rounded border-slate-700 text-emerald-500 bg-slate-800"
+                  />
+                  <span>{t('bpjsKesLabel')}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={enableBpjsTk}
+                    onChange={(e) => setEnableBpjsTk(e.target.checked)}
+                    className="rounded border-slate-700 text-emerald-500 bg-slate-800"
+                  />
+                  <span>{t('bpjsTkLabel')}</span>
+                </label>
+              </div>
+
+              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
+                <span className="font-semibold text-white block mb-2.5">{t('taxBaseTitle')}</span>
+                <label className="flex items-center gap-2 cursor-pointer mb-2">
+                  <input
+                    type="checkbox"
+                    checked={includeBpjsCompanyInTax}
+                    onChange={(e) => setIncludeBpjsCompanyInTax(e.target.checked)}
+                    className="rounded border-slate-700 text-emerald-500 bg-slate-800"
+                  />
+                  <span>{t('taxBaseLabel')}</span>
+                </label>
+                <span className="text-[11px] text-slate-400 block leading-relaxed">{t('taxBaseNote')}</span>
+              </div>
+
+              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
+                <span className="font-semibold text-white block mb-2.5">{t('multiplierTitle')}</span>
+                <div className="flex gap-2 mb-2">
+                  {[12, 13, 14, 15].map((months) => (
+                    <button
+                      key={months}
+                      type="button"
+                      onClick={() => setAnnualMultiplier(months)}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold border transition ${
+                        annualMultiplier === months
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-400'
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                      }`}
+                    >
+                      {months}x
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[11px] text-slate-400 block">{t('multiplierNote')}</span>
+              </div>
+            </div>
+
+            {/* Quick Actions inside Drawer for Mobile */}
+            <div className="pt-3 border-t border-slate-800/60 flex flex-wrap items-center justify-between gap-2.5 md:hidden">
+              <span className="text-xs text-slate-400 font-semibold">{t('quickActions')}</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAdvanced(false)
+                    setTimeout(() => window.print(), 150)
+                  }}
+                  className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-950/70 hover:bg-slate-800 text-slate-200 border border-slate-800 flex items-center gap-1.5"
+                >
+                  <Printer className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{t('pdf')}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={copySummary}
+                  className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-950/70 hover:bg-slate-800 text-slate-200 border border-slate-800 flex items-center gap-1.5"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                  <span>{copied ? t('copied') : t('copy')}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAdvanced(false)
+                    setShowResetModal(true)
+                  }}
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+                  <span>{t('reset')}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -768,12 +824,12 @@ ${t('copySummaryFooter')}`
         </div>
 
         {/* 2. Top Unified Control Bar: PTKP & Modals & Offering Switcher */}
-        <div className="bg-slate-900/80 border border-slate-800/80 p-3.5 sm:p-4 rounded-2xl shadow-sm space-y-3.5 no-print">
+        <div className="bg-slate-900/80 border border-slate-800/80 p-3 sm:p-4 rounded-2xl shadow-sm space-y-3 sm:space-y-3.5 no-print w-full max-w-full overflow-hidden">
           
           {/* Row 1: Penawaran Switcher & Quick Tool Buttons */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            {/* Penawaran Selector */}
-            <div className="flex items-center gap-2 overflow-x-auto py-0.5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3">
+            {/* Penawaran Selector (Flex Wrap - No Horizontal Scroll) */}
+            <div className="flex items-center gap-2 flex-wrap py-0.5">
               <span className="text-xs font-semibold text-slate-400 shrink-0 flex items-center gap-1.5 mr-1">
                 <Briefcase className="w-4 h-4 text-emerald-400" />
                 {t('offeringsLabel')}
@@ -814,8 +870,8 @@ ${t('copySummaryFooter')}`
               </button>
             </div>
 
-            {/* Quick Action Modal Buttons */}
-            <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+            {/* Quick Action Modal Buttons (Desktop Only - on mobile these are in bottom dock) */}
+            <div className="hidden md:flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowNegotiateModal(true)}
@@ -839,8 +895,8 @@ ${t('copySummaryFooter')}`
           </div>
 
           {/* Row 2: Single Global PTKP Selector (1 Tempat di Atas) */}
-          <div className="pt-3 border-t border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="pt-2.5 sm:pt-3 border-t border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 text-xs">
+            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
               <span className="font-semibold text-slate-300 flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5 text-slate-400" />
                 {t('ptkpLabel')}
@@ -848,7 +904,7 @@ ${t('copySummaryFooter')}`
               <select
                 value={ptkpStatus}
                 onChange={(e) => setPtkpStatus(e.target.value)}
-                className="px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500/70 cursor-pointer"
+                className="px-2.5 sm:px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500/70 cursor-pointer max-w-full"
               >
                 {PTKP_LIST.map((p) => (
                   <option key={p.code} value={p.code}>
@@ -856,7 +912,7 @@ ${t('copySummaryFooter')}`
                   </option>
                 ))}
               </select>
-              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="text-[10px] sm:text-[11px] font-semibold px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 {t('ptkpEffectiveRate', { cat: existingCalc.terCategory, rate: existingCalc.terPercentage })}
               </span>
             </div>

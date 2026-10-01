@@ -17,6 +17,8 @@ export const translations = {
     options: 'Opsi',
     optionsTitle: 'Pengaturan BPJS & Gaji',
     langToggleTitle: 'Switch to English',
+    quickActions: 'Aksi Cepat:',
+    closeMenu: 'Tutup Menu',
 
     // Advanced Drawer
     bpjsComponentTitle: 'Komponen BPJS',
@@ -240,6 +242,8 @@ export const translations = {
     options: 'Options',
     optionsTitle: 'BPJS & Salary Settings',
     langToggleTitle: 'Ganti ke Bahasa Indonesia',
+    quickActions: 'Quick Actions:',
+    closeMenu: 'Close Menu',
 
     // Advanced Drawer
     bpjsComponentTitle: 'BPJS Components',

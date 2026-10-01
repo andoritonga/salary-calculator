@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salary-calc-v8'
+const CACHE_NAME = 'salary-calc-v9'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
