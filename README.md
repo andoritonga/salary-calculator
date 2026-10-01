@@ -83,17 +83,20 @@ Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di 
 - **Penyimpanan Preferensi**: Bahasa yang dipilih tersimpan otomatis di `localStorage` (`salary_calc_lang`) sehingga tetap aktif saat halaman dimuat ulang.
 
 ### 8. 📱 Pengalaman Mobile & PWA Layaknya Aplikasi Native
+- **Header Mobile Bersih & Bebas Geser Samping**: Header ringkas bebas luapan (*zero overflow / no horizontal scroll*), menyembunyikan teks deskripsi panjang dan tombol desktop sekunder pada layar ponsel kecil agar tampilan tetap lega dan rapi layaknya aplikasi iOS/Android.
+- **Kontrol Penawaran Responsif (Tanpa Scroll Samping)**: Pilihan penawaran kerja otomatis membungkus (*flex-wrap*) dengan rapi tanpa memunculkan bilah geser horizontal (*horizontal scrollbar*), dan tombol aksi ganda di bar atas dialihkan ke bilah dock bawah.
 - **Dock Navigasi Bawah (Mobile Bottom Nav)**: Bilah navigasi bawah modern ramah jempol (*thumb-friendly*) dengan 5 menu utama: *Input Form*, *Rincian Komparasi*, *Alat Negosiasi*, *Slip Khusus*, dan *Pengaturan*.
-- **Bottom Sheet Modals**: Seluruh modal (Alat Negosiasi, Simulator Slip, Reset) bertransformasi menjadi *Bottom Sheet* dengan indikator tarikan geser (*drag handle*) dan sudut melengkung halus khas iOS/Android.
+- **Bottom Sheet Modals**: Seluruh modal (Alat Negosiasi, Simulator Slip, Reset) bertransformasi menjadi *Bottom Sheet* dengan indikator tarikan geser (*drag handle*) dan sudut melengkung halus khas aplikasi modern.
+- **Laci Pengaturan & Aksi Cepat Mobile**: Tombol menu navigasi bawah membuka laci pengaturan yang dilengkapi tombol tutup (X) dan pintasan cepat (Cetak PDF, Salin Ringkasan, Reset).
 - **Segmented Mobile Filter Card**: Switcher praktis di atas form input (*Saat Ini / Penawaran / Berdampingan*) untuk mengurangi beban scrolling di layar ponsel.
 - **Floating Quick KPI Strip**: Bar mengambang otomatis yang menampilkan selisih kenaikan Take Home Pay saat pengguna menggulir halaman ke bawah.
-- **PWA Prompt & Standalone Mode**: Banner instalasi aplikasi instan (`beforeinstallprompt`), dukungan penuh layar `viewport-fit=cover`, padding aman untuk notch & home indicator (`safe-area-insets`), dan Service Worker (`salary-calc-v8`).
+- **PWA Prompt & Standalone Mode**: Banner instalasi aplikasi instan (`beforeinstallprompt`), dukungan penuh layar `viewport-fit=cover`, penanganan area poni/notch & home bar (`safe-area-insets`), dan Service Worker (`salary-calc-v9`).
 
 ### 9. 🔒 Mode Privasi & Utilitas Tambahan
-- **Mode Privasi (Sensor Angka)**: Mengaburkan seluruh nominal rupiah dengan efek blur interaktif (cukup arahkan kursor untuk melihat angka), aman saat digunakan di ruang publik / kantor.
+- **Mode Privasi (Sensor Angka)**: Mengaburkan seluruh nominal rupiah dengan efek blur interaktif (cukup sentuh atau arahkan kursor untuk melihat angka), aman saat digunakan di ruang publik / kantor.
 - **Salin Ringkasan (Copy Summary)**: Menyalin format ringkasan negosiasi siap kirim ke clipboard sesuai bahasa yang aktif (ID/EN).
 - **Ekspor / Cetak PDF**: Format cetak bersih (`@media print`) yang menghilangkan elemen navigasi dan tombol.
-- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`salary-calc-v8`) dan manifest untuk instalasi di smartphone / desktop dan dapat diakses saat offline.
+- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`salary-calc-v9`) dan manifest untuk instalasi di smartphone / desktop dan dapat diakses saat offline.
 
 ---
 
