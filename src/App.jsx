@@ -25,7 +25,8 @@ import {
   CheckCircle2,
   Briefcase,
   X,
-  Users
+  Users,
+  Globe
 } from 'lucide-react'
 import {
   calculateSalary,
@@ -36,6 +37,7 @@ import {
   PTKP_LIST,
   formatNumberWithDots
 } from './utils/taxCalculator'
+import { translations, getPTKPLabel } from './translations'
 import CurrencyInput from './components/CurrencyInput'
 
 const INITIAL_OFFERINGS = [
@@ -50,6 +52,20 @@ const INITIAL_OFFERINGS = [
 ]
 
 export default function App() {
+  // Language State: 'id' | 'en'
+  const [lang, setLang] = useState(() => {
+    return localStorage.getItem('salary_calc_lang') || 'id'
+  })
+
+  // Translation helper
+  const t = (key, params = {}) => {
+    let str = translations[lang]?.[key] || translations['id']?.[key] || key
+    Object.keys(params).forEach(k => {
+      str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), params[k])
+    })
+    return str
+  }
+
   // Modal Pop-ups
   const [showNegotiateModal, setShowNegotiateModal] = useState(false)
   const [showSpecialSlipsModal, setShowSpecialSlipsModal] = useState(false)
@@ -117,6 +133,10 @@ export default function App() {
   const [copied, setCopied] = useState(false)
 
   // LocalStorage sync
+  useEffect(() => {
+    localStorage.setItem('salary_calc_lang', lang)
+  }, [lang])
+
   useEffect(() => {
     localStorage.setItem('salary_privacy_mode', privacyMode)
   }, [privacyMode])
@@ -347,21 +367,21 @@ export default function App() {
 
   // Copy Summary text
   const copySummary = () => {
-    const text = `📊 Ringkasan Komparasi Gaji & Offering (${activeOffering.name}):
+    const text = `${t('copySummaryTitle', { name: activeOffering.name })}
 
-Skema Pajak: Existing (${existingTaxMethod.toUpperCase()}) vs ${activeOffering.name} (${activeOffering.taxMethod.toUpperCase()})
+${t('copySummaryTaxScheme', { name: activeOffering.name, existingTax: existingTaxMethod.toUpperCase(), offeringTax: activeOffering.taxMethod.toUpperCase() })}
 
-🗓️ PER BULAN:
-• Existing: Gross ${formatIDR(existingCalc.monthly.cashGross)} | Net THP: ${formatIDR(existingCalc.monthly.netSalary)}
-• ${activeOffering.name}: Gross ${formatIDR(offeringCalc.monthly.cashGross)} | Net THP: ${formatIDR(offeringCalc.monthly.netSalary)}
-• Selisih Net THP: ${deltaMonthlyNet >= 0 ? '+' : ''}${formatIDR(deltaMonthlyNet)}/bln (${deltaMonthlyNetPct.toFixed(1)}%)
+${t('copySummaryMonthlyHeader')}
+${t('copySummaryExistingMonthly', { gross: formatIDR(existingCalc.monthly.cashGross), net: formatIDR(existingCalc.monthly.netSalary) })}
+${t('copySummaryOfferingMonthly', { name: activeOffering.name, gross: formatIDR(offeringCalc.monthly.cashGross), net: formatIDR(offeringCalc.monthly.netSalary) })}
+${t('copySummaryDeltaMonthly', { sign: deltaMonthlyNet >= 0 ? '+' : '', delta: formatIDR(deltaMonthlyNet), pct: deltaMonthlyNetPct.toFixed(1) })}
 
-📅 PER TAHUN (${annualMultiplier}x Gaji + Bonus):
-• Existing Net THP: ${formatIDR(existingCalc.annual.netSalary)}
-• ${activeOffering.name} Net THP: ${formatIDR(offeringCalc.annual.netSalary)}
-• Selisih Bersih Tahunan: ${deltaAnnualNet >= 0 ? '+' : ''}${formatIDR(deltaAnnualNet)}/thn
+${t('copySummaryAnnualHeader', { multiplier: annualMultiplier })}
+${t('copySummaryExistingAnnual', { net: formatIDR(existingCalc.annual.netSalary) })}
+${t('copySummaryOfferingAnnual', { name: activeOffering.name, net: formatIDR(offeringCalc.annual.netSalary) })}
+${t('copySummaryDeltaAnnual', { sign: deltaAnnualNet >= 0 ? '+' : '', delta: formatIDR(deltaAnnualNet) })}
 
-Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
+${t('copySummaryFooter')}`
 
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
@@ -436,17 +456,33 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-white tracking-tight">Kalkulator Gaji & Offering</span>
+                <span className="text-sm font-bold text-white tracking-tight">{t('appTitle')}</span>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   PPh 21 TER
                 </span>
               </div>
-              <span className="text-xs text-slate-400 block">Simulasi komparasi gaji, PPh 21 TER PMK 168 & BPJS</span>
+              <span className="text-xs text-slate-400 block">{t('appSubtitle')}</span>
             </div>
           </div>
 
           {/* Quick Header Actions */}
           <div className="flex items-center gap-2">
+            {/* Language Toggle: ID / EN */}
+            <button
+              type="button"
+              onClick={() => setLang(lang === 'id' ? 'en' : 'id')}
+              className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
+              title={t('langToggleTitle')}
+            >
+              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="flex items-center text-[11px] font-bold">
+                <span className={lang === 'id' ? 'text-emerald-400' : 'text-slate-500'}>ID</span>
+                <span className="text-slate-600 mx-0.5">/</span>
+                <span className={lang === 'en' ? 'text-emerald-400' : 'text-slate-500'}>EN</span>
+              </span>
+            </button>
+
+            {/* Privacy Mode */}
             <button
               type="button"
               onClick={() => setPrivacyMode(!privacyMode)}
@@ -455,40 +491,44 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   ? 'bg-amber-500/15 text-amber-300 border-amber-500/40 shadow-amber-500/10'
                   : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
               }`}
-              title={privacyMode ? 'Matikan Mode Privasi' : 'Aktifkan Mode Privasi (Sensor Angka)'}
+              title={privacyMode ? t('privacyTitleOn') : t('privacyTitleOff')}
             >
               {privacyMode ? <EyeOff className="w-3.5 h-3.5 text-amber-400" /> : <Eye className="w-3.5 h-3.5 text-slate-400" />}
-              <span className="hidden sm:inline">{privacyMode ? 'Sensor Aktif' : 'Privasi'}</span>
+              <span className="hidden sm:inline">{privacyMode ? t('privacyActive') : t('privacyInactive')}</span>
             </button>
 
+            {/* PDF */}
             <button
               onClick={() => window.print()}
               className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
-              title="Cetak atau simpan sebagai PDF"
+              title={t('pdfTitle')}
             >
               <Printer className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden sm:inline">PDF</span>
+              <span className="hidden sm:inline">{t('pdf')}</span>
             </button>
 
+            {/* Copy */}
             <button
               onClick={copySummary}
               className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
-              title="Salin ringkasan"
+              title={t('copyTitle')}
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
-              <span className="hidden sm:inline">{copied ? 'Tersalin' : 'Salin'}</span>
+              <span className="hidden sm:inline">{copied ? t('copied') : t('copy')}</span>
             </button>
 
+            {/* Reset */}
             <button
               type="button"
               onClick={() => setShowResetModal(true)}
               className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 shadow-sm"
-              title="Reset atau kosongkan data input"
+              title={t('resetTitle')}
             >
               <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">{t('reset')}</span>
             </button>
 
+            {/* Options */}
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
               className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all flex items-center gap-1.5 shadow-sm ${
@@ -496,10 +536,10 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   ? 'bg-slate-800 text-white border-slate-700'
                   : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
               }`}
-              title="Pengaturan BPJS & Gaji"
+              title={t('optionsTitle')}
             >
               <Sliders className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden md:inline">Opsi</span>
+              <span className="hidden md:inline">{t('options')}</span>
             </button>
           </div>
         </div>
@@ -510,7 +550,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
         <div className="bg-slate-900/90 border-b border-slate-800/80 px-4 sm:px-6 py-4 animate-in slide-in-from-top duration-200 no-print">
           <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-300">
             <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
-              <span className="font-semibold text-white block mb-2.5">Komponen BPJS</span>
+              <span className="font-semibold text-white block mb-2.5">{t('bpjsComponentTitle')}</span>
               <label className="flex items-center gap-2 mb-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -518,7 +558,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   onChange={(e) => setEnableBpjsKes(e.target.checked)}
                   className="rounded border-slate-700 text-emerald-500 bg-slate-800"
                 />
-                <span>BPJS Kesehatan (1% Karyawan, 4% Perusahaan)</span>
+                <span>{t('bpjsKesLabel')}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -527,12 +567,12 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   onChange={(e) => setEnableBpjsTk(e.target.checked)}
                   className="rounded border-slate-700 text-emerald-500 bg-slate-800"
                 />
-                <span>BPJS TK (JHT 2%, JP 1% Plafon Rp 10.04 Jt)</span>
+                <span>{t('bpjsTkLabel')}</span>
               </label>
             </div>
 
             <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
-              <span className="font-semibold text-white block mb-2.5">Dasar Perhitungan Pajak</span>
+              <span className="font-semibold text-white block mb-2.5">{t('taxBaseTitle')}</span>
               <label className="flex items-center gap-2 cursor-pointer mb-2">
                 <input
                   type="checkbox"
@@ -540,13 +580,13 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   onChange={(e) => setIncludeBpjsCompanyInTax(e.target.checked)}
                   className="rounded border-slate-700 text-emerald-500 bg-slate-800"
                 />
-                <span>Premi JKK, JKM, BPJS Kes perusahaan menambah bruto</span>
+                <span>{t('taxBaseLabel')}</span>
               </label>
-              <span className="text-[11px] text-slate-400 block leading-relaxed">Sesuai ketentuan perpajakan PMK 168/2023.</span>
+              <span className="text-[11px] text-slate-400 block leading-relaxed">{t('taxBaseNote')}</span>
             </div>
 
             <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/70">
-              <span className="font-semibold text-white block mb-2.5">Multiplier Tahunan (THR)</span>
+              <span className="font-semibold text-white block mb-2.5">{t('multiplierTitle')}</span>
               <div className="flex gap-2 mb-2">
                 {[12, 13, 14, 15].map((months) => (
                   <button
@@ -563,7 +603,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   </button>
                 ))}
               </div>
-              <span className="text-[11px] text-slate-400 block">13x = 12 bulan gaji pokok + 1 bulan THR.</span>
+              <span className="text-[11px] text-slate-400 block">{t('multiplierNote')}</span>
             </div>
           </div>
         </div>
@@ -574,9 +614,13 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
         
         {/* Printable Header */}
         <div className="hidden print:block mb-6 border-b pb-3">
-          <h1 className="text-xl font-bold text-slate-900">Ringkasan Komparasi Gaji & Offering</h1>
+          <h1 className="text-xl font-bold text-slate-900">{t('printHeaderTitle')}</h1>
           <p className="text-xs text-slate-600">
-            Penawaran: {activeOffering.name} | PPh 21 TER PMK 168 & BPJS | Status PTKP: {ptkpStatus} | Dicetak pada: {new Date().toLocaleDateString('id-ID')}
+            {t('printHeaderSubtitle', {
+              name: activeOffering.name,
+              ptkp: ptkpStatus,
+              date: new Date().toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US')
+            })}
           </p>
         </div>
 
@@ -586,7 +630,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Kenaikan Bersih (Take Home Pay)
+                  {t('heroTitle')}
                 </span>
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                   deltaMonthlyNet >= 0
@@ -603,13 +647,13 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 }`}>
                   {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)}
                 </span>
-                <span className="text-xs sm:text-sm text-slate-400 font-medium">/bulan</span>
+                <span className="text-xs sm:text-sm text-slate-400 font-medium">{t('perMonth')}</span>
               </div>
 
               <p className="text-xs text-slate-400">
-                Kenaikan akumulasi setahun ({annualMultiplier}x gaji + bonus):{' '}
+                {t('heroAnnualNote', { multiplier: annualMultiplier })}{' '}
                 <strong className={deltaAnnualNet >= 0 ? 'text-slate-200' : 'text-rose-300'}>
-                  {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}/thn
+                  {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}{t('perYear')}
                 </strong>
               </p>
             </div>
@@ -617,7 +661,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             {/* Compact Comparative Flow */}
             <div className="flex items-center gap-3 bg-slate-950/60 p-3.5 sm:p-4 rounded-xl border border-slate-800/80 shrink-0">
               <div>
-                <span className="text-[10px] text-slate-400 font-medium block uppercase tracking-wide">Gaji Saat Ini</span>
+                <span className="text-[10px] text-slate-400 font-medium block uppercase tracking-wide">{t('currentSalary')}</span>
                 <span className="text-xs sm:text-sm font-semibold text-slate-200">{renderIDR(existingCalc.monthly.netSalary)}</span>
               </div>
               <ArrowRight className="w-4 h-4 text-slate-500 shrink-0" />
@@ -638,7 +682,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             <div className="flex items-center gap-2 overflow-x-auto py-0.5">
               <span className="text-xs font-semibold text-slate-400 shrink-0 flex items-center gap-1.5 mr-1">
                 <Briefcase className="w-4 h-4 text-emerald-400" />
-                Penawaran:
+                {t('offeringsLabel')}
               </span>
               {offerings.map((off) => (
                 <div
@@ -659,7 +703,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                         handleDeleteOffering(off.id)
                       }}
                       className="text-slate-500 hover:text-rose-400 transition"
-                      title="Hapus penawaran"
+                      title={t('deleteOffering')}
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -672,7 +716,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-950/40 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-dashed border-slate-750 transition shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Tambah Tawaran</span>
+                <span>{t('addOffering')}</span>
               </button>
             </div>
 
@@ -682,20 +726,20 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 type="button"
                 onClick={() => setShowNegotiateModal(true)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 border border-sky-500/30 transition flex items-center gap-1.5 shadow-sm"
-                title="Buka kalkulator target & reverse net-to-gross"
+                title={t('negotiationToolDesc')}
               >
                 <Sliders className="w-3.5 h-3.5 text-sky-400" />
-                <span>Alat Negosiasi & Target</span>
+                <span>{t('negotiationTool')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowSpecialSlipsModal(true)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 border border-amber-500/30 transition flex items-center gap-1.5 shadow-sm"
-                title="Simulasi slip bonus THR & rekonsiliasi Desember"
+                title={t('specialSlipsDesc')}
               >
                 <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                <span>Slip THR & Desember</span>
+                <span>{t('specialSlips')}</span>
               </button>
             </div>
           </div>
@@ -705,7 +749,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             <div className="flex items-center gap-2.5 flex-wrap">
               <span className="font-semibold text-slate-300 flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5 text-slate-400" />
-                Status PTKP (Pribadi/Keluarga):
+                {t('ptkpLabel')}
               </span>
               <select
                 value={ptkpStatus}
@@ -714,17 +758,17 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
               >
                 {PTKP_LIST.map((p) => (
                   <option key={p.code} value={p.code}>
-                    {p.label}
+                    {getPTKPLabel(p.code, lang)}
                   </option>
                 ))}
               </select>
               <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Tarif Efektif: TER Kategori {existingCalc.terCategory} ({existingCalc.terPercentage}%)
+                {t('ptkpEffectiveRate', { cat: existingCalc.terCategory, rate: existingCalc.terPercentage })}
               </span>
             </div>
 
             <div className="text-[11px] text-slate-400">
-              *Berlaku otomatis untuk komparasi Gaji Saat Ini & Penawaran Baru
+              {t('ptkpSyncNote')}
             </div>
           </div>
         </div>
@@ -741,8 +785,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     <Building2 className="w-4 h-4 text-slate-300" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white">Gaji Saat Ini (Existing)</h2>
-                    <p className="text-[11px] text-slate-400">Kondisi pekerjaan saat ini</p>
+                    <h2 className="text-sm font-bold text-white">{t('existingCardTitle')}</h2>
+                    <p className="text-[11px] text-slate-400">{t('existingCardSubtitle')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -750,7 +794,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     type="button"
                     onClick={handleClearExisting}
                     className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 border border-slate-800 transition"
-                    title="Kosongkan angka gaji saat ini"
+                    title={t('clearCardTitle')}
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
@@ -758,19 +802,19 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     value={existingTaxMethod}
                     onChange={(e) => setExistingTaxMethod(e.target.value)}
                     className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 text-slate-300 border border-slate-800 focus:outline-none cursor-pointer"
-                    title="Skema Pajak"
+                    title={t('taxSchemeTitle')}
                   >
-                    <option value="gross">Gross (Standar)</option>
-                    <option value="gross_up">Gross-Up</option>
-                    <option value="nett">Nett</option>
+                    <option value="gross">{t('taxMethodGross')}</option>
+                    <option value="gross_up">{t('taxMethodGrossUp')}</option>
+                    <option value="nett">{t('taxMethodNett')}</option>
                   </select>
                 </div>
               </div>
 
               <div className="space-y-3.5">
                 <CurrencyInput
-                  label="Gaji Pokok (Basic Salary)"
-                  badge="Per Bulan"
+                  label={t('basicSalaryLabel')}
+                  badge={t('basicSalaryBadge')}
                   value={existingBasic}
                   onChange={setExistingBasic}
                   placeholder="0"
@@ -778,8 +822,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 />
 
                 <CurrencyInput
-                  label="Tunjangan Tetap"
-                  badge="Per Bulan"
+                  label={t('fixedAllowanceLabel')}
+                  badge={t('fixedAllowanceBadge')}
                   value={existingFixed}
                   onChange={setExistingFixed}
                   placeholder="0"
@@ -787,9 +831,9 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 />
 
                 <CurrencyInput
-                  label="Tunjangan Tidak Tetap / Bonus"
-                  badge="Pertahun"
-                  subtitle="*Dihitung dalam akumulasi tahunan (tidak masuk komponen bulanan rutin)"
+                  label={t('bonusLabel')}
+                  badge={t('bonusBadge')}
+                  subtitle={t('bonusSubtitle')}
                   value={existingAnnualBonus}
                   onChange={setExistingAnnualBonus}
                   placeholder="0"
@@ -801,19 +845,19 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             {/* Sub-Metric Summary (Clean & Complete) */}
             <div className="mt-4 pt-4 border-t border-slate-800 bg-slate-950/40 -mx-5 -mb-5 sm:-mx-6 sm:-mb-6 p-4 sm:p-5 rounded-b-2xl space-y-2 text-xs">
               <div className="flex justify-between text-slate-400">
-                <span>Bruto Bulanan:</span>
+                <span>{t('monthlyGrossSub')}</span>
                 <span className="text-slate-200 font-medium">{renderIDR(existingCalc.monthly.cashGross)}</span>
               </div>
               <div className="flex justify-between text-slate-400">
-                <span>Potongan (PPh 21 TER + BPJS):</span>
+                <span>{t('deductionsSub')}</span>
                 <span className="text-rose-400 font-medium">-{renderIDR(existingCalc.monthly.totalDeductions)}</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-slate-800 font-bold">
-                <span className="text-white text-xs">Net THP Bulanan:</span>
+                <span className="text-white text-xs">{t('monthlyNetSub')}</span>
                 <span className="text-white text-base font-extrabold">{renderIDR(existingCalc.monthly.netSalary)}</span>
               </div>
               <div className="flex justify-between text-[11px] text-slate-400 pt-1">
-                <span>Akumulasi Net Setahun:</span>
+                <span>{t('annualNetSub')}</span>
                 <span className="text-slate-300">{renderIDR(existingCalc.annual.netSalary)}</span>
               </div>
             </div>
@@ -829,7 +873,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-white">{activeOffering.name}</h2>
-                    <p className="text-[11px] text-emerald-400">Penawaran yang dievaluasi</p>
+                    <p className="text-[11px] text-emerald-400">{t('offeringCardSubtitle')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -837,7 +881,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     type="button"
                     onClick={handleClearActiveOffering}
                     className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 border border-slate-800 transition"
-                    title="Kosongkan angka penawaran ini"
+                    title={t('clearCardTitle')}
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
@@ -845,19 +889,19 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     value={activeOffering.taxMethod}
                     onChange={(e) => updateActiveOffering({ taxMethod: e.target.value })}
                     className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 text-slate-300 border border-slate-800 focus:outline-none cursor-pointer"
-                    title="Skema Pajak"
+                    title={t('taxSchemeTitle')}
                   >
-                    <option value="gross">Gross (Standar)</option>
-                    <option value="gross_up">Gross-Up</option>
-                    <option value="nett">Nett</option>
+                    <option value="gross">{t('taxMethodGross')}</option>
+                    <option value="gross_up">{t('taxMethodGrossUp')}</option>
+                    <option value="nett">{t('taxMethodNett')}</option>
                   </select>
                 </div>
               </div>
 
               <div className="space-y-3.5">
                 <CurrencyInput
-                  label="Gaji Pokok Ditawarkan"
-                  badge="Per Bulan"
+                  label={t('offeringBasicLabel')}
+                  badge={t('basicSalaryBadge')}
                   value={activeOffering.basic}
                   onChange={(val) => updateActiveOffering({ basic: val })}
                   placeholder="0"
@@ -866,8 +910,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 />
 
                 <CurrencyInput
-                  label="Tunjangan Tetap Ditawarkan"
-                  badge="Per Bulan"
+                  label={t('fixedAllowanceLabel')}
+                  badge={t('fixedAllowanceBadge')}
                   value={activeOffering.fixed}
                   onChange={(val) => updateActiveOffering({ fixed: val })}
                   placeholder="0"
@@ -875,9 +919,9 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 />
 
                 <CurrencyInput
-                  label="Tunjangan Tidak Tetap / Bonus"
-                  badge="Pertahun"
-                  subtitle="*Dihitung dalam akumulasi tahunan (tidak masuk komponen bulanan rutin)"
+                  label={t('bonusLabel')}
+                  badge={t('bonusBadge')}
+                  subtitle={t('bonusSubtitle')}
                   value={activeOffering.annualBonus}
                   onChange={(val) => updateActiveOffering({ annualBonus: val })}
                   placeholder="0"
@@ -889,15 +933,15 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             {/* Sub-Metric Summary (Clean & Complete) */}
             <div className="mt-4 pt-4 border-t border-slate-800 bg-slate-950/40 -mx-5 -mb-5 sm:-mx-6 sm:-mb-6 p-4 sm:p-5 rounded-b-2xl space-y-2 text-xs">
               <div className="flex justify-between text-slate-400">
-                <span>Bruto Bulanan:</span>
+                <span>{t('monthlyGrossSub')}</span>
                 <span className="text-slate-200 font-medium">{renderIDR(offeringCalc.monthly.cashGross)}</span>
               </div>
               <div className="flex justify-between text-slate-400">
-                <span>Potongan (PPh 21 TER + BPJS):</span>
+                <span>{t('deductionsSub')}</span>
                 <span className="text-rose-400 font-medium">-{renderIDR(offeringCalc.monthly.totalDeductions)}</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-slate-800 font-bold">
-                <span className="text-white text-xs">Net THP Bulanan:</span>
+                <span className="text-white text-xs">{t('monthlyNetSub')}</span>
                 <div className="text-right">
                   <span className="text-emerald-400 text-base font-extrabold">{renderIDR(offeringCalc.monthly.netSalary)}</span>
                   <span className="text-xs font-semibold text-emerald-400 ml-1.5">
@@ -906,7 +950,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 </div>
               </div>
               <div className="flex justify-between text-[11px] text-slate-400 pt-1">
-                <span>Akumulasi Net Setahun:</span>
+                <span>{t('annualNetSub')}</span>
                 <span className="text-emerald-300/90 font-medium">{renderIDR(offeringCalc.annual.netSalary)}</span>
               </div>
             </div>
@@ -925,10 +969,10 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
               </div>
               <div>
                 <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                  Rincian Detail Komparasi
+                  {t('breakdownTitle')}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Perbandingan mendalam komponen bruto, potongan pajak PPh 21, iuran BPJS, dan Take Home Pay
+                  {t('breakdownSubtitle')}
                 </p>
               </div>
             </div>
@@ -942,7 +986,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   tablePeriod === 'monthly' ? 'bg-slate-800 text-white shadow-sm ring-1 ring-white/10' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <span>Bulanan</span>
+                <span>{t('periodMonthly')}</span>
               </button>
               <button
                 type="button"
@@ -951,7 +995,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   tablePeriod === 'annual' ? 'bg-slate-800 text-white shadow-sm ring-1 ring-white/10' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <span>Tahunan</span>
+                <span>{t('periodAnnual')}</span>
               </button>
               <button
                 type="button"
@@ -960,7 +1004,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   tablePeriod === 'both' ? 'bg-slate-800 text-white shadow-sm ring-1 ring-white/10' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <span>Semua (Lengkap)</span>
+                <span>{t('periodAll')}</span>
               </button>
             </div>
           </div>
@@ -974,17 +1018,17 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" />
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-white tracking-wide">
-                      1. Arus Kas Bulanan (Monthly Routine)
+                      {t('card1Title')}
                     </h4>
                     <p className="text-[11px] text-slate-400">
-                      Rincian penerimaan rutin dan potongan wajib yang menentukan gaji bersih masuk rekening setiap bulan
+                      {t('card1Subtitle')}
                     </p>
                   </div>
                 </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs self-start sm:self-auto">
-                  <span className="text-slate-400 text-[11px]">Delta Net THP:</span>
+                  <span className="text-slate-400 text-[11px]">{t('deltaNetThp')}</span>
                   <span className="font-extrabold text-emerald-400 font-mono">
-                    {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)}/bln
+                    {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)}{t('perMonth')}
                   </span>
                   <span className="font-bold text-emerald-400 text-[11px]">
                     ({deltaMonthlyNetPct >= 0 ? '+' : ''}{deltaMonthlyNetPct.toFixed(1)}%)
@@ -996,14 +1040,14 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
-                      <th className="py-3 px-4 sm:px-6 font-semibold w-5/12">Komponen Bulanan</th>
+                      <th className="py-3 px-4 sm:px-6 font-semibold w-5/12">{t('thComponent')}</th>
                       <th className="py-3 px-4 font-semibold text-right w-7/32">
-                        Gaji Saat Ini <span className="text-[10px] font-normal text-slate-500">({existingTaxMethod.toUpperCase()})</span>
+                        {t('thCurrent')} <span className="text-[10px] font-normal text-slate-500">({existingTaxMethod.toUpperCase()})</span>
                       </th>
                       <th className="py-3 px-4 font-semibold text-right text-emerald-400 w-7/32">
                         {activeOffering.name} <span className="text-[10px] font-normal text-emerald-500/80">({activeOffering.taxMethod.toUpperCase()})</span>
                       </th>
-                      <th className="py-3 px-4 sm:px-6 font-semibold text-right w-1/4">Selisih (Delta)</th>
+                      <th className="py-3 px-4 sm:px-6 font-semibold text-right w-1/4">{t('thDelta')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/40">
@@ -1011,13 +1055,13 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
                       <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                        Penerimaan Bruto Bulanan (Cash Gross)
+                        {t('groupGrossMonthly')}
                       </td>
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6 text-slate-300">
-                        <div className="font-medium text-white">Gaji Pokok (Basic Salary)</div>
-                        <div className="text-[10px] text-slate-400">Komponen upah dasar tetap bulanan</div>
+                        <div className="font-medium text-white">{t('basicSalaryLabel')}</div>
+                        <div className="text-[10px] text-slate-400">{t('basicSalaryDesc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">{renderIDR(existingCalc.basic)}</td>
                       <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">{renderIDR(offeringCalc.basic)}</td>
@@ -1027,8 +1071,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6 text-slate-300">
-                        <div className="font-medium text-white">Tunjangan Tetap (Fixed Allowance)</div>
-                        <div className="text-[10px] text-slate-400">Tunjangan jabatan, makan, transport rutin</div>
+                        <div className="font-medium text-white">{t('fixedAllowanceLabel')}</div>
+                        <div className="text-[10px] text-slate-400">{t('fixedAllowanceDesc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">{renderIDR(existingCalc.fixed)}</td>
                       <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">{renderIDR(offeringCalc.fixed)}</td>
@@ -1037,7 +1081,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                       </td>
                     </tr>
                     <tr className="bg-slate-950/40 border-y border-slate-800 font-bold text-slate-100">
-                      <td className="py-2.5 px-4 sm:px-6 text-white font-semibold">Subtotal Bruto Bulanan</td>
+                      <td className="py-2.5 px-4 sm:px-6 text-white font-semibold">{t('subtotalGrossMonthly')}</td>
                       <td className="py-2.5 px-4 text-right text-slate-200 font-mono tabular-nums">{renderIDR(existingCalc.monthly.cashGross)}</td>
                       <td className="py-2.5 px-4 text-right text-slate-100 font-mono tabular-nums">{renderIDR(offeringCalc.monthly.cashGross)}</td>
                       <td className="py-2.5 px-4 sm:px-6 text-right">
@@ -1049,18 +1093,18 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
                       <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-rose-400/90 font-semibold flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                        Potongan Karyawan (Pajak & BPJS)
+                        {t('groupDeductionsMonthly')}
                       </td>
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6">
                         <div className="font-medium text-rose-200 flex items-center gap-2">
-                          <span>PPh 21 TER Bulanan</span>
+                          <span>{t('pph21TerLabel')}</span>
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono font-medium">
                             {existingCalc.terCategory} {existingCalc.terPercentage}% vs {offeringCalc.terCategory} {offeringCalc.terPercentage}%
                           </span>
                         </div>
-                        <div className="text-[10px] text-slate-400">Tarif Efektif Rata-Rata PP 58/2023 & PMK 168/2023</div>
+                        <div className="text-[10px] text-slate-400">{t('pph21TerDesc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.monthly.pph21)}</td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.monthly.pph21)}</td>
@@ -1070,8 +1114,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6">
-                        <div className="font-medium text-rose-200">BPJS Kesehatan (1% Karyawan)</div>
-                        <div className="text-[10px] text-slate-400">Plafon maksimal penghasilan Rp 12.000.000/bln</div>
+                        <div className="font-medium text-rose-200">{t('bpjsKesLabelShort')}</div>
+                        <div className="text-[10px] text-slate-400">{t('bpjsKesDesc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.monthly.bpjs.kesEmployee)}</td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.monthly.bpjs.kesEmployee)}</td>
@@ -1081,8 +1125,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6">
-                        <div className="font-medium text-rose-200">BPJS Ketenagakerjaan (JHT 2% + JP 1%)</div>
-                        <div className="text-[10px] text-slate-400">Jaminan Hari Tua (2%) dan Jaminan Pensiun (1% capped)</div>
+                        <div className="font-medium text-rose-200">{t('bpjsTkLabelShort')}</div>
+                        <div className="text-[10px] text-slate-400">{t('bpjsTkDesc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee)}</td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee)}</td>
@@ -1095,7 +1139,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                       </td>
                     </tr>
                     <tr className="bg-rose-950/20 border-y border-rose-900/30 font-semibold text-rose-300">
-                      <td className="py-2.5 px-4 sm:px-6">Total Potongan Karyawan / Bulan</td>
+                      <td className="py-2.5 px-4 sm:px-6">{t('subtotalDeductionsMonthly')}</td>
                       <td className="py-2.5 px-4 text-right font-mono tabular-nums">-{renderIDR(existingCalc.monthly.totalDeductions)}</td>
                       <td className="py-2.5 px-4 text-right font-mono tabular-nums">-{renderIDR(offeringCalc.monthly.totalDeductions)}</td>
                       <td className="py-2.5 px-4 sm:px-6 text-right">
@@ -1111,9 +1155,9 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                           <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                           <div>
                             <span className="text-xs sm:text-sm font-extrabold tracking-wide text-emerald-300 uppercase block">
-                              NET TAKE HOME PAY / BULAN
+                              {t('heroNetMonthlyTitle')}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-normal">Gaji bersih yang diterima di rekening</span>
+                            <span className="text-[10px] text-slate-400 font-normal">{t('heroNetMonthlySubtitle')}</span>
                           </div>
                         </div>
                       </td>
@@ -1153,17 +1197,17 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   <div className="w-2.5 h-2.5 rounded-full bg-sky-400 shrink-0" />
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-white tracking-wide">
-                      2. Proyeksi Akumulasi Tahunan ({annualMultiplier}x Gaji + Bonus)
+                      {t('card2Title', { multiplier: annualMultiplier })}
                     </h4>
                     <p className="text-[11px] text-slate-400">
-                      Total paket pendapatan satu tahun termasuk THR/bonus, rekonsiliasi PPh 21 Pasal 17 progresif, dan kontribusi fasilitas perusahaan
+                      {t('card2Subtitle')}
                     </p>
                   </div>
                 </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-sky-500/10 border border-sky-500/20 text-xs self-start sm:self-auto">
-                  <span className="text-slate-400 text-[11px]">Delta Net Tahunan:</span>
+                  <span className="text-slate-400 text-[11px]">{t('deltaNetAnnual')}</span>
                   <span className="font-extrabold text-sky-400 font-mono">
-                    {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}/thn
+                    {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}{t('perYear')}
                   </span>
                   <span className="font-bold text-sky-400 text-[11px]">
                     ({deltaAnnualNetPct >= 0 ? '+' : ''}{deltaAnnualNetPct.toFixed(1)}%)
@@ -1175,14 +1219,14 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
-                      <th className="py-3 px-4 sm:px-6 font-semibold w-5/12">Komponen Tahunan</th>
+                      <th className="py-3 px-4 sm:px-6 font-semibold w-5/12">{t('thComponentAnnual')}</th>
                       <th className="py-3 px-4 font-semibold text-right w-7/32">
-                        Gaji Saat Ini <span className="text-[10px] font-normal text-slate-500">({existingTaxMethod.toUpperCase()})</span>
+                        {t('thCurrent')} <span className="text-[10px] font-normal text-slate-500">({existingTaxMethod.toUpperCase()})</span>
                       </th>
                       <th className="py-3 px-4 font-semibold text-right text-sky-400 w-7/32">
                         {activeOffering.name} <span className="text-[10px] font-normal text-sky-500/80">({activeOffering.taxMethod.toUpperCase()})</span>
                       </th>
-                      <th className="py-3 px-4 sm:px-6 font-semibold text-right w-1/4">Selisih (Delta)</th>
+                      <th className="py-3 px-4 sm:px-6 font-semibold text-right w-1/4">{t('thDelta')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/40">
@@ -1190,13 +1234,13 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
                       <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-                        Penerimaan Bruto Setahun (Annual Gross)
+                        {t('groupGrossAnnual')}
                       </td>
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6 text-slate-300">
-                        <div className="font-medium text-white">Gaji Pokok & Tunjangan Rutin ({annualMultiplier}x Bulan)</div>
-                        <div className="text-[10px] text-slate-400">Akumulasi gaji pokok 12 bulan + {annualMultiplier - 12} bulan THR</div>
+                        <div className="font-medium text-white">{t('annualRoutineSalary', { multiplier: annualMultiplier })}</div>
+                        <div className="text-[10px] text-slate-400">{t('annualRoutineSalaryDesc', { thrMonths: annualMultiplier - 12 })}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">{renderIDR(existingCalc.monthly.cashGross * annualMultiplier)}</td>
                       <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">{renderIDR(offeringCalc.monthly.cashGross * annualMultiplier)}</td>
@@ -1206,8 +1250,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6 text-slate-300">
-                        <div className="font-medium text-white">Tunjangan Tidak Tetap / Bonus Tahunan</div>
-                        <div className="text-[10px] text-slate-400">Bonus kinerja tahunan / insentif project</div>
+                        <div className="font-medium text-white">{t('bonusLabel')}</div>
+                        <div className="text-[10px] text-slate-400">{t('annualBonusDesc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">{renderIDR(existingCalc.annual.bonus)}</td>
                       <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">{renderIDR(offeringCalc.annual.bonus)}</td>
@@ -1216,7 +1260,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                       </td>
                     </tr>
                     <tr className="bg-slate-950/40 border-y border-slate-800 font-bold text-slate-100">
-                      <td className="py-2.5 px-4 sm:px-6 text-white font-semibold">Subtotal Bruto Kas Setahun</td>
+                      <td className="py-2.5 px-4 sm:px-6 text-white font-semibold">{t('subtotalGrossAnnual')}</td>
                       <td className="py-2.5 px-4 text-right text-slate-200 font-mono tabular-nums">{renderIDR(existingCalc.annual.cashGross)}</td>
                       <td className="py-2.5 px-4 text-right text-slate-100 font-mono tabular-nums">{renderIDR(offeringCalc.annual.cashGross)}</td>
                       <td className="py-2.5 px-4 sm:px-6 text-right">
@@ -1228,13 +1272,13 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
                       <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-rose-400/90 font-semibold flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                        Beban Pajak & Iuran Karyawan Setahun
+                        {t('groupDeductionsAnnual')}
                       </td>
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6">
-                        <div className="font-medium text-rose-200">Total PPh 21 Setahun (Pasal 17 UU HPP)</div>
-                        <div className="text-[10px] text-slate-400">Perhitungan final tarif progresif lapisan 5% s/d 35% setelah PTKP</div>
+                        <div className="font-medium text-rose-200">{t('annualPph21Label')}</div>
+                        <div className="text-[10px] text-slate-400">{t('annualPph21Desc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.annual.pph21)}</td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.annual.pph21)}</td>
@@ -1244,8 +1288,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6">
-                        <div className="font-medium text-rose-200">Total Iuran BPJS Karyawan Setahun</div>
-                        <div className="text-[10px] text-slate-400">Akumulasi iuran tahunan BPJS Kesehatan (1%) + JHT (2%) + JP (1%)</div>
+                        <div className="font-medium text-rose-200">{t('annualBpjsEmployeeLabel')}</div>
+                        <div className="text-[10px] text-slate-400">{t('annualBpjsEmployeeDesc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(existingCalc.annual.bpjs.totalEmployee)}</td>
                       <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">-{renderIDR(offeringCalc.annual.bpjs.totalEmployee)}</td>
@@ -1254,7 +1298,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                       </td>
                     </tr>
                     <tr className="bg-rose-950/20 border-y border-rose-900/30 font-semibold text-rose-300">
-                      <td className="py-2.5 px-4 sm:px-6">Total Potongan Karyawan Setahun</td>
+                      <td className="py-2.5 px-4 sm:px-6">{t('subtotalDeductionsAnnual')}</td>
                       <td className="py-2.5 px-4 text-right font-mono tabular-nums">-{renderIDR(existingCalc.annual.totalDeductions)}</td>
                       <td className="py-2.5 px-4 text-right font-mono tabular-nums">-{renderIDR(offeringCalc.annual.totalDeductions)}</td>
                       <td className="py-2.5 px-4 sm:px-6 text-right">
@@ -1266,13 +1310,13 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
                       <td colSpan={4} className="py-2.5 px-4 sm:px-6 uppercase tracking-wider text-sky-400/90 font-semibold flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-                        Fasilitas Jaminan Sosial (Ditanggung Perusahaan)
+                        {t('groupEmployerBenefit')}
                       </td>
                     </tr>
                     <tr className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 sm:px-6 text-slate-300">
-                        <div className="font-medium text-slate-200">Iuran BPJS Kantor Setahun</div>
-                        <div className="text-[10px] text-slate-400">BPJS Kes (4%) + JHT (3.7%) + JP (2%) + JKK (0.24%) + JKM (0.3%)</div>
+                        <div className="font-medium text-slate-200">{t('employerBpjsLabel')}</div>
+                        <div className="text-[10px] text-slate-400">{t('employerBpjsDesc')}</div>
                       </td>
                       <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">+{renderIDR(existingCalc.annual.bpjs.totalEmployer)}</td>
                       <td className="py-3 px-4 text-right text-sky-300 font-mono tabular-nums font-medium">+{renderIDR(offeringCalc.annual.bpjs.totalEmployer)}</td>
@@ -1289,9 +1333,9 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                           <Calendar className="w-5 h-5 text-sky-400 shrink-0" />
                           <div>
                             <span className="text-xs sm:text-sm font-extrabold tracking-wide text-sky-300 uppercase block">
-                              NET TAKE HOME PAY / TAHUN
+                              {t('heroNetAnnualTitle')}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-normal">Total estimasi dana bersih setahun (setelah THR & bonus)</span>
+                            <span className="text-[10px] text-slate-400 font-normal">{t('heroNetAnnualSubtitle')}</span>
                           </div>
                         </div>
                       </td>
@@ -1339,8 +1383,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   <Sliders className="w-5 h-5 text-sky-400" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Alat Negosiasi & Target Gaji</h3>
-                  <p className="text-xs text-slate-400">Hitung target kenaikan atau cari Gross dari target Net</p>
+                  <h3 className="text-base font-bold text-white">{t('negotiateModalTitle')}</h3>
+                  <p className="text-xs text-slate-400">{t('negotiateModalSubtitle')}</p>
                 </div>
               </div>
               <button
@@ -1363,7 +1407,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Mode Persentase (+%)
+                {t('modePercentage')}
               </button>
               <button
                 type="button"
@@ -1374,7 +1418,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Reverse (Target Net ➔ Gross)
+                {t('modeReverse')}
               </button>
             </div>
 
@@ -1382,7 +1426,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             {negotiationMode === 'percentage' ? (
               <div className="space-y-5">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-2.5">Preset Target Kenaikan:</label>
+                  <label className="text-xs font-medium text-slate-300 block mb-2.5">{t('presetLabel')}</label>
                   <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
                     {[10, 15, 20, 25, 30, 35, 40, 50].map((pct) => (
                       <button
@@ -1403,7 +1447,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
 
                 <div>
                   <div className="flex justify-between items-center text-xs mb-2">
-                    <span className="text-slate-400">Atur Bebas (Slider):</span>
+                    <span className="text-slate-400">{t('sliderLabel')}</span>
                     <span className="font-bold text-emerald-400 text-sm">+{targetIncreasePct}%</span>
                   </div>
                   <input
@@ -1421,9 +1465,9 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
               /* View 2: Reverse */
               <div className="space-y-4">
                 <CurrencyInput
-                  label="Berapa Net THP Bulanan yang Anda Inginkan?"
-                  badge="Target Bersih"
-                  subtitle="Kalkulator akan menghitung mundur nominal Gross yang harus Anda minta ke HR"
+                  label={t('reverseInputLabel')}
+                  badge={t('reverseBadge')}
+                  subtitle={t('reverseSubtitle')}
                   value={targetNetInput}
                   onChange={setTargetNetInput}
                   placeholder="Contoh: 18000000"
@@ -1432,10 +1476,10 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 />
 
                 <div className="bg-slate-950/60 p-4 sm:p-5 rounded-xl border border-slate-800/80 space-y-1.5 text-xs">
-                  <span className="text-slate-400 block font-medium">Gaji Pokok Gross yang Harus Diminta:</span>
+                  <span className="text-slate-400 block font-medium">{t('requiredGrossLabel')}</span>
                   <strong className="text-emerald-400 text-2xl font-extrabold block">{renderIDR(requiredGrossFromTargetNet)}</strong>
                   <span className="text-[11px] text-slate-400 block">
-                    Sudah memperhitungkan status PTKP ({ptkpStatus}) dan pemotongan PPh 21 TER serta BPJS.
+                    {t('requiredGrossNote', { ptkp: ptkpStatus })}
                   </span>
                 </div>
               </div>
@@ -1444,15 +1488,15 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             {/* Target Summary Result */}
             <div className="bg-slate-950/50 p-4 sm:p-5 rounded-xl border border-slate-800/80 space-y-2.5 text-xs">
               <div className="flex justify-between">
-                <span className="text-slate-400">Target Gross Bulanan:</span>
+                <span className="text-slate-400">{t('targetGrossMonthly')}</span>
                 <span className="font-semibold text-white">{renderIDR(targetCalc.monthly.cashGross)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Estimasi Net THP Bulanan:</span>
+                <span className="text-slate-400">{t('targetNetMonthly')}</span>
                 <span className="font-bold text-emerald-400 text-sm">{renderIDR(targetCalc.monthly.netSalary)}</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-slate-800 text-slate-400">
-                <span>Target Net Setahun:</span>
+                <span>{t('targetNetAnnual')}</span>
                 <span className="font-semibold text-slate-200">{renderIDR(targetCalc.annual.netSalary)}</span>
               </div>
             </div>
@@ -1464,14 +1508,14 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 onClick={() => setShowNegotiateModal(false)}
                 className="flex-1 py-3 px-4 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
               >
-                Batal
+                {t('cancelBtn')}
               </button>
               <button
                 type="button"
                 onClick={applyTargetToOffering}
                 className="flex-[2] py-3 px-4 rounded-xl text-xs sm:text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/15"
               >
-                <span>Terapkan Target ke {activeOffering.name}</span>
+                <span>{t('applyTargetToOffering', { name: activeOffering.name })}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -1494,8 +1538,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   <Calendar className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Simulasi Slip THR & True-Up Desember</h3>
-                  <p className="text-xs text-slate-400">Pahami lonjakan pajak bulan bonus & rekonsiliasi akhir tahun</p>
+                  <h3 className="text-base font-bold text-white">{t('specialSlipsModalTitle')}</h3>
+                  <p className="text-xs text-slate-400">{t('specialSlipsModalSubtitle')}</p>
                 </div>
               </div>
               <button
@@ -1509,7 +1553,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
 
             {/* Profile Switcher */}
             <div className="flex items-center justify-between bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
-              <span className="text-xs font-medium text-slate-300">Simulasikan untuk profil:</span>
+              <span className="text-xs font-medium text-slate-300">{t('targetSimulationLabel')}</span>
               <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800 gap-1">
                 <button
                   type="button"
@@ -1520,7 +1564,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  Gaji Saat Ini
+                  {t('thCurrent')}
                 </button>
                 <button
                   type="button"
@@ -1541,16 +1585,16 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
               <div className="flex items-center gap-2 pb-2.5 border-b border-slate-800/80">
                 <Gift className="w-4 h-4 text-emerald-400" />
                 <div>
-                  <h4 className="text-sm font-bold text-white">Simulator Slip Saat THR / Bonus Cair</h4>
-                  <p className="text-[11px] text-slate-400">Lonjakan tarif TER bulanan akibat penerimaan penghasilan sekaligus</p>
+                  <h4 className="text-sm font-bold text-white">{t('thrSectionTitle')}</h4>
+                  <p className="text-[11px] text-slate-400">{t('thrSectionSubtitle')}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                 <div className="space-y-2.5">
                   <CurrencyInput
-                    label="Nominal THR / Bonus Cair:"
-                    badge="Sekali Cair"
+                    label={t('disbursedLabel')}
+                    badge={t('disbursedBadge')}
                     value={customDisbursedAmount}
                     onChange={setCustomDisbursedAmount}
                     placeholder="0"
@@ -1562,14 +1606,14 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                       onClick={() => setCustomDisbursedAmount(selectedSimulatorTarget === 'offering' ? activeOffering.basic : existingBasic)}
                       className="px-2.5 py-1 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-lg text-[11px] border border-slate-800 transition"
                     >
-                      1x Basic (THR)
+                      {t('disbursedPreset1x')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setCustomDisbursedAmount((selectedSimulatorTarget === 'offering' ? activeOffering.basic : existingBasic) * 2)}
                       className="px-2.5 py-1 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-lg text-[11px] border border-slate-800 transition"
                     >
-                      2x Basic
+                      {t('disbursedPreset2x')}
                     </button>
                   </div>
                 </div>
@@ -1577,19 +1621,19 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 {/* Slip Biasa */}
                 <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 space-y-1.5 text-xs">
                   <div className="flex justify-between items-center pb-1.5 border-b border-slate-800 text-slate-400">
-                    <span className="font-medium">Slip Bulan Biasa</span>
+                    <span className="font-medium">{t('slipRegularTitle')}</span>
                     <span className="font-semibold text-slate-300">TER {bonusSimulation.regularTerPct}%</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
-                    <span>Bruto:</span>
+                    <span>{t('slipRegularGross')}</span>
                     <span className="text-slate-200">{renderIDR(bonusSimulation.regularMonthlyGross)}</span>
                   </div>
                   <div className="flex justify-between text-rose-400">
-                    <span>PPh 21 TER:</span>
+                    <span>{t('slipRegularPph21')}</span>
                     <span>-{renderIDR(bonusSimulation.regularPph21)}</span>
                   </div>
                   <div className="flex justify-between pt-1.5 border-t border-slate-800 font-bold text-white">
-                    <span>THP Biasa:</span>
+                    <span>{t('slipRegularNet')}</span>
                     <span className="text-slate-200">{renderIDR(bonusSimulation.regularMonthlyNet)}</span>
                   </div>
                 </div>
@@ -1597,19 +1641,19 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 {/* Slip Bulan Cair THR */}
                 <div className="bg-slate-900/60 p-4 rounded-xl border border-emerald-500/40 space-y-1.5 text-xs">
                   <div className="flex justify-between items-center pb-1.5 border-b border-slate-800 text-emerald-400">
-                    <span className="font-bold">Saat THR/Bonus Cair</span>
+                    <span className="font-bold">{t('slipBonusTitle')}</span>
                     <span className="font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">TER {bonusSimulation.disbursedTerPct}%</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
-                    <span>Bruto Total:</span>
+                    <span>{t('slipBonusGross')}</span>
                     <span className="text-white font-medium">{renderIDR(bonusSimulation.disbursedCashGross)}</span>
                   </div>
                   <div className="flex justify-between text-rose-400">
-                    <span>PPh 21 TER:</span>
+                    <span>{t('slipBonusPph21')}</span>
                     <span>-{renderIDR(bonusSimulation.disbursedPph21)}</span>
                   </div>
                   <div className="flex justify-between pt-1.5 border-t border-slate-800 font-bold text-white">
-                    <span>Total Uang Cair:</span>
+                    <span>{t('slipBonusNet')}</span>
                     <span className="text-emerald-400 font-extrabold text-sm">{renderIDR(bonusSimulation.disbursedNetSalary)}</span>
                   </div>
                 </div>
@@ -1621,44 +1665,44 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
               <div className="flex items-center gap-2 pb-2.5 border-b border-slate-800/80">
                 <Scale className="w-4 h-4 text-sky-400" />
                 <div>
-                  <h4 className="text-sm font-bold text-white">Rekonsiliasi PPh 21 Masa Desember (True-Up)</h4>
-                  <p className="text-[11px] text-slate-400">Penyesuaian akhir tahun antara akumulasi TER Jan–Nov vs Pasal 17 setahun</p>
+                  <h4 className="text-sm font-bold text-white">{t('decTrueUpTitle')}</h4>
+                  <p className="text-[11px] text-slate-400">{t('decTrueUpSubtitle')}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                 <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 space-y-1.5">
-                  <span className="text-slate-400 block font-semibold">1. Pajak Jan–Nov (11 Bulan)</span>
+                  <span className="text-slate-400 block font-semibold">{t('decCol1Title')}</span>
                   <div className="flex justify-between text-slate-400">
-                    <span>Rutin / Bulan:</span>
+                    <span>{t('decCol1Routine')}</span>
                     <span className="text-slate-200">{renderIDR(decemberTrueUp.regularMonthlyTerTax)}</span>
                   </div>
                   <div className="flex justify-between pt-1.5 border-t border-slate-800 text-slate-300 font-semibold">
-                    <span>Total Terpotong:</span>
+                    <span>{t('decCol1Total')}</span>
                     <span>{renderIDR(decemberTrueUp.totalPaidJanNov)}</span>
                   </div>
                 </div>
 
                 <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 space-y-1.5">
-                  <span className="text-slate-400 block font-semibold">2. Pajak Setahun (Pasal 17)</span>
+                  <span className="text-slate-400 block font-semibold">{t('decCol2Title')}</span>
                   <div className="flex justify-between text-slate-400">
-                    <span>Kalkulasi Setahun:</span>
+                    <span>{t('decCol2Annual')}</span>
                     <span className="text-slate-200">{renderIDR(decemberTrueUp.totalAnnualTax)}</span>
                   </div>
                   <div className="flex justify-between pt-1.5 border-t border-slate-800 text-slate-300 font-semibold">
-                    <span>Sisa Pajak Des:</span>
+                    <span>{t('decCol2Remaining')}</span>
                     <span>{renderIDR(decemberTrueUp.decemberPph21)}</span>
                   </div>
                 </div>
 
                 <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 space-y-1.5">
-                  <span className="text-slate-400 block font-semibold">3. Slip Gaji Desember</span>
+                  <span className="text-slate-400 block font-semibold">{t('decCol3Title')}</span>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">PPh 21 Desember:</span>
+                    <span className="text-slate-400">{t('decCol3Tax')}</span>
                     <span className="font-semibold text-rose-400">-{renderIDR(decemberTrueUp.decemberPph21)}</span>
                   </div>
                   <div className="flex justify-between pt-1.5 border-t border-slate-800 font-bold">
-                    <span className="text-white">THP Desember:</span>
+                    <span className="text-white">{t('decCol3Net')}</span>
                     <span className="text-emerald-400 font-extrabold text-sm">{renderIDR(decemberTrueUp.decemberNetSalary)}</span>
                   </div>
                 </div>
@@ -1672,7 +1716,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 onClick={() => setShowSpecialSlipsModal(false)}
                 className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
               >
-                Tutup
+                {t('closeBtn')}
               </button>
             </div>
 
@@ -1692,8 +1736,8 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                   <RotateCcw className="w-5 h-5 text-rose-400" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Reset & Kosongkan Data</h3>
-                  <p className="text-xs text-slate-400">Pilih opsi pengosongan data input</p>
+                  <h3 className="text-base font-bold text-white">{t('resetModalTitle')}</h3>
+                  <p className="text-xs text-slate-400">{t('resetModalSubtitle')}</p>
                 </div>
               </div>
               <button
@@ -1706,7 +1750,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              Apakah Anda ingin mengosongkan seluruh angka gaji saat ini dan seluruh penawaran, atau mengembalikan ke data contoh bawaan?
+              {t('resetModalDesc')}
             </p>
 
             <div className="space-y-2.5 pt-1">
@@ -1716,7 +1760,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 flex items-center justify-center gap-2 transition"
               >
                 <Trash2 className="w-4 h-4 text-rose-400" />
-                <span>Kosongkan Semua Angka (Set ke Rp 0)</span>
+                <span>{t('clearAllToZeroBtn')}</span>
               </button>
 
               <button
@@ -1725,7 +1769,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-2 transition"
               >
                 <RotateCcw className="w-4 h-4 text-slate-400" />
-                <span>Kembalikan ke Contoh Bawaan (Demo)</span>
+                <span>{t('resetToDemoBtn')}</span>
               </button>
             </div>
 
@@ -1735,7 +1779,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
                 onClick={() => setShowResetModal(false)}
                 className="text-xs text-slate-400 hover:text-slate-200 transition"
               >
-                Batal
+                {t('cancelBtn')}
               </button>
             </div>
           </div>
@@ -1744,7 +1788,7 @@ Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.`
 
       {/* Footer */}
       <footer className="mt-auto border-t border-slate-850 py-4 text-center text-xs text-slate-500 no-print">
-        <p>Kalkulator Gaji & Offering © 2026. PPh 21 TER (PMK 168/2023) & BPJS.</p>
+        <p>{t('footerText')}</p>
       </footer>
     </div>
   )

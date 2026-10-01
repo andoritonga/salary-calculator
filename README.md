@@ -77,11 +77,16 @@ Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di 
   - **Kembalikan ke Contoh Bawaan (Demo)**: Mengembalikan form ke data simulasi bawaan.
 - **Per-Card Quick Reset**: Tombol ikon *rotate/clear* di masing-masing kartu Existing dan Offering untuk pengosongan cepat secara granular.
 
-### 7. 🔒 Mode Privasi & Utilitas Tambahan
+### 7. 🌐 Pengganti Bahasa (Bilingual: Indonesia & English)
+- **Toggle ID / EN**: Terletak di bilah atas (*header action bar*) bersebelahan dengan tombol Privasi.
+- **Penerjemahan Menyeluruh**: Seluruh antarmuka—termasuk Header, Drawer Opsi, Kartu Ringkasan, Formulir Input, Rincian Komparasi Bulanan/Tahunan, Pop-up Negosiasi & Reverse Gross, Simulator Slip THR & Desember, Modal Reset, hingga teks Salin Ringkasan—diterjemahkan secara lengkap dan akurat.
+- **Penyimpanan Preferensi**: Bahasa yang dipilih tersimpan otomatis di `localStorage` (`salary_calc_lang`) sehingga tetap aktif saat halaman dimuat ulang.
+
+### 8. 🔒 Mode Privasi & Utilitas Tambahan
 - **Mode Privasi (Sensor Angka)**: Mengaburkan seluruh nominal rupiah dengan efek blur interaktif (cukup arahkan kursor untuk melihat angka), aman saat digunakan di ruang publik / kantor.
-- **Salin Ringkasan (Copy Summary)**: Menyalin format ringkasan negosiasi siap kirim ke clipboard.
+- **Salin Ringkasan (Copy Summary)**: Menyalin format ringkasan negosiasi siap kirim ke clipboard sesuai bahasa yang aktif (ID/EN).
 - **Ekspor / Cetak PDF**: Format cetak bersih (`@media print`) yang menghilangkan elemen navigasi dan tombol.
-- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`v6`) dan manifest untuk instalasi di smartphone / desktop dan dapat diakses saat offline.
+- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`salary-calc-v7`) dan manifest untuk instalasi di smartphone / desktop dan dapat diakses saat offline.
 
 ---
 

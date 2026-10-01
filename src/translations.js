@@ -1,0 +1,428 @@
+export const translations = {
+  id: {
+    // Header
+    appTitle: 'Kalkulator Gaji & Offering',
+    appSubtitle: 'Simulasi komparasi gaji, PPh 21 TER PMK 168 & BPJS',
+    privacyActive: 'Sensor Aktif',
+    privacyInactive: 'Privasi',
+    privacyTitleOn: 'Matikan Mode Privasi',
+    privacyTitleOff: 'Aktifkan Mode Privasi (Sensor Angka)',
+    pdf: 'PDF',
+    pdfTitle: 'Cetak atau simpan sebagai PDF',
+    copy: 'Salin',
+    copied: 'Tersalin',
+    copyTitle: 'Salin ringkasan',
+    reset: 'Reset',
+    resetTitle: 'Reset atau kosongkan data input',
+    options: 'Opsi',
+    optionsTitle: 'Pengaturan BPJS & Gaji',
+    langToggleTitle: 'Switch to English',
+
+    // Advanced Drawer
+    bpjsComponentTitle: 'Komponen BPJS',
+    bpjsKesLabel: 'BPJS Kesehatan (1% Karyawan, 4% Perusahaan)',
+    bpjsTkLabel: 'BPJS TK (JHT 2%, JP 1% Plafon Rp 10.04 Jt)',
+    taxBaseTitle: 'Dasar Perhitungan Pajak',
+    taxBaseLabel: 'Premi JKK, JKM, BPJS Kes perusahaan menambah bruto',
+    taxBaseNote: 'Sesuai ketentuan perpajakan PMK 168/2023.',
+    multiplierTitle: 'Multiplier Tahunan (THR)',
+    multiplierNote: '13x = 12 bulan gaji pokok + 1 bulan THR.',
+
+    // Printable Header
+    printHeaderTitle: 'Ringkasan Komparasi Gaji & Offering',
+
+    // Hero Summary
+    heroTitle: 'Kenaikan Bersih (Take Home Pay)',
+    perMonth: '/bulan',
+    perYear: '/thn',
+    heroAnnualNote: 'Kenaikan akumulasi setahun ({multiplier}x gaji + bonus):',
+    currentSalary: 'Gaji Saat Ini',
+
+    // Top Controls
+    offeringsLabel: 'Penawaran:',
+    addOffering: 'Tambah Penawaran Baru',
+    deleteOffering: 'Hapus penawaran',
+    negotiationTool: 'Alat Negosiasi',
+    negotiationToolDesc: 'Buka alat bantu target gaji & reverse net',
+    specialSlips: 'Slip THR & Des',
+    specialSlipsDesc: 'Simulasi slip gaji khusus bulan THR & Desember',
+    ptkpLabel: 'Status PTKP (Pribadi):',
+    ptkpEffectiveRate: 'Tarif Efektif: TER Kategori {cat} ({rate}%)',
+    ptkpSyncNote: '*Berlaku otomatis untuk komparasi Gaji Saat Ini & Penawaran Baru',
+
+    // Input Cards
+    existingCardTitle: 'Gaji Saat Ini (Existing)',
+    existingCardSubtitle: 'Kondisi pekerjaan saat ini',
+    offeringCardSubtitle: 'Penawaran yang dievaluasi',
+    clearCardTitle: 'Kosongkan angka kartu ini',
+    taxMethodGross: 'Gross (Standar)',
+    taxMethodGrossUp: 'Gross-Up',
+    taxMethodNett: 'Nett',
+    taxSchemeTitle: 'Skema Pajak',
+
+    basicSalaryLabel: 'Gaji Pokok (Basic Salary)',
+    basicSalaryBadge: 'Per Bulan',
+    fixedAllowanceLabel: 'Tunjangan Tetap',
+    fixedAllowanceBadge: 'Per Bulan',
+    bonusLabel: 'Tunjangan Tidak Tetap / Bonus',
+    bonusBadge: 'Pertahun',
+    bonusSubtitle: '*Dihitung dalam akumulasi tahunan (tidak masuk komponen bulanan rutin)',
+    offeringBasicLabel: 'Gaji Pokok Ditawarkan',
+
+    monthlyGrossSub: 'Bruto Bulanan:',
+    deductionsSub: 'Potongan (PPh 21 TER + BPJS):',
+    monthlyNetSub: 'Net THP Bulanan:',
+    annualNetSub: 'Akumulasi Net Setahun:',
+
+    // Detailed Comparison Breakdown
+    breakdownTitle: 'Rincian Detail Komparasi',
+    breakdownSubtitle: 'Perbandingan mendalam komponen bruto, potongan pajak PPh 21, iuran BPJS, dan Take Home Pay',
+    periodMonthly: 'Bulanan',
+    periodAnnual: 'Tahunan',
+    periodAll: 'Semua (Lengkap)',
+
+    // Card 1: Monthly Cashflow
+    card1Title: '1. Arus Kas Bulanan (Monthly Routine)',
+    card1Subtitle: 'Rincian penerimaan rutin dan potongan wajib yang menentukan gaji bersih masuk rekening setiap bulan',
+    deltaNetThp: 'Delta Net THP:',
+    thComponent: 'Komponen Bulanan',
+    thCurrent: 'Gaji Saat Ini',
+    thDelta: 'Selisih (Delta)',
+
+    groupGrossMonthly: 'Penerimaan Bruto Bulanan (Cash Gross)',
+    basicSalaryDesc: 'Komponen upah dasar tetap bulanan',
+    fixedAllowanceDesc: 'Tunjangan jabatan, makan, transport rutin',
+    subtotalGrossMonthly: 'Subtotal Bruto Bulanan',
+
+    groupDeductionsMonthly: 'Potongan Karyawan (Pajak & BPJS)',
+    pph21TerLabel: 'PPh 21 TER Bulanan',
+    pph21TerDesc: 'Tarif Efektif Rata-Rata PP 58/2023 & PMK 168/2023',
+    bpjsKesLabelShort: 'BPJS Kesehatan (1% Karyawan)',
+    bpjsKesDesc: 'Plafon maksimal penghasilan Rp 12.000.000/bln',
+    bpjsTkLabelShort: 'BPJS Ketenagakerjaan (JHT 2% + JP 1%)',
+    bpjsTkDesc: 'Jaminan Hari Tua (2%) dan Jaminan Pensiun (1% capped)',
+    subtotalDeductionsMonthly: 'Total Potongan Karyawan / Bulan',
+
+    heroNetMonthlyTitle: 'NET TAKE HOME PAY / BULAN',
+    heroNetMonthlySubtitle: 'Gaji bersih yang diterima di rekening',
+
+    // Card 2: Annualized Package
+    card2Title: '2. Proyeksi Akumulasi Tahunan ({multiplier}x Gaji + Bonus)',
+    card2Subtitle: 'Total paket pendapatan satu tahun termasuk THR/bonus, rekonsiliasi PPh 21 Pasal 17 progresif, dan kontribusi fasilitas perusahaan',
+    deltaNetAnnual: 'Delta Net Tahunan:',
+    thComponentAnnual: 'Komponen Tahunan',
+
+    groupGrossAnnual: 'Penerimaan Bruto Setahun (Annual Gross)',
+    annualRoutineSalary: 'Gaji Pokok & Tunjangan Rutin ({multiplier}x Bulan)',
+    annualRoutineSalaryDesc: 'Akumulasi gaji pokok 12 bulan + {thrMonths} bulan THR',
+    annualBonusDesc: 'Bonus kinerja tahunan / insentif project',
+    subtotalGrossAnnual: 'Subtotal Bruto Kas Setahun',
+
+    groupDeductionsAnnual: 'Beban Pajak & Iuran Karyawan Setahun',
+    annualPph21Label: 'Total PPh 21 Setahun (Pasal 17 UU HPP)',
+    annualPph21Desc: 'Perhitungan final tarif progresif lapisan 5% s/d 35% setelah PTKP',
+    annualBpjsEmployeeLabel: 'Total Iuran BPJS Karyawan Setahun',
+    annualBpjsEmployeeDesc: 'Akumulasi iuran tahunan BPJS Kesehatan (1%) + JHT (2%) + JP (1%)',
+    subtotalDeductionsAnnual: 'Total Potongan Karyawan Setahun',
+
+    groupEmployerBenefit: 'Fasilitas Jaminan Sosial (Ditanggung Perusahaan)',
+    employerBpjsLabel: 'Iuran BPJS Kantor Setahun',
+    employerBpjsDesc: 'BPJS Kes (4%) + JHT (3.7%) + JP (2%) + JKK (0.24%) + JKM (0.3%)',
+
+    heroNetAnnualTitle: 'NET TAKE HOME PAY / TAHUN',
+    heroNetAnnualSubtitle: 'Total estimasi dana bersih setahun (setelah THR & bonus)',
+
+    // Negotiation Modal
+    negotiateModalTitle: 'Alat Negosiasi & Target Gaji',
+    negotiateModalSubtitle: 'Hitung target kenaikan atau cari Gross dari target Net',
+    modePercentage: 'Mode Persentase (+%)',
+    modeReverse: 'Reverse (Target Net ➔ Gross)',
+    presetLabel: 'Preset Target Kenaikan:',
+    sliderLabel: 'Atur Bebas (Slider):',
+    reverseInputLabel: 'Berapa Net THP Bulanan yang Anda Inginkan?',
+    reverseBadge: 'Target Bersih',
+    reverseSubtitle: 'Kalkulator akan menghitung mundur nominal Gross yang harus Anda minta ke HR',
+    requiredGrossLabel: 'Gaji Pokok Gross yang Harus Diminta:',
+    requiredGrossNote: 'Sudah memperhitungkan status PTKP ({ptkp}) dan pemotongan PPh 21 TER serta BPJS.',
+    targetGrossMonthly: 'Target Gross Bulanan:',
+    targetNetMonthly: 'Estimasi Net THP Bulanan:',
+    targetNetAnnual: 'Target Net Setahun:',
+    applyTargetToOffering: 'Terapkan Target ke {name}',
+
+    // Special Slips Modal
+    specialSlipsModalTitle: 'Simulasi Slip THR & True-Up Desember',
+    specialSlipsModalSubtitle: 'Pahami lonjakan pajak bulan bonus & rekonsiliasi akhir tahun',
+    targetSimulationLabel: 'Simulasikan untuk profil:',
+    thrSectionTitle: 'Simulator Slip Saat THR / Bonus Cair',
+    thrSectionSubtitle: 'Lonjakan tarif TER bulanan akibat penerimaan penghasilan sekaligus',
+    disbursedLabel: 'Nominal THR / Bonus Cair:',
+    disbursedBadge: 'Sekali Cair',
+    disbursedPreset1x: '1x Basic (THR)',
+    disbursedPreset2x: '2x Basic',
+    slipRegularTitle: 'Slip Bulan Biasa',
+    slipRegularGross: 'Bruto:',
+    slipRegularPph21: 'PPh 21 TER:',
+    slipRegularNet: 'THP Biasa:',
+    slipBonusTitle: 'Saat THR/Bonus Cair',
+    slipBonusGross: 'Bruto Total:',
+    slipBonusPph21: 'PPh 21 TER:',
+    slipBonusNet: 'Total Uang Cair:',
+
+    decTrueUpTitle: 'Rekonsiliasi PPh 21 Masa Desember (True-Up)',
+    decTrueUpSubtitle: 'Penyesuaian akhir tahun antara akumulasi TER Jan–Nov vs Pasal 17 setahun',
+    decCol1Title: '1. Pajak Jan–Nov (11 Bulan)',
+    decCol1Routine: 'Rutin / Bulan:',
+    decCol1Total: 'Total Terpotong:',
+    decCol2Title: '2. Pajak Setahun (Pasal 17)',
+    decCol2Annual: 'Kalkulasi Setahun:',
+    decCol2Remaining: 'Sisa Pajak Des:',
+    decCol3Title: '3. Slip Gaji Desember',
+    decCol3Tax: 'PPh 21 Desember:',
+    decCol3Net: 'THP Desember:',
+    closeBtn: 'Tutup',
+
+    // Reset Modal
+    resetModalTitle: 'Reset & Kosongkan Data',
+    resetModalSubtitle: 'Pilih opsi pengosongan data input',
+    resetModalDesc: 'Apakah Anda ingin mengosongkan seluruh angka gaji saat ini dan seluruh penawaran, atau mengembalikan ke data contoh bawaan?',
+    clearAllToZeroBtn: 'Kosongkan Semua Angka (Set ke Rp 0)',
+    resetToDemoBtn: 'Kembalikan ke Contoh Bawaan (Demo)',
+    cancelBtn: 'Batal',
+
+    // Copy Summary Text
+    copySummaryTitle: '📊 Ringkasan Komparasi Gaji & Offering ({name}):',
+    copySummaryTaxScheme: 'Skema Pajak: Existing ({existingTax}) vs {name} ({offeringTax})',
+    copySummaryMonthlyHeader: '🗓️ PER BULAN:',
+    copySummaryExistingMonthly: '• Existing: Gross {gross} | Net THP: {net}',
+    copySummaryOfferingMonthly: '• {name}: Gross {gross} | Net THP: {net}',
+    copySummaryDeltaMonthly: '• Selisih Net THP: {sign}{delta}/bln ({pct}%)',
+    copySummaryAnnualHeader: '📅 PER TAHUN ({multiplier}x Gaji + Bonus):',
+    copySummaryExistingAnnual: '• Existing Net THP: {net}',
+    copySummaryOfferingAnnual: '• {name} Net THP: {net}',
+    copySummaryDeltaAnnual: '• Selisih Bersih Tahunan: {sign}{delta}/thn',
+    copySummaryFooter: 'Dihitung berdasarkan regulasi PPh 21 TER (PMK 168/2023) & BPJS.',
+
+    // Footer
+    footerText: 'Kalkulator Gaji & Offering © 2026. PPh 21 TER (PMK 168/2023) & BPJS.'
+  },
+  en: {
+    // Header
+    appTitle: 'Salary & Offering Calculator',
+    appSubtitle: 'Indonesian Salary, PPh 21 TER (PMK 168/2023) & BPJS Simulation',
+    privacyActive: 'Privacy On',
+    privacyInactive: 'Privacy',
+    privacyTitleOn: 'Disable Privacy Mode',
+    privacyTitleOff: 'Enable Privacy Mode (Blur Numbers)',
+    pdf: 'PDF',
+    pdfTitle: 'Print or save as PDF',
+    copy: 'Copy',
+    copied: 'Copied',
+    copyTitle: 'Copy summary',
+    reset: 'Reset',
+    resetTitle: 'Reset or clear input data',
+    options: 'Options',
+    optionsTitle: 'BPJS & Salary Settings',
+    langToggleTitle: 'Ganti ke Bahasa Indonesia',
+
+    // Advanced Drawer
+    bpjsComponentTitle: 'BPJS Components',
+    bpjsKesLabel: 'BPJS Healthcare (1% Employee, 4% Employer)',
+    bpjsTkLabel: 'BPJS Employment (JHT 2%, JP 1% Cap Rp 10.04M)',
+    taxBaseTitle: 'Tax Base Calculation',
+    taxBaseLabel: 'Employer JKK, JKM, BPJS Healthcare add to gross tax base',
+    taxBaseNote: 'In accordance with PMK 168/2023 tax regulation.',
+    multiplierTitle: 'Annual Multiplier (THR / Bonus Months)',
+    multiplierNote: '13x = 12 regular salary months + 1 month THR allowance.',
+
+    // Printable Header
+    printHeaderTitle: 'Salary & Job Offering Comparison Summary',
+
+    // Hero Summary
+    heroTitle: 'Net Take Home Pay Increase',
+    perMonth: '/month',
+    perYear: '/yr',
+    heroAnnualNote: 'Annual accumulated increase ({multiplier}x salary + bonus):',
+    currentSalary: 'Current Salary',
+
+    // Top Controls
+    offeringsLabel: 'Offerings:',
+    addOffering: 'Add New Offering',
+    deleteOffering: 'Delete offering',
+    negotiationTool: 'Negotiation Tool',
+    negotiationToolDesc: 'Open target salary slider & reverse gross calculator',
+    specialSlips: 'THR & Dec Slips',
+    specialSlipsDesc: 'Simulate special payslips for THR & December true-up',
+    ptkpLabel: 'Tax Relief (PTKP):',
+    ptkpEffectiveRate: 'Effective Rate: TER Category {cat} ({rate}%)',
+    ptkpSyncNote: '*Automatically applied to Current Salary & All Offerings',
+
+    // Input Cards
+    existingCardTitle: 'Current Salary (Existing)',
+    existingCardSubtitle: 'Current employment package',
+    offeringCardSubtitle: 'Evaluated job offering',
+    clearCardTitle: 'Clear figures in this card',
+    taxMethodGross: 'Gross (Standard)',
+    taxMethodGrossUp: 'Gross-Up',
+    taxMethodNett: 'Nett',
+    taxSchemeTitle: 'Tax Scheme',
+
+    basicSalaryLabel: 'Basic Salary',
+    basicSalaryBadge: 'Per Month',
+    fixedAllowanceLabel: 'Fixed Allowance',
+    fixedAllowanceBadge: 'Per Month',
+    bonusLabel: 'Annual Bonus / Variable Allowance',
+    bonusBadge: 'Per Year',
+    bonusSubtitle: '*Calculated in annual package (excluded from monthly cashflow)',
+    offeringBasicLabel: 'Offered Basic Salary',
+
+    monthlyGrossSub: 'Monthly Gross:',
+    deductionsSub: 'Deductions (PPh 21 TER + BPJS):',
+    monthlyNetSub: 'Monthly Net THP:',
+    annualNetSub: 'Annual Net Salary:',
+
+    // Detailed Comparison Breakdown
+    breakdownTitle: 'Detailed Comparison Breakdown',
+    breakdownSubtitle: 'In-depth comparison of gross earnings, PPh 21 tax deductions, BPJS contributions, and Net Take Home Pay',
+    periodMonthly: 'Monthly',
+    periodAnnual: 'Annual',
+    periodAll: 'All (Full View)',
+
+    // Card 1: Monthly Cashflow
+    card1Title: '1. Monthly Routine Cashflow',
+    card1Subtitle: 'Routine gross earnings and statutory deductions determining net cash deposited into bank account each month',
+    deltaNetThp: 'Delta Net THP:',
+    thComponent: 'Monthly Component',
+    thCurrent: 'Current Salary',
+    thDelta: 'Delta (Difference)',
+
+    groupGrossMonthly: 'Monthly Gross Income (Cash Gross)',
+    basicSalaryDesc: 'Monthly fixed basic wage component',
+    fixedAllowanceDesc: 'Fixed position, meal, transport allowances',
+    subtotalGrossMonthly: 'Subtotal Monthly Gross',
+
+    groupDeductionsMonthly: 'Employee Deductions (Tax & BPJS)',
+    pph21TerLabel: 'Monthly PPh 21 TER',
+    pph21TerDesc: 'Average Effective Tax Rate (PP 58/2023 & PMK 168/2023)',
+    bpjsKesLabelShort: 'BPJS Healthcare (1% Employee)',
+    bpjsKesDesc: 'Maximum income cap Rp 12,000,000/month',
+    bpjsTkLabelShort: 'BPJS Employment (JHT 2% + JP 1%)',
+    bpjsTkDesc: 'Old-Age Security (2%) & Pension Security (1% capped)',
+    subtotalDeductionsMonthly: 'Total Employee Deductions / Month',
+
+    heroNetMonthlyTitle: 'NET TAKE HOME PAY / MONTH',
+    heroNetMonthlySubtitle: 'Actual net salary received in bank account',
+
+    // Card 2: Annualized Package
+    card2Title: '2. Annual Package Projection ({multiplier}x Salary + Bonus)',
+    card2Subtitle: 'Total 1-year compensation package including THR/bonus, Article 17 progressive tax reconciliation, and employer benefits',
+    deltaNetAnnual: 'Delta Net Annual:',
+    thComponentAnnual: 'Annual Component',
+
+    groupGrossAnnual: 'Annual Gross Income (Cash Gross)',
+    annualRoutineSalary: 'Basic & Fixed Allowances ({multiplier}x Months)',
+    annualRoutineSalaryDesc: '12 months regular salary + {thrMonths} month(s) religious holiday allowance (THR)',
+    annualBonusDesc: 'Annual performance bonus / project incentives',
+    subtotalGrossAnnual: 'Subtotal Annual Cash Gross',
+
+    groupDeductionsAnnual: 'Annual Employee Tax & Contributions',
+    annualPph21Label: 'Total Annual PPh 21 (Article 17 HPP Law)',
+    annualPph21Desc: 'Final progressive tax calculation (brackets 5% to 35%) after PTKP deduction',
+    annualBpjsEmployeeLabel: 'Total Annual Employee BPJS',
+    annualBpjsEmployeeDesc: 'Annual accumulated BPJS Healthcare (1%) + JHT (2%) + JP (1%)',
+    subtotalDeductionsAnnual: 'Total Annual Employee Deductions',
+
+    groupEmployerBenefit: 'Social Security Benefits (Employer-Paid)',
+    employerBpjsLabel: 'Annual Employer-Paid BPJS',
+    employerBpjsDesc: 'BPJS Health (4%) + JHT (3.7%) + JP (2%) + JKK (0.24%) + JKM (0.3%)',
+
+    heroNetAnnualTitle: 'NET TAKE HOME PAY / YEAR',
+    heroNetAnnualSubtitle: 'Estimated total annual net earnings (after THR & bonus)',
+
+    // Negotiation Modal
+    negotiateModalTitle: 'Salary Negotiation & Target Tool',
+    negotiateModalSubtitle: 'Calculate target increase or reverse-engineer Gross from desired Net',
+    modePercentage: 'Percentage Target Mode (+%)',
+    modeReverse: 'Reverse (Target Net ➔ Gross)',
+    presetLabel: 'Quick Target Presets:',
+    sliderLabel: 'Custom Slider Adjustment:',
+    reverseInputLabel: 'What is your desired Monthly Net THP?',
+    reverseBadge: 'Target Net',
+    reverseSubtitle: 'The calculator reverse-computes the exact gross salary you should ask from HR',
+    requiredGrossLabel: 'Required Gross Basic Salary:',
+    requiredGrossNote: 'Factored for PTKP tax status ({ptkp}), PPh 21 TER, and BPJS deductions.',
+    targetGrossMonthly: 'Target Monthly Gross:',
+    targetNetMonthly: 'Estimated Monthly Net THP:',
+    targetNetAnnual: 'Target Annual Net:',
+    applyTargetToOffering: 'Apply Target to {name}',
+
+    // Special Slips Modal
+    specialSlipsModalTitle: 'Special Payslip Simulation (THR & December)',
+    specialSlipsModalSubtitle: 'Understand bonus tax bracket surge & year-end Article 17 reconciliation',
+    targetSimulationLabel: 'Simulate for profile:',
+    thrSectionTitle: 'THR / Bonus Month Payslip Simulator',
+    thrSectionSubtitle: 'Monthly TER rate surge caused by receiving one-off lump sum income',
+    disbursedLabel: 'THR / Bonus Amount Paid:',
+    disbursedBadge: 'Lump Sum',
+    disbursedPreset1x: '1x Basic (THR)',
+    disbursedPreset2x: '2x Basic',
+    slipRegularTitle: 'Regular Month Slip',
+    slipRegularGross: 'Gross:',
+    slipRegularPph21: 'PPh 21 TER:',
+    slipRegularNet: 'Regular THP:',
+    slipBonusTitle: 'During THR / Bonus Month',
+    slipBonusGross: 'Total Gross:',
+    slipBonusPph21: 'PPh 21 TER:',
+    slipBonusNet: 'Total Take Home:',
+
+    decTrueUpTitle: 'December PPh 21 Tax True-Up (Reconciliation)',
+    decTrueUpSubtitle: 'Year-end adjustment between accumulated TER (Jan–Nov) vs annual Article 17 tax',
+    decCol1Title: '1. Tax Jan–Nov (11 Months)',
+    decCol1Routine: 'Routine / Month:',
+    decCol1Total: 'Total Withheld:',
+    decCol2Title: '2. Annual Tax (Article 17)',
+    decCol2Annual: 'Full Year Calculation:',
+    decCol2Remaining: 'Dec Remaining Tax:',
+    decCol3Title: '3. December Payslip',
+    decCol3Tax: 'December PPh 21:',
+    decCol3Net: 'December Net THP:',
+    closeBtn: 'Close',
+
+    // Reset Modal
+    resetModalTitle: 'Reset & Clear Data',
+    resetModalSubtitle: 'Select data clearing option',
+    resetModalDesc: 'Do you want to reset all current salary and offering figures to Rp 0, or restore the default demo values?',
+    clearAllToZeroBtn: 'Clear All Figures (Set to Rp 0)',
+    resetToDemoBtn: 'Restore Default Demo Values',
+    cancelBtn: 'Cancel',
+
+    // Copy Summary Text
+    copySummaryTitle: '📊 Salary & Job Offering Summary ({name}):',
+    copySummaryTaxScheme: 'Tax Scheme: Current ({existingTax}) vs {name} ({offeringTax})',
+    copySummaryMonthlyHeader: '🗓️ MONTHLY:',
+    copySummaryExistingMonthly: '• Current: Gross {gross} | Net THP: {net}',
+    copySummaryOfferingMonthly: '• {name}: Gross {gross} | Net THP: {net}',
+    copySummaryDeltaMonthly: '• Net THP Delta: {sign}{delta}/mo ({pct}%)',
+    copySummaryAnnualHeader: '📅 ANNUAL ({multiplier}x Salary + Bonus):',
+    copySummaryExistingAnnual: '• Current Net THP: {net}',
+    copySummaryOfferingAnnual: '• {name} Net THP: {net}',
+    copySummaryDeltaAnnual: '• Net Annual Delta: {sign}{delta}/yr',
+    copySummaryFooter: 'Calculated using Indonesian PPh 21 TER (PMK 168/2023) & BPJS regulations.',
+
+    // Footer
+    footerText: 'Salary & Offering Calculator © 2026. PPh 21 TER (PMK 168/2023) & BPJS.'
+  }
+}
+
+export const getPTKPLabel = (code, lang = 'id') => {
+  const ptkpMap = {
+    'TK/0': { id: 'TK/0 - Tidak Kawin, 0 Tanggungan (Rp 54 Jt)', en: 'TK/0 - Single, 0 Dependents (Rp 54M)' },
+    'TK/1': { id: 'TK/1 - Tidak Kawin, 1 Tanggungan (Rp 58.5 Jt)', en: 'TK/1 - Single, 1 Dependent (Rp 58.5M)' },
+    'TK/2': { id: 'TK/2 - Tidak Kawin, 2 Tanggungan (Rp 63 Jt)', en: 'TK/2 - Single, 2 Dependents (Rp 63M)' },
+    'TK/3': { id: 'TK/3 - Tidak Kawin, 3 Tanggungan (Rp 67.5 Jt)', en: 'TK/3 - Single, 3 Dependents (Rp 67.5M)' },
+    'K/0': { id: 'K/0 - Kawin, 0 Tanggungan (Rp 58.5 Jt)', en: 'K/0 - Married, 0 Dependents (Rp 58.5M)' },
+    'K/1': { id: 'K/1 - Kawin, 1 Tanggungan (Rp 63 Jt)', en: 'K/1 - Married, 1 Dependent (Rp 63M)' },
+    'K/2': { id: 'K/2 - Kawin, 2 Tanggungan (Rp 67.5 Jt)', en: 'K/2 - Married, 2 Dependents (Rp 67.5M)' },
+    'K/3': { id: 'K/3 - Kawin, 3 Tanggungan (Rp 72 Jt)', en: 'K/3 - Married, 3 Dependents (Rp 72M)' },
+  }
+  return ptkpMap[code]?.[lang] || ptkpMap[code]?.['id'] || code
+}
