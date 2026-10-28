@@ -3,7 +3,43 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+
+  /* Lombard Financial Broadsheet & Sovereign Payroll Palette */
+  --bg-primary: #F5EFE4;          /* Warm Lombard Financial Broadsheet Paper */
+  --bg-secondary: #ECE3D3;        /* Ledger Section Backing */
+  --bg-elevated: #FCF9F4;         /* Crisp Cotton Payslip Voucher */
+  --bg-sunken: #E4DAC6;           /* Recessed Input / Stamp Well */
+  --bg-vault: #0D1F18;            /* Deep British Racing / Central Bank Obsidian */
+  --bg-vault-light: #152E24;      /* Elevated Vault Panel */
+
+  /* Typography Ink Hierarchy */
+  --text-primary: #111714;        /* Carbon Ledger Ink */
+  --text-secondary: #3E4A43;      /* Secondary Editorial Slate-Pine */
+  --text-muted: #6C7870;          /* Archival Folio & Caption Ink */
+
+  /* Sovereign Financial Accents */
+  --accent-primary: #0B5D3F;      /* Central Bank Emerald */
+  --accent-primary-hover: #084730;
+  --accent-primary-soft: rgba(11, 93, 63, 0.09);
+
+  --accent-secondary: #9A6B13;    /* Sovereign Bullion Gold */
+  --accent-secondary-soft: rgba(154, 107, 19, 0.12);
+
+  /* Semantic Fiscal Indicators */
+  --semantic-positive: #0B5D3F;   /* Net THP Gain / Credit */
+  --semantic-warning: #A16207;    /* TER Surge / True-Up Notice */
+  --semantic-danger: #B42318;     /* Statutory Tax & BPJS Withholding */
+  --semantic-danger-soft: rgba(180, 35, 24, 0.08);
+
+  /* Structural Rules & Hairlines */
+  --border-hairline: #D4C8B4;     /* 1px Ledger Rule */
+  --border-strong: #111714;       /* Masthead & Accounting Total Rule */
+
+  /* Typography Tokens */
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
 html {
@@ -11,15 +47,71 @@ html {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   overscroll-behavior-y: contain;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   min-height: -webkit-fill-available;
-  background-color: #0B0F19;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Subtle archival ledger dot-matrix & column grain */
+  background-image:
+    radial-gradient(rgba(17, 23, 20, 0.055) 1px, transparent 1px),
+    linear-gradient(to right, rgba(212, 200, 180, 0.22) 1px, transparent 1px);
+  background-size: 24px 24px, 120px 100%;
+}
+
+/* Strict Tabular Numerals for Financial Figures */
+.font-mono,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* Tactile Perforated Payslip Tear-Off Divider */
+.payslip-perforation {
+  position: relative;
+  border-top: 1.5px dashed #BCAE96;
+}
+
+.payslip-perforation::before,
+.payslip-perforation::after {
+  content: '';
+  position: absolute;
+  top: -9px;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-hairline);
+}
+
+.payslip-perforation::before {
+  left: -9px;
+}
+
+.payslip-perforation::after {
+  right: -9px;
+}
+
+/* Institutional Accounting Double Bottom Rule */
+.accounting-double-rule {
+  border-bottom: 4px double var(--border-strong);
+}
+
+/* Official Stamp Badge */
+.folio-stamp {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 /* Safe area padding utilities for iOS / Android */
@@ -39,6 +131,28 @@ button, select, summary {
   -webkit-user-select: none;
 }
 
+/* Custom Range Slider for Negotiation War-Room */
+input[type="range"].ledger-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg-sunken);
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline);
+}
+
+input[type="range"].ledger-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--accent-primary);
+  border: 2px solid #FCF9F4;
+  box-shadow: 0 2px 6px rgba(17, 23, 20, 0.25);
+  cursor: pointer;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -46,23 +160,24 @@ button, select, summary {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: #B8A990;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #8D7E66;
 }
 
 /* Print / PDF Export Styling */
 @media print {
   body {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111714 !important;
   }
 
   .no-print {
@@ -75,7 +190,7 @@ button, select, summary {
 
   .print-clean {
     background-color: #ffffff !important;
-    color: #0f172a !important;
+    color: #111714 !important;
     border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
   }
@@ -85,8 +200,8 @@ button, select, summary {
   }
 
   table, tr, td, th {
-    color: #0f172a !important;
-    border-color: #e2e8f0 !important;
+    color: #111714 !important;
+    border-color: #cbd5e1 !important;
     background-color: #ffffff !important;
   }
 }

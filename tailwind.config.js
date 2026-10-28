@@ -6,18 +6,43 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['"Newsreader"', 'Georgia', 'serif'],
+        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
       colors: {
-        brand: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
+        paper: {
+          DEFAULT: 'var(--bg-primary)',
+          secondary: 'var(--bg-secondary)',
+          elevated: 'var(--bg-elevated)',
+          sunken: 'var(--bg-sunken)',
+        },
+        vault: {
+          DEFAULT: 'var(--bg-vault)',
+          light: 'var(--bg-vault-light)',
+        },
+        ink: {
+          DEFAULT: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-muted)',
+        },
+        bank: {
+          DEFAULT: 'var(--accent-primary)',
+          hover: 'var(--accent-primary-hover)',
+          soft: 'var(--accent-primary-soft)',
+        },
+        bullion: {
+          DEFAULT: 'var(--accent-secondary)',
+          soft: 'var(--accent-secondary-soft)',
+        },
+        carmine: {
+          DEFAULT: 'var(--semantic-danger)',
+          soft: 'var(--semantic-danger-soft)',
+        },
+        rule: {
+          DEFAULT: 'var(--border-hairline)',
+          strong: 'var(--border-strong)',
         }
       }
     },
