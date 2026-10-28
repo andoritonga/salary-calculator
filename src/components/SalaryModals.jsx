@@ -8,7 +8,6 @@ import {
   RotateCcw,
   Trash2,
   HelpCircle,
-  ArrowRight,
 } from 'lucide-react'
 import CurrencyInput from './CurrencyInput'
 
@@ -28,7 +27,6 @@ export default function SalaryModals({
   targetDesiredNet,
   setTargetDesiredNet,
   reverseGrossBasic,
-  targetGrossBasic,
   targetSimulationCalc,
   applyTargetGrossToOffering,
   // Special Slips Modal props
@@ -39,6 +37,9 @@ export default function SalaryModals({
   thrDisbursedAmount,
   setThrDisbursedAmount,
   existingBasic,
+  existingFixed = 0,
+  existingBonus = 0,
+  annualMultiplier = 13,
   bonusMonthSim,
   decemberTrueUpSim,
   // Reset Modal props
@@ -54,12 +55,12 @@ export default function SalaryModals({
       ===================================================================== */}
       {showNegotiateModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[#0D1F18]/75 backdrop-blur-sm animate-fadeIn no-print"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn no-print"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowNegotiateModal(false)
           }}
         >
-          <div className="bg-[var(--bg-elevated)] rounded-t-md sm:rounded-sm border-2 border-[var(--border-strong)] shadow-[0_24px_60px_-15px_rgba(13,31,24,0.55)] w-full max-w-xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
+          <div className="bg-[var(--bg-elevated)] rounded-t-md sm:rounded-sm border-2 border-[var(--border-strong)] shadow-[0_24px_60px_-15px_rgba(0,0,0,0.65)] w-full max-w-xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
             {/* Modal Vault Header */}
             <div className="bg-[#0D1F18] px-5 py-4 text-[#F5EFE4] flex items-center justify-between shrink-0 border-b-2 border-[#9A6B13]">
               <div className="flex items-center gap-3">
@@ -92,7 +93,7 @@ export default function SalaryModals({
                 onClick={() => setNegotiateMode('percentage')}
                 className={`px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold rounded-t-sm border-t border-x transition-all flex items-center gap-1.5 ${
                   negotiateMode === 'percentage'
-                    ? 'bg-[var(--bg-elevated)] text-[#0B5D3F] border-[var(--border-hairline)] -mb-px pb-2.5'
+                    ? 'bg-[var(--bg-elevated)] text-[var(--accent-primary)] border-[var(--border-hairline)] -mb-px pb-2.5'
                     : 'bg-transparent text-[var(--text-secondary)] border-transparent hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -104,7 +105,7 @@ export default function SalaryModals({
                 onClick={() => setNegotiateMode('reverse')}
                 className={`px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold rounded-t-sm border-t border-x transition-all flex items-center gap-1.5 ${
                   negotiateMode === 'reverse'
-                    ? 'bg-[var(--bg-elevated)] text-[#9A6B13] border-[var(--border-hairline)] -mb-px pb-2.5'
+                    ? 'bg-[var(--bg-elevated)] text-[var(--accent-secondary)] border-[var(--border-hairline)] -mb-px pb-2.5'
                     : 'bg-transparent text-[var(--text-secondary)] border-transparent hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -130,7 +131,7 @@ export default function SalaryModals({
                           onClick={() => setTargetIncrementPct(pct)}
                           className={`py-2 rounded-sm font-mono text-xs font-bold border transition-all ${
                             targetIncrementPct === pct
-                              ? 'bg-[#0B5D3F] text-white border-[#0D1F18] shadow-sm'
+                              ? 'bg-[var(--accent-primary-solid)] text-white border-[var(--accent-primary)] shadow-sm'
                               : 'bg-[var(--bg-primary)] text-[var(--text-primary)] border-[var(--border-hairline)] hover:border-[var(--border-strong)]'
                           }`}
                         >
@@ -146,7 +147,7 @@ export default function SalaryModals({
                       <span className="text-xs font-mono uppercase tracking-wider font-bold text-[var(--text-secondary)]">
                         {t('sliderLabel')}
                       </span>
-                      <span className="font-mono text-lg font-bold text-[#0B5D3F] bg-[#0B5D3F]/10 px-2.5 py-0.5 rounded-sm border border-[#0B5D3F]/30 tabular-nums">
+                      <span className="font-mono text-lg font-bold text-[var(--accent-primary)] bg-[var(--accent-primary-soft)] px-2.5 py-0.5 rounded-sm border border-[var(--accent-primary)]/30 tabular-nums">
                         +{targetIncrementPct}%
                       </span>
                     </div>
@@ -157,7 +158,7 @@ export default function SalaryModals({
                       step="5"
                       value={targetIncrementPct}
                       onChange={(e) => setTargetIncrementPct(Number(e.target.value))}
-                      className="w-full"
+                      className="w-full ledger-slider"
                     />
                   </div>
                 </div>
@@ -174,8 +175,8 @@ export default function SalaryModals({
                     />
                   </div>
 
-                  <div className="bg-[#9A6B13]/10 border border-[#9A6B13]/40 p-4 rounded-sm">
-                    <div className="text-[11px] font-mono uppercase tracking-wider font-bold text-[#9A6B13]">
+                  <div className="bg-[var(--accent-secondary-soft)] border border-[var(--accent-secondary)]/40 p-4 rounded-sm">
+                    <div className="text-[11px] font-mono uppercase tracking-wider font-bold text-[var(--accent-secondary)]">
                       {t('requiredGrossLabel')}
                     </div>
                     <div className="font-mono text-2xl font-bold text-[var(--text-primary)] mt-1 tabular-nums">
@@ -213,7 +214,7 @@ export default function SalaryModals({
               <button
                 type="button"
                 onClick={applyTargetGrossToOffering}
-                className="w-full py-3 px-4 bg-[#0B5D3F] hover:bg-[#094830] text-white font-mono text-xs uppercase tracking-wider font-bold rounded-sm shadow-[0_2px_0_0_#111714] transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-[var(--accent-primary-solid)] hover:bg-[var(--accent-primary-hover)] text-white font-mono text-xs uppercase tracking-wider font-bold rounded-sm shadow-[0_2px_0_0_var(--shadow-ledger)] transition-all flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>{t('applyTargetToOffering', { name: activeOffering.name })}</span>
@@ -228,12 +229,12 @@ export default function SalaryModals({
       ===================================================================== */}
       {showSpecialSlipsModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[#0D1F18]/75 backdrop-blur-sm animate-fadeIn no-print"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn no-print"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowSpecialSlipsModal(false)
           }}
         >
-          <div className="bg-[var(--bg-elevated)] rounded-t-md sm:rounded-sm border-2 border-[var(--border-strong)] shadow-[0_24px_60px_-15px_rgba(13,31,24,0.55)] w-full max-w-3xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
+          <div className="bg-[var(--bg-elevated)] rounded-t-md sm:rounded-sm border-2 border-[var(--border-strong)] shadow-[0_24px_60px_-15px_rgba(0,0,0,0.65)] w-full max-w-3xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
             {/* Header */}
             <div className="bg-[#0D1F18] px-5 py-4 text-[#F5EFE4] flex items-center justify-between shrink-0 border-b-2 border-[#0B5D3F]">
               <div className="flex items-center gap-3">
@@ -275,7 +276,7 @@ export default function SalaryModals({
                     }}
                     className={`px-3 py-1 rounded-sm font-mono text-xs font-bold transition-all ${
                       specialSlipTarget === 'existing'
-                        ? 'bg-[#0D1F18] text-[#F5EFE4]'
+                        ? 'bg-[var(--accent-primary-solid)] text-white'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -289,7 +290,7 @@ export default function SalaryModals({
                     }}
                     className={`px-3 py-1 rounded-sm font-mono text-xs font-bold transition-all ${
                       specialSlipTarget === 'offering'
-                        ? 'bg-[#0B5D3F] text-white'
+                        ? 'bg-[var(--accent-primary-solid)] text-white'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -307,7 +308,7 @@ export default function SalaryModals({
                     </h4>
                     <p className="text-xs text-[var(--text-secondary)]">{t('thrSectionSubtitle')}</p>
                   </div>
-                  <div className="flex gap-1.5">
+                  <div className="flex flex-wrap gap-1.5">
                     <button
                       type="button"
                       onClick={() =>
@@ -315,7 +316,7 @@ export default function SalaryModals({
                           specialSlipTarget === 'existing' ? existingBasic : activeOffering.basic
                         )
                       }
-                      className="px-2.5 py-1 text-[11px] font-mono font-bold bg-[var(--bg-elevated)] border border-[var(--border-hairline)] rounded-sm hover:border-[#0B5D3F]"
+                      className="px-2.5 py-1 text-[11px] font-mono font-bold bg-[var(--bg-elevated)] border border-[var(--border-hairline)] rounded-sm hover:border-[var(--accent-primary)] text-[var(--text-primary)]"
                     >
                       {t('disbursedPreset1x')}
                     </button>
@@ -326,9 +327,23 @@ export default function SalaryModals({
                           (specialSlipTarget === 'existing' ? existingBasic : activeOffering.basic) * 2
                         )
                       }
-                      className="px-2.5 py-1 text-[11px] font-mono font-bold bg-[var(--bg-elevated)] border border-[var(--border-hairline)] rounded-sm hover:border-[#0B5D3F]"
+                      className="px-2.5 py-1 text-[11px] font-mono font-bold bg-[var(--bg-elevated)] border border-[var(--border-hairline)] rounded-sm hover:border-[var(--accent-primary)] text-[var(--text-primary)]"
                     >
                       {t('disbursedPreset2x')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const isExisting = specialSlipTarget === 'existing'
+                        const b = isExisting ? existingBasic : activeOffering.basic
+                        const f = isExisting ? existingFixed : activeOffering.fixed
+                        const bon = isExisting ? existingBonus : activeOffering.bonus
+                        const thrM = Math.max(0, annualMultiplier - 12)
+                        setThrDisbursedAmount((b + f) * thrM + bon)
+                      }}
+                      className="px-2.5 py-1 text-[11px] font-mono font-bold bg-[var(--accent-primary-soft)] border border-[var(--accent-primary)]/40 rounded-sm hover:border-[var(--accent-primary)] text-[var(--accent-primary)]"
+                    >
+                      {t('disbursedPresetPackage')}
                     </button>
                   </div>
                 </div>
@@ -354,7 +369,7 @@ export default function SalaryModals({
                           {renderIDR(bonusMonthSim.regularMonthlyGross)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-[#B42318]">
+                      <div className="flex justify-between text-[var(--semantic-danger)]">
                         <span>
                           {t('slipRegularPph21')} ({bonusMonthSim.regularTerPct}%)
                         </span>
@@ -402,11 +417,28 @@ export default function SalaryModals({
 
               {/* Part 2: December Pasal 17 True-Up Reconciliation */}
               <div className="border border-[var(--border-strong)] rounded-sm overflow-hidden bg-[var(--bg-elevated)]">
-                <div className="bg-[var(--bg-secondary)] px-4 py-3 border-b border-[var(--border-hairline)]">
-                  <h4 className="font-display font-bold text-base text-[var(--text-primary)]">
-                    2. {t('decTrueUpTitle')}
-                  </h4>
-                  <p className="text-xs text-[var(--text-secondary)]">{t('decTrueUpSubtitle')}</p>
+                <div className="bg-[var(--bg-secondary)] px-4 py-3 border-b border-[var(--border-hairline)] flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h4 className="font-display font-bold text-base text-[var(--text-primary)]">
+                      2. {t('decTrueUpTitle')}
+                    </h4>
+                    <p className="text-xs text-[var(--text-secondary)]">{t('decTrueUpSubtitle')}</p>
+                  </div>
+                  <span
+                    className={`px-2.5 py-1 rounded-sm font-mono text-[10px] font-bold uppercase border ${
+                      decemberTrueUpSim.rawDecemberPph21 < 0
+                        ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] border-[var(--accent-primary)]/40'
+                        : decemberTrueUpSim.status === 'underpaid'
+                        ? 'bg-[var(--semantic-danger-soft)] text-[var(--semantic-danger)] border-[var(--semantic-danger)]/40'
+                        : 'bg-[var(--accent-secondary-soft)] text-[var(--accent-secondary)] border-[var(--accent-secondary)]/40'
+                    }`}
+                  >
+                    {decemberTrueUpSim.rawDecemberPph21 < 0
+                      ? t('decStatusOverpaid')
+                      : decemberTrueUpSim.status === 'underpaid'
+                      ? t('decStatusUnderpaid')
+                      : t('decStatusBalanced')}
+                  </span>
                 </div>
 
                 <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -417,12 +449,18 @@ export default function SalaryModals({
                     <div className="flex justify-between">
                       <span>{t('decCol1Routine')}</span>
                       <span className="font-mono tabular-nums">
-                        {renderIDR(decemberTrueUpSim.regularMonthlyTerTax)}
+                        {renderIDR(decemberTrueUpSim.routineJanNovTax)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-[var(--accent-secondary)]">
+                      <span>{t('decCol1BonusSpike')}</span>
+                      <span className="font-mono tabular-nums">
+                        +{renderIDR(decemberTrueUpSim.bonusTerTax)}
                       </span>
                     </div>
                     <div className="flex justify-between font-bold border-t border-[var(--border-hairline)] pt-1.5">
                       <span>{t('decCol1Total')}</span>
-                      <span className="font-mono text-[#B42318] tabular-nums">
+                      <span className="font-mono text-[var(--semantic-danger)] tabular-nums">
                         {renderIDR(decemberTrueUpSim.totalPaidJanNov)}
                       </span>
                     </div>
@@ -433,15 +471,33 @@ export default function SalaryModals({
                       {t('decCol2Title')}
                     </div>
                     <div className="flex justify-between">
+                      <span>{t('decCol2Gross')}</span>
+                      <span className="font-mono tabular-nums">
+                        {renderIDR(decemberTrueUpSim.annualCashGross)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
                       <span>{t('decCol2Annual')}</span>
                       <span className="font-mono tabular-nums">
                         {renderIDR(decemberTrueUpSim.totalAnnualTax)}
                       </span>
                     </div>
                     <div className="flex justify-between font-bold border-t border-[var(--border-hairline)] pt-1.5">
-                      <span>{t('decCol2Remaining')}</span>
-                      <span className="font-mono text-[#9A6B13] tabular-nums">
-                        {renderIDR(decemberTrueUpSim.decemberPph21)}
+                      <span>
+                        {decemberTrueUpSim.rawDecemberPph21 < 0
+                          ? t('decCol2Overpaid')
+                          : t('decCol2Remaining')}
+                      </span>
+                      <span
+                        className={`font-mono tabular-nums ${
+                          decemberTrueUpSim.rawDecemberPph21 < 0
+                            ? 'text-[var(--accent-primary)]'
+                            : 'text-[var(--accent-secondary)]'
+                        }`}
+                      >
+                        {decemberTrueUpSim.rawDecemberPph21 < 0
+                          ? `+${renderIDR(decemberTrueUpSim.overpaidTax)}`
+                          : renderIDR(decemberTrueUpSim.decemberPph21)}
                       </span>
                     </div>
                   </div>
@@ -451,9 +507,28 @@ export default function SalaryModals({
                       {t('decCol3Title')}
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#A7B8B0]">{t('decCol3Tax')}</span>
-                      <span className="font-mono text-[#F87171] tabular-nums">
-                        -{renderIDR(decemberTrueUpSim.decemberPph21)}
+                      <span className="text-[#A7B8B0]">{t('slipRegularGross')}</span>
+                      <span className="font-mono text-white tabular-nums">
+                        {renderIDR(decemberTrueUpSim.monthlyCashGross)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#A7B8B0]">
+                        {decemberTrueUpSim.rawDecemberPph21 < 0
+                          ? t('decCol3Refund')
+                          : t('decCol3Tax')}
+                      </span>
+                      <span
+                        className={`font-mono tabular-nums ${
+                          decemberTrueUpSim.rawDecemberPph21 < 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'
+                        }`}
+                      >
+                        {decemberTrueUpSim.rawDecemberPph21 < 0 ? '+' : '-'}
+                        {renderIDR(
+                          decemberTrueUpSim.rawDecemberPph21 < 0
+                            ? decemberTrueUpSim.overpaidTax
+                            : decemberTrueUpSim.decemberPph21
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between font-bold border-t border-white/15 pt-1.5">
@@ -475,7 +550,7 @@ export default function SalaryModals({
       ===================================================================== */}
       {showResetModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D1F18]/75 backdrop-blur-sm animate-fadeIn no-print"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn no-print"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowResetModal(false)
           }}
@@ -483,7 +558,7 @@ export default function SalaryModals({
           <div className="bg-[var(--bg-elevated)] rounded-sm border-2 border-[var(--border-strong)] shadow-2xl w-full max-w-md overflow-hidden animate-slideUp p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#9A6B13]/15 text-[#9A6B13] border border-[#9A6B13]/30 rounded-sm">
+                <div className="p-2 bg-[var(--accent-secondary-soft)] text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 rounded-sm">
                   <HelpCircle className="w-5 h-5" />
                 </div>
                 <div>
@@ -510,7 +585,7 @@ export default function SalaryModals({
               <button
                 type="button"
                 onClick={clearAllNumbersToZero}
-                className="w-full py-2.5 px-4 rounded-sm border border-[#B42318]/40 bg-[#B42318]/10 hover:bg-[#B42318] text-[#B42318] hover:text-white font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 rounded-sm border border-[var(--semantic-danger)]/40 bg-[var(--semantic-danger-soft)] hover:bg-[#B42318] text-[var(--semantic-danger)] hover:text-white font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-2"
               >
                 <Trash2 className="w-4 h-4" />
                 <span>{t('clearAllToZeroBtn')}</span>
@@ -519,7 +594,7 @@ export default function SalaryModals({
               <button
                 type="button"
                 onClick={resetToDemoDefaults}
-                className="w-full py-2.5 px-4 rounded-sm border border-[var(--border-strong)] bg-[var(--bg-primary)] hover:bg-[#0D1F18] text-[var(--text-primary)] hover:text-[#F5EFE4] font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 rounded-sm border border-[var(--border-strong)] bg-[var(--bg-primary)] hover:bg-[var(--accent-primary-solid)] text-[var(--text-primary)] hover:text-white font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>{t('resetToDemoBtn')}</span>

@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  Layers,
   ArrowRight,
   CheckCircle2,
   Calendar,
@@ -27,10 +26,10 @@ export default function ComparisonAuditMatrix({
   return (
     <section id="section-breakdown" className="space-y-6 print-clean scroll-mt-24">
       {/* Editorial Section Masthead */}
-      <div className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-sm p-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_2px_0_0_#111714] no-print">
+      <div className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-sm p-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_2px_0_0_var(--shadow-ledger)] no-print">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="folio-stamp text-[#9A6B13] bg-[#9A6B13]/10 border border-[#9A6B13]/30 px-2 py-0.5 rounded-sm">
+            <span className="folio-stamp text-[var(--accent-secondary)] bg-[var(--accent-secondary-soft)] border border-[var(--accent-secondary)]/30 px-2 py-0.5 rounded-sm">
               FOLIO 03 // AUDIT MATRIX
             </span>
             <span className="folio-stamp text-[var(--text-muted)]">
@@ -58,7 +57,7 @@ export default function ComparisonAuditMatrix({
               onClick={() => setTablePeriod(tab.id)}
               className={`px-3 py-1.5 rounded-sm font-mono text-[11px] font-bold uppercase tracking-wider transition-all ${
                 tablePeriod === tab.id
-                  ? 'bg-[#0D1F18] text-[#F5EFE4] shadow-sm'
+                  ? 'bg-[var(--accent-primary-solid)] text-white shadow-sm'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
@@ -70,12 +69,12 @@ export default function ComparisonAuditMatrix({
 
       {/* SCHEDULE 01: ARUS KAS BULANAN (MONTHLY ROUTINE) */}
       {(tablePeriod === 'both' || tablePeriod === 'monthly') && (
-        <div className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-sm overflow-hidden shadow-[0_3px_0_0_#111714]">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-sm overflow-hidden shadow-[0_3px_0_0_var(--shadow-ledger)]">
           {/* Ledger Subheader */}
           <div className="px-4 sm:px-6 py-4 bg-[var(--bg-secondary)] border-b border-[var(--border-strong)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 bg-[#0B5D3F] text-[#FCF9F4] rounded-sm">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 bg-[var(--accent-primary-solid)] text-white rounded-sm">
                   SCHEDULE 01
                 </span>
                 <h4 className="font-display text-base sm:text-lg font-bold text-[var(--text-primary)]">
@@ -87,17 +86,17 @@ export default function ComparisonAuditMatrix({
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[#FCF9F4] border border-[var(--border-hairline)] text-xs self-start sm:self-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[var(--bg-elevated)] border border-[var(--border-hairline)] text-xs self-start sm:self-auto">
               <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
                 {t('deltaNetThp')}
               </span>
               <span className={`font-mono font-bold tabular-nums ${
-                deltaMonthlyNet >= 0 ? 'text-[#0B5D3F]' : 'text-[#B42318]'
+                deltaMonthlyNet >= 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--semantic-danger)]'
               }`}>
                 {deltaMonthlyNet >= 0 ? '+' : ''}{renderIDR(deltaMonthlyNet)}{t('perMonth')}
               </span>
               <span className={`font-mono font-bold text-[11px] ${
-                deltaMonthlyNet >= 0 ? 'text-[#0B5D3F]' : 'text-[#B42318]'
+                deltaMonthlyNet >= 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--semantic-danger)]'
               }`}>
                 ({deltaMonthlyNetPct >= 0 ? '+' : ''}{deltaMonthlyNetPct.toFixed(1)}%)
               </span>
@@ -107,7 +106,7 @@ export default function ComparisonAuditMatrix({
           {/* Mobile Table Scroll Hint */}
           <div className="sm:hidden px-4 py-2 bg-[var(--bg-primary)] border-b border-[var(--border-hairline)] flex items-center justify-between text-[11px] text-[var(--text-secondary)] font-mono">
             <span className="flex items-center gap-1.5">
-              <ArrowRight className="w-3.5 h-3.5 text-[#0B5D3F] shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" />
               <span>{t('mobileTableScrollHint')}</span>
             </span>
           </div>
@@ -120,8 +119,8 @@ export default function ComparisonAuditMatrix({
                   <th className="py-3 px-4 font-bold text-right w-7/32 border-l border-[var(--border-hairline)]">
                     {t('thCurrent')} <span className="text-[9px] text-[var(--text-muted)]">[{existingTaxMethod.toUpperCase()}]</span>
                   </th>
-                  <th className="py-3 px-4 font-bold text-right text-[#0B5D3F] w-7/32 border-l border-[var(--border-hairline)] bg-[#0B5D3F]/[0.03]">
-                    {activeOffering.name} <span className="text-[9px] text-[#0B5D3F]/75">[{activeOffering.taxMethod.toUpperCase()}]</span>
+                  <th className="py-3 px-4 font-bold text-right text-[var(--accent-primary)] w-7/32 border-l border-[var(--border-hairline)] bg-[var(--accent-primary-soft)]">
+                    {activeOffering.name} <span className="text-[9px] opacity-80">[{activeOffering.taxMethod.toUpperCase()}]</span>
                   </th>
                   <th className="py-3 px-4 sm:px-6 font-bold text-right w-1/4 border-l border-[var(--border-hairline)]">
                     {t('thDelta')}
@@ -143,7 +142,7 @@ export default function ComparisonAuditMatrix({
                   <td className="py-3 px-4 text-right text-[var(--text-secondary)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     {renderIDR(existingCalc.basic)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#0B5D3F]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-primary-soft)]/50">
                     {renderIDR(offeringCalc.basic)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -158,7 +157,7 @@ export default function ComparisonAuditMatrix({
                   <td className="py-3 px-4 text-right text-[var(--text-secondary)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     {renderIDR(existingCalc.fixed)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#0B5D3F]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-primary-soft)]/50">
                     {renderIDR(offeringCalc.fixed)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -172,7 +171,7 @@ export default function ComparisonAuditMatrix({
                   <td className="py-2.5 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     {renderIDR(existingCalc.monthly.cashGross)}
                   </td>
-                  <td className="py-2.5 px-4 text-right text-[#0B5D3F] font-mono tabular-nums border-l border-[var(--border-hairline)] bg-[#0B5D3F]/[0.05]">
+                  <td className="py-2.5 px-4 text-right text-[var(--accent-primary)] font-mono tabular-nums border-l border-[var(--border-hairline)] bg-[var(--accent-primary-soft)]">
                     {renderIDR(offeringCalc.monthly.cashGross)}
                   </td>
                   <td className="py-2.5 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -181,8 +180,8 @@ export default function ComparisonAuditMatrix({
                 </tr>
 
                 {/* Group II: Potongan Karyawan Bulanan */}
-                <tr className="bg-[#B42318]/[0.06]">
-                  <td colSpan={4} className="py-2 px-4 sm:px-6 font-mono text-[10px] uppercase tracking-widest text-[#B42318] font-bold">
+                <tr className="bg-[var(--semantic-danger-soft)]">
+                  <td colSpan={4} className="py-2 px-4 sm:px-6 font-mono text-[10px] uppercase tracking-widest text-[var(--semantic-danger)] font-bold">
                     II. {t('groupDeductionsMonthly')}
                   </td>
                 </tr>
@@ -190,16 +189,16 @@ export default function ComparisonAuditMatrix({
                   <td className="py-3 px-4 sm:px-6">
                     <div className="font-bold text-[var(--text-primary)] flex items-center gap-2 flex-wrap">
                       <span>{t('pph21TerLabel')}</span>
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded-sm bg-[#B42318]/10 text-[#B42318] border border-[#B42318]/25 font-bold">
+                      <span className="font-mono text-[10px] px-2 py-0.5 rounded-sm bg-[var(--semantic-danger-soft)] text-[var(--semantic-danger)] border border-[var(--semantic-danger)]/30 font-bold">
                         TER {existingCalc.terCategory} ({existingCalc.terPercentage}%) ➔ {offeringCalc.terCategory} ({offeringCalc.terPercentage}%)
                       </span>
                     </div>
                     <div className="text-[11px] text-[var(--text-muted)]">{t('pph21TerDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums border-l border-[var(--border-hairline)]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     -{renderIDR(existingCalc.monthly.pph21)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#0B5D3F]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-primary-soft)]/40">
                     -{renderIDR(offeringCalc.monthly.pph21)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -211,10 +210,10 @@ export default function ComparisonAuditMatrix({
                     <div className="font-bold text-[var(--text-primary)]">{t('bpjsKesLabelShort')}</div>
                     <div className="text-[11px] text-[var(--text-muted)]">{t('bpjsKesDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums border-l border-[var(--border-hairline)]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     -{renderIDR(existingCalc.monthly.bpjs.kesEmployee)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#0B5D3F]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-primary-soft)]/40">
                     -{renderIDR(offeringCalc.monthly.bpjs.kesEmployee)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -226,10 +225,10 @@ export default function ComparisonAuditMatrix({
                     <div className="font-bold text-[var(--text-primary)]">{t('bpjsTkLabelShort')}</div>
                     <div className="text-[11px] text-[var(--text-muted)]">{t('bpjsTkDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums border-l border-[var(--border-hairline)]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     -{renderIDR(existingCalc.monthly.bpjs.jhtEmployee + existingCalc.monthly.bpjs.jpEmployee)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#0B5D3F]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-primary-soft)]/40">
                     -{renderIDR(offeringCalc.monthly.bpjs.jhtEmployee + offeringCalc.monthly.bpjs.jpEmployee)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -240,7 +239,7 @@ export default function ComparisonAuditMatrix({
                     )}
                   </td>
                 </tr>
-                <tr className="bg-[#B42318]/[0.05] border-y border-[#B42318]/30 font-bold text-[#B42318]">
+                <tr className="bg-[var(--semantic-danger-soft)] border-y border-[var(--semantic-danger)]/30 font-bold text-[var(--semantic-danger)]">
                   <td className="py-2.5 px-4 sm:px-6 font-mono uppercase text-[11px] tracking-wider">
                     {t('subtotalDeductionsMonthly')}
                   </td>
@@ -301,12 +300,12 @@ export default function ComparisonAuditMatrix({
 
       {/* SCHEDULE 02: PROYEKSI AKUMULASI TAHUNAN (ANNUALIZED PACKAGE) */}
       {(tablePeriod === 'both' || tablePeriod === 'annual') && (
-        <div className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-sm overflow-hidden shadow-[0_3px_0_0_#111714]">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-strong)] rounded-sm overflow-hidden shadow-[0_3px_0_0_var(--shadow-ledger)]">
           {/* Ledger Subheader */}
           <div className="px-4 sm:px-6 py-4 bg-[var(--bg-secondary)] border-b border-[var(--border-strong)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 bg-[#9A6B13] text-[#FCF9F4] rounded-sm">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 bg-[#9A6B13] text-white rounded-sm">
                   SCHEDULE 02
                 </span>
                 <h4 className="font-display text-base sm:text-lg font-bold text-[var(--text-primary)]">
@@ -318,17 +317,17 @@ export default function ComparisonAuditMatrix({
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[#FCF9F4] border border-[var(--border-hairline)] text-xs self-start sm:self-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[var(--bg-elevated)] border border-[var(--border-hairline)] text-xs self-start sm:self-auto">
               <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
                 {t('deltaNetAnnual')}
               </span>
               <span className={`font-mono font-bold tabular-nums ${
-                deltaAnnualNet >= 0 ? 'text-[#0B5D3F]' : 'text-[#B42318]'
+                deltaAnnualNet >= 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--semantic-danger)]'
               }`}>
                 {deltaAnnualNet >= 0 ? '+' : ''}{renderIDR(deltaAnnualNet)}{t('perYear')}
               </span>
               <span className={`font-mono font-bold text-[11px] ${
-                deltaAnnualNet >= 0 ? 'text-[#0B5D3F]' : 'text-[#B42318]'
+                deltaAnnualNet >= 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--semantic-danger)]'
               }`}>
                 ({deltaAnnualNetPct >= 0 ? '+' : ''}{deltaAnnualNetPct.toFixed(1)}%)
               </span>
@@ -338,7 +337,7 @@ export default function ComparisonAuditMatrix({
           {/* Mobile Table Scroll Hint */}
           <div className="sm:hidden px-4 py-2 bg-[var(--bg-primary)] border-b border-[var(--border-hairline)] flex items-center justify-between text-[11px] text-[var(--text-secondary)] font-mono">
             <span className="flex items-center gap-1.5">
-              <ArrowRight className="w-3.5 h-3.5 text-[#9A6B13] shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 text-[var(--accent-secondary)] shrink-0" />
               <span>{t('mobileTableScrollHint')}</span>
             </span>
           </div>
@@ -351,8 +350,8 @@ export default function ComparisonAuditMatrix({
                   <th className="py-3 px-4 font-bold text-right w-7/32 border-l border-[var(--border-hairline)]">
                     {t('thCurrent')} <span className="text-[9px] text-[var(--text-muted)]">[{existingTaxMethod.toUpperCase()}]</span>
                   </th>
-                  <th className="py-3 px-4 font-bold text-right text-[#9A6B13] w-7/32 border-l border-[var(--border-hairline)] bg-[#9A6B13]/[0.04]">
-                    {activeOffering.name} <span className="text-[9px] text-[#9A6B13]/80">[{activeOffering.taxMethod.toUpperCase()}]</span>
+                  <th className="py-3 px-4 font-bold text-right text-[var(--accent-secondary)] w-7/32 border-l border-[var(--border-hairline)] bg-[var(--accent-secondary-soft)]">
+                    {activeOffering.name} <span className="text-[9px] opacity-80">[{activeOffering.taxMethod.toUpperCase()}]</span>
                   </th>
                   <th className="py-3 px-4 sm:px-6 font-bold text-right w-1/4 border-l border-[var(--border-hairline)]">
                     {t('thDelta')}
@@ -378,7 +377,7 @@ export default function ComparisonAuditMatrix({
                   <td className="py-3 px-4 text-right text-[var(--text-secondary)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     {renderIDR(existingCalc.monthly.cashGross * annualMultiplier)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#9A6B13]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-secondary-soft)]/50">
                     {renderIDR(offeringCalc.monthly.cashGross * annualMultiplier)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -393,7 +392,7 @@ export default function ComparisonAuditMatrix({
                   <td className="py-3 px-4 text-right text-[var(--text-secondary)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     {renderIDR(existingCalc.annual.bonus)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#9A6B13]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-secondary-soft)]/50">
                     {renderIDR(offeringCalc.annual.bonus)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -407,7 +406,7 @@ export default function ComparisonAuditMatrix({
                   <td className="py-2.5 px-4 text-right text-[var(--text-primary)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     {renderIDR(existingCalc.annual.cashGross)}
                   </td>
-                  <td className="py-2.5 px-4 text-right text-[#9A6B13] font-mono tabular-nums border-l border-[var(--border-hairline)] bg-[#9A6B13]/[0.05]">
+                  <td className="py-2.5 px-4 text-right text-[var(--accent-secondary)] font-mono tabular-nums border-l border-[var(--border-hairline)] bg-[var(--accent-secondary-soft)]">
                     {renderIDR(offeringCalc.annual.cashGross)}
                   </td>
                   <td className="py-2.5 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -416,8 +415,8 @@ export default function ComparisonAuditMatrix({
                 </tr>
 
                 {/* Group II: Beban Pajak & Iuran Setahun */}
-                <tr className="bg-[#B42318]/[0.06]">
-                  <td colSpan={4} className="py-2 px-4 sm:px-6 font-mono text-[10px] uppercase tracking-widest text-[#B42318] font-bold">
+                <tr className="bg-[var(--semantic-danger-soft)]">
+                  <td colSpan={4} className="py-2 px-4 sm:px-6 font-mono text-[10px] uppercase tracking-widest text-[var(--semantic-danger)] font-bold">
                     II. {t('groupDeductionsAnnual')}
                   </td>
                 </tr>
@@ -426,10 +425,10 @@ export default function ComparisonAuditMatrix({
                     <div className="font-bold text-[var(--text-primary)]">{t('annualPph21Label')}</div>
                     <div className="text-[11px] text-[var(--text-muted)]">{t('annualPph21Desc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums border-l border-[var(--border-hairline)]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     -{renderIDR(existingCalc.annual.pph21)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#9A6B13]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-secondary-soft)]/40">
                     -{renderIDR(offeringCalc.annual.pph21)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
@@ -441,17 +440,17 @@ export default function ComparisonAuditMatrix({
                     <div className="font-bold text-[var(--text-primary)]">{t('annualBpjsEmployeeLabel')}</div>
                     <div className="text-[11px] text-[var(--text-muted)]">{t('annualBpjsEmployeeDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums border-l border-[var(--border-hairline)]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     -{renderIDR(existingCalc.annual.bpjs.totalEmployee)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[#B42318] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#9A6B13]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--semantic-danger)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-secondary-soft)]/40">
                     -{renderIDR(offeringCalc.annual.bpjs.totalEmployee)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">
                     {renderDeltaBadge(offeringCalc.annual.bpjs.totalEmployee - existingCalc.annual.bpjs.totalEmployee, true)}
                   </td>
                 </tr>
-                <tr className="bg-[#B42318]/[0.05] border-y border-[#B42318]/30 font-bold text-[#B42318]">
+                <tr className="bg-[var(--semantic-danger-soft)] border-y border-[var(--semantic-danger)]/30 font-bold text-[var(--semantic-danger)]">
                   <td className="py-2.5 px-4 sm:px-6 font-mono uppercase text-[11px] tracking-wider">
                     {t('subtotalDeductionsAnnual')}
                   </td>
@@ -467,8 +466,8 @@ export default function ComparisonAuditMatrix({
                 </tr>
 
                 {/* Group III: Kontribusi BPJS Ditanggung Perusahaan */}
-                <tr className="bg-[#9A6B13]/[0.08]">
-                  <td colSpan={4} className="py-2 px-4 sm:px-6 font-mono text-[10px] uppercase tracking-widest text-[#9A6B13] font-bold">
+                <tr className="bg-[var(--accent-secondary-soft)]">
+                  <td colSpan={4} className="py-2 px-4 sm:px-6 font-mono text-[10px] uppercase tracking-widest text-[var(--accent-secondary)] font-bold">
                     III. {t('groupEmployerBenefit')}
                   </td>
                 </tr>
@@ -480,7 +479,7 @@ export default function ComparisonAuditMatrix({
                   <td className="py-3 px-4 text-right text-[var(--text-secondary)] font-mono tabular-nums border-l border-[var(--border-hairline)]">
                     +{renderIDR(existingCalc.annual.bpjs.totalEmployer)}
                   </td>
-                  <td className="py-3 px-4 text-right text-[#9A6B13] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[#9A6B13]/[0.03]">
+                  <td className="py-3 px-4 text-right text-[var(--accent-secondary)] font-mono tabular-nums font-bold border-l border-[var(--border-hairline)] bg-[var(--accent-secondary-soft)]/50">
                     +{renderIDR(offeringCalc.annual.bpjs.totalEmployer)}
                   </td>
                   <td className="py-3 px-4 sm:px-6 text-right border-l border-[var(--border-hairline)]">

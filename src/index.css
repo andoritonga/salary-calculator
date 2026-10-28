@@ -5,7 +5,7 @@
 :root {
   color-scheme: light;
 
-  /* Lombard Financial Broadsheet & Sovereign Payroll Palette */
+  /* Lombard Financial Broadsheet & Sovereign Payroll Palette (Light Mode) */
   --bg-primary: #F5EFE4;          /* Warm Lombard Financial Broadsheet Paper */
   --bg-secondary: #ECE3D3;        /* Ledger Section Backing */
   --bg-elevated: #FCF9F4;         /* Crisp Cotton Payslip Voucher */
@@ -19,9 +19,10 @@
   --text-muted: #6C7870;          /* Archival Folio & Caption Ink */
 
   /* Sovereign Financial Accents */
-  --accent-primary: #0B5D3F;      /* Central Bank Emerald */
+  --accent-primary: #0B5D3F;      /* Central Bank Emerald (Text & Borders) */
+  --accent-primary-solid: #0B5D3F;/* Solid Button Fill */
   --accent-primary-hover: #084730;
-  --accent-primary-soft: rgba(11, 93, 63, 0.09);
+  --accent-primary-soft: rgba(11, 93, 63, 0.10);
 
   --accent-secondary: #9A6B13;    /* Sovereign Bullion Gold */
   --accent-secondary-soft: rgba(154, 107, 19, 0.12);
@@ -35,11 +36,49 @@
   /* Structural Rules & Hairlines */
   --border-hairline: #D4C8B4;     /* 1px Ledger Rule */
   --border-strong: #111714;       /* Masthead & Accounting Total Rule */
+  --shadow-ledger: #111714;
 
   /* Typography Tokens */
   --font-display: 'Newsreader', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+html.dark {
+  color-scheme: dark;
+
+  /* Central Bank Obsidian Nocturne Palette (Dark Mode) */
+  --bg-primary: #0A130F;          /* Deep Obsidian Night Ledger */
+  --bg-secondary: #101E18;        /* Elevated Night Section Backing */
+  --bg-elevated: #14251E;         /* Nocturnal Payslip Voucher Sheet */
+  --bg-sunken: #070E0B;           /* Recessed Input Well */
+  --bg-vault: #060D0A;            /* Deep Vault Core */
+  --bg-vault-light: #0F2019;      /* Elevated Vault Panel */
+
+  /* Typography Ink Hierarchy */
+  --text-primary: #EFECE6;        /* Crisp Cotton Parchment Ink */
+  --text-secondary: #A7B8B0;      /* Muted Sage-Silver Ink */
+  --text-muted: #6E8278;          /* Archival Night Folio Ink */
+
+  /* Sovereign Financial Accents */
+  --accent-primary: #34D399;      /* Luminous Mint Emerald (Text & Borders) */
+  --accent-primary-solid: #059669;/* Rich Emerald Button Fill */
+  --accent-primary-hover: #047857;
+  --accent-primary-soft: rgba(52, 211, 153, 0.12);
+
+  --accent-secondary: #E5B85B;    /* Luminous Bullion Gold */
+  --accent-secondary-soft: rgba(229, 184, 91, 0.14);
+
+  /* Semantic Fiscal Indicators */
+  --semantic-positive: #34D399;   /* Net THP Gain / Credit */
+  --semantic-warning: #FBBF24;    /* TER Surge / True-Up Notice */
+  --semantic-danger: #F87171;     /* Luminous Carmine Coral for Dark Mode */
+  --semantic-danger-soft: rgba(248, 113, 113, 0.12);
+
+  /* Structural Rules & Hairlines */
+  --border-hairline: #23382E;     /* 1px Night Ledger Rule */
+  --border-strong: #375748;       /* Strong Night Ledger Border */
+  --shadow-ledger: #040806;
 }
 
 html {
@@ -49,6 +88,7 @@ html {
   overscroll-behavior-y: contain;
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 body {
@@ -65,6 +105,14 @@ body {
     radial-gradient(rgba(17, 23, 20, 0.055) 1px, transparent 1px),
     linear-gradient(to right, rgba(212, 200, 180, 0.22) 1px, transparent 1px);
   background-size: 24px 24px, 120px 100%;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html.dark body {
+  background-image:
+    radial-gradient(rgba(239, 236, 230, 0.04) 1px, transparent 1px),
+    linear-gradient(to right, rgba(35, 56, 46, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px, 120px 100%;
 }
 
 /* Strict Tabular Numerals for Financial Figures */
@@ -74,10 +122,25 @@ body {
   font-feature-settings: "tnum" 1, "zero" 1;
 }
 
+/* Privacy Mode Sensor Blur */
+.privacy-blur {
+  filter: blur(6px);
+  user-select: none;
+  -webkit-user-select: none;
+  transition: filter 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  display: inline-block;
+  cursor: pointer;
+}
+
+.privacy-blur:hover,
+.privacy-blur:focus {
+  filter: blur(0px);
+}
+
 /* Tactile Perforated Payslip Tear-Off Divider */
 .payslip-perforation {
   position: relative;
-  border-top: 1.5px dashed #BCAE96;
+  border-top: 1.5px dashed var(--border-hairline);
 }
 
 .payslip-perforation::before,
@@ -132,7 +195,8 @@ button, select, summary {
 }
 
 /* Custom Range Slider for Negotiation War-Room */
-input[type="range"].ledger-slider {
+input[type="range"].ledger-slider,
+input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   background: var(--bg-sunken);
@@ -141,15 +205,15 @@ input[type="range"].ledger-slider {
   border: 1px solid var(--border-hairline);
 }
 
-input[type="range"].ledger-slider::-webkit-slider-thumb {
+input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 2px;
-  background: var(--accent-primary);
-  border: 2px solid #FCF9F4;
-  box-shadow: 0 2px 6px rgba(17, 23, 20, 0.25);
+  background: var(--accent-primary-solid);
+  border: 2px solid var(--bg-elevated);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   cursor: pointer;
 }
 
@@ -164,12 +228,12 @@ input[type="range"].ledger-slider::-webkit-slider-thumb {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #B8A990;
+  background: var(--border-hairline);
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8D7E66;
+  background: var(--text-muted);
 }
 
 /* Print / PDF Export Styling */

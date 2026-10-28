@@ -10,9 +10,11 @@ export default function CurrencyInput({
   placeholder = '0',
   disabled = false,
   highlight = false,
+  isPrivate = false,
   isPrivacy = false,
 }) {
   const [isFocused, setIsFocused] = useState(false)
+  const privacyActive = Boolean(isPrivate || isPrivacy)
 
   const handleChange = (e) => {
     const raw = e.target.value
@@ -29,30 +31,36 @@ export default function CurrencyInput({
           {label}
         </label>
         {badge && (
-          <span className={`font-mono text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-sm border ${
-            highlight
-              ? 'bg-[#0B5D3F]/10 text-[#0B5D3F] border-[#0B5D3F]/30'
-              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-hairline)]'
-          }`}>
+          <span
+            className={`font-mono text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-sm border ${
+              highlight
+                ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
+                : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-hairline)]'
+            }`}
+          >
             {badge}
           </span>
         )}
       </div>
 
-      <div className={`relative flex items-stretch rounded-sm border transition-all duration-150 overflow-hidden ${
-        highlight
-          ? isFocused
-            ? 'border-[#0B5D3F] ring-2 ring-[#0B5D3F]/15 bg-[#FCF9F4] shadow-sm'
-            : 'border-[#0B5D3F]/50 bg-[#FCF9F4] hover:border-[#0B5D3F]'
-          : isFocused
-            ? 'border-[var(--border-strong)] ring-2 ring-[#111714]/10 bg-[#FCF9F4]'
-            : 'border-[var(--border-hairline)] bg-[var(--bg-primary)] hover:border-[#9E8F77]'
-      }`}>
-        <div className={`px-3 flex items-center justify-center border-r font-mono text-xs font-bold select-none shrink-0 ${
+      <div
+        className={`relative flex items-stretch rounded-sm border transition-all duration-150 overflow-hidden ${
           highlight
-            ? 'bg-[#0B5D3F]/10 text-[#0B5D3F] border-[#0B5D3F]/30'
-            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-hairline)]'
-        }`}>
+            ? isFocused
+              ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/20 bg-[var(--bg-elevated)] shadow-sm'
+              : 'border-[var(--accent-primary)]/50 bg-[var(--bg-elevated)] hover:border-[var(--accent-primary)]'
+            : isFocused
+              ? 'border-[var(--border-strong)] ring-2 ring-[var(--border-strong)]/15 bg-[var(--bg-elevated)]'
+              : 'border-[var(--border-hairline)] bg-[var(--bg-primary)] hover:border-[var(--border-strong)]'
+        }`}
+      >
+        <div
+          className={`px-3 flex items-center justify-center border-r font-mono text-xs font-bold select-none shrink-0 ${
+            highlight
+              ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
+              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-hairline)]'
+          }`}
+        >
           IDR
         </div>
         <input
@@ -65,10 +73,10 @@ export default function CurrencyInput({
           disabled={disabled}
           placeholder={placeholder}
           className={`w-full px-3.5 py-2.5 bg-transparent font-mono text-sm sm:text-base font-bold tabular-nums tracking-tight focus:outline-none transition-all duration-150 ${
-            isPrivacy && !isFocused ? 'blur-[5px] select-none hover:blur-none' : ''
+            privacyActive && !isFocused ? 'blur-[6px] select-none hover:blur-none' : ''
           } ${
             highlight
-              ? 'text-[#0B5D3F] placeholder:text-[#0B5D3F]/35'
+              ? 'text-[var(--accent-primary)] placeholder:text-[var(--accent-primary)]/35'
               : 'text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50'
           }`}
         />

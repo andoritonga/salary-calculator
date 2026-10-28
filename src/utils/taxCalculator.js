@@ -565,6 +565,7 @@ export function calculateDecemberTrueUp({
   basicSalary = 0,
   fixedAllowance = 0,
   annualBonus = 0,
+  disbursedAmount, // Nominal THR / Bonus yang disimulasikan pada modal Slip Khusus
   ptkpCode = 'TK/0',
   taxMethod = 'gross',
   includeBpjsCompanyInTax = true,
@@ -572,62 +573,98 @@ export function calculateDecemberTrueUp({
   enableBpjsKetenagakerjaan = true,
   annualMonths = 13,
 }) {
+  const basic = Math.max(0, Number(basicSalary) || 0)
+  const fixed = Math.max(0, Number(fixedAllowance) || 0)
+  const thrMonths = annualMonths > 12 ? annualMonths - 12 : 0
+  const defaultIrregularAnnual = (basic + fixed) * thrMonths + (Math.max(0, Number(annualBonus) || 0))
+
+  // Jika disbursedAmount dikirim dari input simulator THR/Bonus, gunakan angka tersebut sebagai total THR/Bonus tahunan yang diuji
+  const effectiveIrregularAmount =
+    disbursedAmount !== undefined && disbursedAmount !== null
+      ? Math.max(0, Number(disbursedAmount) || 0)
+      : defaultIrregularAnnual
+
+  // Hitung paket tahunan dengan 12 bulan gaji rutin + effectiveIrregularAmount (THR/Bonus)
   const calc = calculateSalary({
-    basicSalary,
-    fixedAllowance,
-    annualBonus,
+    basicSalary: basic,
+    fixedAllowance: fixed,
+    annualBonus: effectiveIrregularAmount,
     ptkpCode,
     taxMethod,
     includeBpjsCompanyInTax,
     enableBpjsKesehatan,
     enableBpjsKetenagakerjaan,
-    annualMonths,
+    annualMonths: 12,
   })
 
   // Tarif dan nominal TER bulanan rutin
   const monthlyTerTax = calc.monthly.pph21
 
-  // Tambahan pajak TER atas bonus jika ada bonus cair di Jan-Nov
+  // Tambahan pajak TER atas THR/Bonus saat cair di masa Jan-Nov
   let bonusTerTax = 0
-  if (annualBonus > 0) {
+  let disbursedMonthPph21 = monthlyTerTax
+  if (effectiveIrregularAmount > 0) {
     const bonusSim = calculateBonusMonthSimulation({
-      basicSalary,
-      fixedAllowance,
-      disbursedAmount: annualBonus,
+      basicSalary: basic,
+      fixedAllowance: fixed,
+      disbursedAmount: effectiveIrregularAmount,
       ptkpCode,
       taxMethod,
       includeBpjsCompanyInTax,
       enableBpjsKesehatan,
       enableBpjsKetenagakerjaan,
     })
+    disbursedMonthPph21 = bonusSim.disbursedPph21
     bonusTerTax = Math.max(0, bonusSim.disbursedPph21 - monthlyTerTax)
   }
 
-  // Akumulasi PPh 21 yang sudah dipotong masa Jan - Nov (11 bulan)
-  const totalPaidJanNov = (11 * monthlyTerTax) + bonusTerTax
+  // Akumulasi PPh 21 yang sudah dipotong masa Jan - Nov (11 bulan: 10 bln rutin + 1 bln pencairan THR/Bonus)
+  const routineJanNovTax = 11 * monthlyTerTax
+  const totalPaidJanNov = routineJanNovTax + bonusTerTax
   const totalAnnualTax = calc.annual.pph21
 
   // PPh 21 masa Desember = Total Pajak Setahun (Pasal 17) - Total yang sudah dipotong (Jan-Nov)
   const rawDecemberPph21 = totalAnnualTax - totalPaidJanNov
   const decemberPph21 = Math.max(0, rawDecemberPph21)
-  const deltaVsRegular = decemberPph21 - monthlyTerTax
+  const overpaidTax = rawDecemberPph21 < 0 ? Math.abs(rawDecemberPph21) : 0
+  const deltaVsRegular = rawDecemberPph21 - monthlyTerTax
 
-  // Status: underpaid (kurang bayar / potongan naik), overpaid (lebih bayar / potongan turun), balanced (normal)
+  // Status: underpaid (kurang bayar / potongan naik), overpaid (lebih bayar / pengembalian pajak), balanced (normal)
   let status = 'balanced'
-  if (deltaVsRegular > 10000) {
-    status = 'underpaid'
-  } else if (deltaVsRegular < -10000 || rawDecemberPph21 < 0) {
+  if (rawDecemberPph21 < 0) {
     status = 'overpaid'
+  } else if (deltaVsRegular > 10000) {
+    status = 'underpaid'
+  } else if (deltaVsRegular < -10000) {
+    status = 'lower_deduction'
   }
 
-  const decemberNetSalary = Math.max(0, calc.monthly.cashGross - (decemberPph21 + calc.monthly.bpjs.totalEmployee))
+  // Hitung THP Desember sesuai skema pajak (Gross / Gross-Up / Nett)
+  // Pada skema Gross, jika terjadi Lebih Bayar (rawDecemberPph21 < 0), kelebihan potong wajib dikembalikan ke karyawan (PMK 168/2023)
+  let decemberNetSalary = calc.monthly.netSalary
+  if (taxMethod === 'gross') {
+    decemberNetSalary = Math.max(
+      0,
+      calc.monthly.cashGross - calc.monthly.bpjs.totalEmployee - rawDecemberPph21
+    )
+  } else if (taxMethod === 'gross_up') {
+    decemberNetSalary = Math.max(0, calc.monthly.cashGross - calc.monthly.bpjs.totalEmployee)
+  } else if (taxMethod === 'nett') {
+    decemberNetSalary = calc.monthly.cashGross
+  }
 
   return {
     monthlyCashGross: calc.monthly.cashGross,
+    annualCashGross: calc.annual.cashGross,
+    effectiveIrregularAmount,
     regularMonthlyTerTax: monthlyTerTax,
+    routineJanNovTax,
+    bonusTerTax,
+    disbursedMonthPph21,
     totalAnnualTax,
     totalPaidJanNov,
     decemberPph21,
+    overpaidTax,
     rawDecemberPph21,
     deltaVsRegular,
     status,

@@ -22,6 +22,8 @@ import {
   FileSpreadsheet,
   Landmark,
   ShieldCheck,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import {
   PTKP_LIST,
@@ -54,6 +56,30 @@ export default function App() {
 
   // Language ('id' | 'en')
   const [lang, setLang] = useState(savedState?.lang ?? 'id')
+
+  // Theme ('light' | 'dark')
+  const [theme, setTheme] = useState(() => {
+    if (savedState?.theme === 'dark' || savedState?.theme === 'light') {
+      return savedState.theme
+    }
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
+      return 'dark'
+    }
+    return 'light'
+  })
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (theme === 'dark') {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  }
 
   const t = (key, params = {}) => {
     let str = translations[lang]?.[key] || translations.id[key] || key
@@ -108,6 +134,7 @@ export default function App() {
         STORAGE_KEY,
         JSON.stringify({
           lang,
+          theme,
           existingBasic,
           existingFixed,
           existingBonus,
@@ -127,6 +154,7 @@ export default function App() {
     }
   }, [
     lang,
+    theme,
     existingBasic,
     existingFixed,
     existingBonus,
@@ -310,6 +338,21 @@ export default function App() {
     setShowNegotiateModal(false)
   }
 
+  // Sync default THR/Bonus simulator amount when main card figures change
+  useEffect(() => {
+    const isExisting = specialSlipTarget === 'existing'
+    const baseBasic = isExisting ? existingBasic : activeOffering.basic
+    const baseBonus = isExisting ? existingBonus : activeOffering.bonus
+    setThrDisbursedAmount(baseBasic > 0 ? baseBasic : baseBonus)
+  }, [
+    specialSlipTarget,
+    existingBasic,
+    existingBonus,
+    activeOffering.id,
+    activeOffering.basic,
+    activeOffering.bonus,
+  ])
+
   // Special Payslips (THR & December Pasal 17 True-up)
   const bonusMonthSim = useMemo(() => {
     const isExisting = specialSlipTarget === 'existing'
@@ -342,6 +385,7 @@ export default function App() {
       basicSalary: isExisting ? existingBasic : activeOffering.basic,
       fixedAllowance: isExisting ? existingFixed : activeOffering.fixed,
       annualBonus: isExisting ? existingBonus : activeOffering.bonus,
+      disbursedAmount: thrDisbursedAmount,
       ptkpCode: sharedPtkp,
       taxMethod: isExisting ? existingTaxMethod : activeOffering.taxMethod,
       includeBpjsCompanyInTax: includeCompanyPremiInTax,
@@ -356,6 +400,7 @@ export default function App() {
     existingBonus,
     existingTaxMethod,
     activeOffering,
+    thrDisbursedAmount,
     sharedPtkp,
     includeCompanyPremiInTax,
     enableBpjsKes,
@@ -448,8 +493,8 @@ export default function App() {
       <span
         className={`inline-flex items-center px-2 py-0.5 rounded-sm font-mono text-[11px] font-bold tabular-nums border ${
           isGood
-            ? 'bg-[#0B5D3F]/10 text-[#0B5D3F] border-[#0B5D3F]/30'
-            : 'bg-[#B42318]/10 text-[#B42318] border-[#B42318]/30'
+            ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] border-[var(--accent-primary)]/35'
+            : 'bg-[var(--semantic-danger-soft)] text-[var(--semantic-danger)] border-[var(--semantic-danger)]/35'
         }`}
       >
         {isPositiveVal ? '+' : ''}
@@ -459,7 +504,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] pb-24 lg:pb-12">
+    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] pb-24 lg:pb-12 transition-colors duration-200">
       {/* =====================================================================
           1. TOP STATUTORY REGULATION TICKER (LOMBARD LEDGER TAPE)
       ===================================================================== */}
@@ -483,17 +528,17 @@ export default function App() {
       {/* =====================================================================
           2. STICKY EDITORIAL MASTHEAD
       ===================================================================== */}
-      <header className="bg-[var(--bg-elevated)]/95 backdrop-blur-md border-b-2 border-[var(--border-strong)] sticky top-0 z-30 no-print">
+      <header className="bg-[var(--bg-elevated)]/95 backdrop-blur-md border-b-2 border-[var(--border-strong)] sticky top-0 z-30 no-print transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-3">
             {/* Brand & Folio Stamp */}
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="bg-[#0D1F18] p-2.5 rounded-sm border border-[#9A6B13] text-[#E5B85B] shrink-0 shadow-[0_2px_0_0_#111714]">
+              <div className="bg-[#0D1F18] p-2.5 rounded-sm border border-[#9A6B13] text-[#E5B85B] shrink-0 shadow-[0_2px_0_0_var(--shadow-ledger)]">
                 <Landmark className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="folio-stamp text-[#9A6B13]">
+                  <span className="folio-stamp text-[var(--accent-secondary)]">
                     FOLIO N° 01 // EXECUTIVE COMPENSATION DOSSIER
                   </span>
                 </div>
@@ -515,7 +560,7 @@ export default function App() {
                   onClick={() => setLang('id')}
                   className={`px-2 py-1 rounded-sm text-[11px] font-mono font-bold transition-all ${
                     lang === 'id'
-                      ? 'bg-[#0D1F18] text-[#F5EFE4]'
+                      ? 'bg-[var(--accent-primary-solid)] text-white'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
@@ -526,13 +571,34 @@ export default function App() {
                   onClick={() => setLang('en')}
                   className={`px-2 py-1 rounded-sm text-[11px] font-mono font-bold transition-all ${
                     lang === 'en'
-                      ? 'bg-[#0D1F18] text-[#F5EFE4]'
+                      ? 'bg-[var(--accent-primary-solid)] text-white'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   EN
                 </button>
               </div>
+
+              {/* Dark / Light Mode Toggle */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? t('themeTitleToLight') : t('themeTitleToDark')}
+                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all ${
+                  theme === 'dark'
+                    ? 'bg-[var(--accent-secondary-soft)] border-[var(--accent-secondary)] text-[var(--accent-secondary)]'
+                    : 'bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]'
+                }`}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4 sm:mr-1.5" />
+                ) : (
+                  <Moon className="w-4 h-4 sm:mr-1.5" />
+                )}
+                <span className="hidden md:inline">
+                  {theme === 'dark' ? t('themeLight') : t('themeDark')}
+                </span>
+              </button>
 
               {/* Privacy Blur Toggle */}
               <button
@@ -541,7 +607,7 @@ export default function App() {
                 title={isPrivate ? t('privacyTitleOn') : t('privacyTitleOff')}
                 className={`inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all ${
                   isPrivate
-                    ? 'bg-[#9A6B13]/15 border-[#9A6B13] text-[#9A6B13]'
+                    ? 'bg-[var(--accent-primary-soft)] border-[var(--accent-primary)] text-[var(--accent-primary)]'
                     : 'bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]'
                 }`}
               >
@@ -573,13 +639,13 @@ export default function App() {
                 title={t('copyTitle')}
                 className={`inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all ${
                   copiedSummary
-                    ? 'bg-[#0B5D3F]/15 border-[#0B5D3F] text-[#0B5D3F]'
+                    ? 'bg-[var(--accent-primary-soft)] border-[var(--accent-primary)] text-[var(--accent-primary)]'
                     : 'bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]'
                 }`}
               >
                 {copiedSummary ? (
                   <>
-                    <Check className="w-4 h-4 sm:mr-1 text-[#0B5D3F]" />
+                    <Check className="w-4 h-4 sm:mr-1 text-[var(--accent-primary)]" />
                     <span className="hidden sm:inline">{t('copied')}</span>
                   </>
                 ) : (
@@ -607,7 +673,7 @@ export default function App() {
                 title={t('optionsTitle')}
                 className={`inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all ${
                   showAdvanced
-                    ? 'bg-[#0D1F18] text-[#F5EFE4] border-[#0D1F18]'
+                    ? 'bg-[var(--accent-primary-solid)] text-white border-[var(--accent-primary)]'
                     : 'bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]'
                 }`}
               >
@@ -627,7 +693,7 @@ export default function App() {
             <div className="mt-3 pt-3 border-t border-dashed border-[var(--border-hairline)] grid grid-cols-1 md:grid-cols-3 gap-4 bg-[var(--bg-primary)] p-4 rounded-sm animate-fadeIn">
               {/* BPJS Components */}
               <div className="space-y-2">
-                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[#0B5D3F]">
+                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[var(--accent-primary)]">
                   {t('bpjsComponentTitle')}
                 </div>
                 <label className="flex items-center gap-2 text-xs text-[var(--text-primary)] cursor-pointer">
@@ -635,7 +701,7 @@ export default function App() {
                     type="checkbox"
                     checked={enableBpjsKes}
                     onChange={(e) => setEnableBpjsKes(e.target.checked)}
-                    className="rounded-sm text-[#0B5D3F] focus:ring-[#0B5D3F]"
+                    className="rounded-sm accent-[#0B5D3F]"
                   />
                   <span>{t('bpjsKesLabel')}</span>
                 </label>
@@ -644,7 +710,7 @@ export default function App() {
                     type="checkbox"
                     checked={enableBpjsTk}
                     onChange={(e) => setEnableBpjsTk(e.target.checked)}
-                    className="rounded-sm text-[#0B5D3F] focus:ring-[#0B5D3F]"
+                    className="rounded-sm accent-[#0B5D3F]"
                   />
                   <span>{t('bpjsTkLabel')}</span>
                 </label>
@@ -652,7 +718,7 @@ export default function App() {
 
               {/* Tax Base Config */}
               <div className="space-y-1.5">
-                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[#0B5D3F]">
+                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[var(--accent-primary)]">
                   {t('taxBaseTitle')}
                 </div>
                 <label className="flex items-start gap-2 text-xs text-[var(--text-primary)] cursor-pointer">
@@ -660,7 +726,7 @@ export default function App() {
                     type="checkbox"
                     checked={includeCompanyPremiInTax}
                     onChange={(e) => setIncludeCompanyPremiInTax(e.target.checked)}
-                    className="mt-0.5 rounded-sm text-[#0B5D3F] focus:ring-[#0B5D3F]"
+                    className="mt-0.5 rounded-sm accent-[#0B5D3F]"
                   />
                   <span>{t('taxBaseLabel')}</span>
                 </label>
@@ -669,7 +735,7 @@ export default function App() {
 
               {/* Annual Multiplier */}
               <div className="space-y-1.5">
-                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[#9A6B13]">
+                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[var(--accent-secondary)]">
                   {t('multiplierTitle')}
                 </div>
                 <div className="flex gap-1.5">
@@ -680,7 +746,7 @@ export default function App() {
                       onClick={() => setAnnualMultiplier(m)}
                       className={`px-3 py-1 rounded-sm font-mono text-xs font-bold border transition-all ${
                         annualMultiplier === m
-                          ? 'bg-[#0D1F18] text-[#F5EFE4] border-[#0D1F18]'
+                          ? 'bg-[var(--accent-primary-solid)] text-white border-[var(--accent-primary)]'
                           : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-[var(--border-hairline)]'
                       }`}
                     >
@@ -702,7 +768,7 @@ export default function App() {
         {/* ===================================================================
             3. CENTRAL BANK VAULT HERO (EXECUTIVE COMPENSATION VERDICT)
         =================================================================== */}
-        <section className="rounded-sm overflow-hidden border-2 border-[var(--border-strong)] shadow-[0_6px_0_0_#111714] bg-[#0D1F18] text-[#F5EFE4]">
+        <section className="rounded-sm overflow-hidden border-2 border-[var(--border-strong)] shadow-[0_6px_0_0_var(--shadow-ledger)] bg-[#0D1F18] text-[#F5EFE4]">
           {/* Vault Classification Strip */}
           <div className="bg-[#081510] px-5 sm:px-7 py-2.5 border-b border-white/10 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
@@ -845,13 +911,13 @@ export default function App() {
         {/* ===================================================================
             4. UNIFIED DOSSIER CONTROL BAR (OFFER TABS, MODALS, PTKP SELECTOR)
         =================================================================== */}
-        <section className="bg-[var(--bg-elevated)] rounded-sm border border-[var(--border-strong)] p-4 shadow-[0_3px_0_0_#111714] space-y-4 no-print">
+        <section className="bg-[var(--bg-elevated)] rounded-sm border border-[var(--border-strong)] p-4 shadow-[0_3px_0_0_var(--shadow-ledger)] space-y-4 no-print">
           {/* Top Row: Offer Scenarios & Quick Advisory Tools */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-[var(--border-hairline)] pb-3.5">
             {/* Multi-Offer Tabs */}
             <div className="flex items-center flex-wrap gap-2">
               <span className="text-[11px] font-mono font-bold text-[var(--text-secondary)] uppercase tracking-wider mr-1 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-[#0B5D3F]" />
+                <Layers className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 {t('offeringsLabel')}
               </span>
 
@@ -863,7 +929,7 @@ export default function App() {
                     onClick={() => setActiveOfferingId(offer.id)}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-sm border text-xs font-mono font-bold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-[#0D1F18] border-[#0D1F18] text-[#F5EFE4] shadow-sm'
+                        ? 'bg-[var(--accent-primary-solid)] border-[var(--accent-primary)] text-white shadow-sm'
                         : 'bg-[var(--bg-primary)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
                     }`}
                   >
@@ -887,7 +953,7 @@ export default function App() {
                   type="button"
                   onClick={addOfferingTab}
                   title={t('addOffering')}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-sm border border-dashed border-[#9A6B13] text-[#9A6B13] hover:bg-[#9A6B13]/10 text-xs font-mono font-bold transition-colors"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-sm border border-dashed border-[var(--accent-secondary)] text-[var(--accent-secondary)] hover:bg-[var(--accent-secondary-soft)] text-xs font-mono font-bold transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>{t('addOffering')}</span>
@@ -901,7 +967,7 @@ export default function App() {
                 type="button"
                 onClick={() => setShowNegotiateModal(true)}
                 title={t('negotiationToolDesc')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono uppercase tracking-wider font-bold bg-[#0B5D3F] text-white hover:bg-[#094830] border border-[#0D1F18] shadow-[0_2px_0_0_#111714] transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono uppercase tracking-wider font-bold bg-[var(--accent-primary-solid)] text-white hover:bg-[var(--accent-primary-hover)] border border-[var(--accent-primary)]/40 shadow-[0_2px_0_0_var(--shadow-ledger)] transition-all"
               >
                 <Target className="w-3.5 h-3.5" />
                 <span>{t('negotiationTool')}</span>
@@ -915,7 +981,7 @@ export default function App() {
                   setShowSpecialSlipsModal(true)
                 }}
                 title={t('specialSlipsDesc')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono uppercase tracking-wider font-bold bg-[#9A6B13]/15 text-[#9A6B13] hover:bg-[#9A6B13]/25 border border-[#9A6B13]/40 transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono uppercase tracking-wider font-bold bg-[var(--accent-secondary-soft)] text-[var(--accent-secondary)] hover:opacity-90 border border-[var(--accent-secondary)]/40 transition-all"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
                 <span>{t('specialSlips')}</span>
@@ -926,12 +992,12 @@ export default function App() {
           {/* Bottom Row: Global PTKP Selector */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#0B5D3F] shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)] shrink-0" />
               <div>
                 <span className="text-xs font-mono uppercase tracking-wider font-bold text-[var(--text-primary)]">
                   {t('ptkpLabel')}
                 </span>
-                <span className="hidden sm:inline text-xs font-mono text-[#0B5D3F] font-bold ml-2">
+                <span className="hidden sm:inline text-xs font-mono text-[var(--accent-primary)] font-bold ml-2">
                   [
                   {t('ptkpEffectiveRate', {
                     cat: offeringCalc.terCategory,
@@ -953,7 +1019,7 @@ export default function App() {
                     title={p.label}
                     className={`py-1.5 px-2.5 rounded-sm border text-center transition-all ${
                       active
-                        ? 'bg-[#0B5D3F] border-[#0D1F18] text-white font-bold shadow-sm'
+                        ? 'bg-[var(--accent-primary-solid)] border-[var(--accent-primary)] text-white font-bold shadow-sm'
                         : 'bg-[var(--bg-primary)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
                     }`}
                   >
@@ -985,7 +1051,7 @@ export default function App() {
               onClick={() => setMobileInputView(tab.id)}
               className={`flex-1 py-1.5 text-xs font-mono uppercase font-bold rounded-sm transition-all ${
                 mobileInputView === tab.id
-                  ? 'bg-[#0D1F18] text-[#F5EFE4]'
+                  ? 'bg-[var(--accent-primary-solid)] text-white'
                   : 'text-[var(--text-secondary)]'
               }`}
             >
@@ -1002,7 +1068,7 @@ export default function App() {
               SCHEDULE I: EXISTING SALARY VOUCHER
           ================================================================= */}
           <div
-            className={`bg-[var(--bg-elevated)] rounded-sm border border-[var(--border-strong)] shadow-[0_3px_0_0_#111714] overflow-hidden flex flex-col justify-between ${
+            className={`bg-[var(--bg-elevated)] rounded-sm border border-[var(--border-strong)] shadow-[0_3px_0_0_var(--shadow-ledger)] overflow-hidden flex flex-col justify-between ${
               mobileInputView === 'offering' ? 'hidden lg:flex' : 'flex'
             }`}
           >
@@ -1035,7 +1101,7 @@ export default function App() {
                         onClick={() => setExistingTaxMethod(scheme.id)}
                         className={`px-2 py-1 rounded-sm font-mono text-[10px] font-bold uppercase transition-all ${
                           existingTaxMethod === scheme.id
-                            ? 'bg-[#0D1F18] text-[#F5EFE4]'
+                            ? 'bg-[var(--accent-primary-solid)] text-white'
                             : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                         }`}
                       >
@@ -1051,7 +1117,7 @@ export default function App() {
                       setExistingBonus(0)
                     }}
                     title={t('clearCardTitle')}
-                    className="p-1.5 text-[var(--text-muted)] hover:text-[#B42318] rounded-sm border border-transparent hover:border-[var(--border-hairline)] transition-colors"
+                    className="p-1.5 text-[var(--text-muted)] hover:text-[var(--semantic-danger)] rounded-sm border border-transparent hover:border-[var(--border-hairline)] transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -1095,7 +1161,7 @@ export default function App() {
                     {renderIDR(existingCalc.monthly.cashGross)}
                   </span>
                 </div>
-                <div className="flex justify-between text-xs font-mono text-[#B42318]">
+                <div className="flex justify-between text-xs font-mono text-[var(--semantic-danger)]">
                   <span>
                     {t('deductionsSub')} (TER {existingCalc.terPercentage}%)
                   </span>
@@ -1125,24 +1191,24 @@ export default function App() {
               SCHEDULE II: PROPOSED OFFERING VOUCHER
           ================================================================= */}
           <div
-            className={`bg-[var(--bg-elevated)] rounded-sm border-2 border-[#0B5D3F] shadow-[0_3px_0_0_#0B5D3F] overflow-hidden flex flex-col justify-between ${
+            className={`bg-[var(--bg-elevated)] rounded-sm border-2 border-[var(--accent-primary)] shadow-[0_3px_0_0_var(--accent-primary-solid)] overflow-hidden flex flex-col justify-between ${
               mobileInputView === 'existing' ? 'hidden lg:flex' : 'flex'
             }`}
           >
             <div>
               {/* Card Header */}
-              <div className="bg-[#0B5D3F]/10 px-5 py-4 border-b border-[#0B5D3F]/30 flex items-center justify-between gap-2">
+              <div className="bg-[var(--accent-primary-soft)] px-5 py-4 border-b border-[var(--accent-primary)]/30 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <Briefcase className="w-4 h-4 text-[#0B5D3F] shrink-0" />
+                  <Briefcase className="w-4 h-4 text-[var(--accent-primary)] shrink-0" />
                   <div className="min-w-0">
-                    <div className="folio-stamp text-[#0B5D3F]">
+                    <div className="folio-stamp text-[var(--accent-primary)]">
                       SCHEDULE II // OFFERING VOUCHER
                     </div>
                     <input
                       type="text"
                       value={activeOffering.name}
                       onChange={(e) => updateActiveOffering('name', e.target.value)}
-                      className="font-display font-bold text-base sm:text-lg text-[var(--text-primary)] bg-transparent border-b border-transparent hover:border-[#0B5D3F] focus:border-[#0B5D3F] focus:outline-none truncate w-full"
+                      className="font-display font-bold text-base sm:text-lg text-[var(--text-primary)] bg-transparent border-b border-transparent hover:border-[var(--accent-primary)] focus:border-[var(--accent-primary)] focus:outline-none truncate w-full"
                     />
                   </div>
                 </div>
@@ -1161,7 +1227,7 @@ export default function App() {
                         onClick={() => updateActiveOffering('taxMethod', scheme.id)}
                         className={`px-2 py-1 rounded-sm font-mono text-[10px] font-bold uppercase transition-all ${
                           activeOffering.taxMethod === scheme.id
-                            ? 'bg-[#0B5D3F] text-white'
+                            ? 'bg-[var(--accent-primary-solid)] text-white'
                             : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                         }`}
                       >
@@ -1177,7 +1243,7 @@ export default function App() {
                       updateActiveOffering('bonus', 0)
                     }}
                     title={t('clearCardTitle')}
-                    className="p-1.5 text-[var(--text-muted)] hover:text-[#B42318] rounded-sm border border-transparent hover:border-[var(--border-hairline)] transition-colors"
+                    className="p-1.5 text-[var(--text-muted)] hover:text-[var(--semantic-danger)] rounded-sm border border-transparent hover:border-[var(--border-hairline)] transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -1191,6 +1257,7 @@ export default function App() {
                   badge={t('basicSalaryBadge')}
                   value={activeOffering.basic}
                   onChange={(v) => updateActiveOffering('basic', v)}
+                  highlight
                   isPrivate={isPrivate}
                 />
                 <CurrencyInput
@@ -1214,14 +1281,14 @@ export default function App() {
             {/* Perforated Tear-Off Net Pay Stub */}
             <div>
               <div className="payslip-perforation" />
-              <div className="bg-[#0B5D3F]/10 px-5 py-4 space-y-2">
+              <div className="bg-[var(--accent-primary-soft)] px-5 py-4 space-y-2">
                 <div className="flex justify-between text-xs font-mono text-[var(--text-secondary)]">
                   <span>{t('monthlyGrossSub')}</span>
                   <span className="font-bold text-[var(--text-primary)] tabular-nums">
                     {renderIDR(offeringCalc.monthly.cashGross)}
                   </span>
                 </div>
-                <div className="flex justify-between text-xs font-mono text-[#B42318]">
+                <div className="flex justify-between text-xs font-mono text-[var(--semantic-danger)]">
                   <span>
                     {t('deductionsSub')} (TER {offeringCalc.terPercentage}%)
                   </span>
@@ -1229,17 +1296,17 @@ export default function App() {
                     -{renderIDR(offeringCalc.monthly.totalDeductions)}
                   </span>
                 </div>
-                <div className="flex justify-between items-baseline border-t border-[#0B5D3F]/40 pt-2.5">
-                  <span className="font-mono text-xs uppercase tracking-wider font-bold text-[#0B5D3F]">
+                <div className="flex justify-between items-baseline border-t border-[var(--accent-primary)]/40 pt-2.5">
+                  <span className="font-mono text-xs uppercase tracking-wider font-bold text-[var(--accent-primary)]">
                     {t('monthlyNetSub')}
                   </span>
-                  <span className="font-mono text-xl font-bold text-[#0B5D3F] tabular-nums">
+                  <span className="font-mono text-xl font-bold text-[var(--accent-primary)] tabular-nums">
                     {renderIDR(offeringCalc.monthly.netSalary)}
                   </span>
                 </div>
                 <div className="flex justify-between text-[11px] font-mono text-[var(--text-secondary)] pt-0.5">
                   <span>{t('annualNetSub')}</span>
-                  <span className="font-bold text-[#9A6B13] tabular-nums">
+                  <span className="font-bold text-[var(--accent-secondary)] tabular-nums">
                     {renderIDR(offeringCalc.annual.netSalary)}
                   </span>
                 </div>
@@ -1272,7 +1339,7 @@ export default function App() {
       </main>
 
       {/* =====================================================================
-          EDITORIAL FOOTER
+           EDITORIAL FOOTER
       ===================================================================== */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 border-t border-[var(--border-hairline)] text-center text-xs font-mono text-[var(--text-muted)] w-full">
         {t('footerText')}
@@ -1306,6 +1373,9 @@ export default function App() {
         thrDisbursedAmount={thrDisbursedAmount}
         setThrDisbursedAmount={setThrDisbursedAmount}
         existingBasic={existingBasic}
+        existingFixed={existingFixed}
+        existingBonus={existingBonus}
+        annualMultiplier={annualMultiplier}
         bonusMonthSim={bonusMonthSim}
         decemberTrueUpSim={decemberTrueUpSim}
         showResetModal={showResetModal}
@@ -1336,6 +1406,18 @@ export default function App() {
         </button>
         <button
           type="button"
+          onClick={toggleTheme}
+          className="flex flex-col items-center gap-0.5 text-[10px] font-mono text-[#A7B8B0] hover:text-white"
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-[#E5B85B]" />
+          ) : (
+            <Moon className="w-4 h-4" />
+          )}
+          <span>{theme === 'dark' ? t('themeLight') : t('themeDark')}</span>
+        </button>
+        <button
+          type="button"
           onClick={handleCopySummary}
           className="flex flex-col items-center gap-0.5 text-[10px] font-mono text-[#A7B8B0] hover:text-white"
         >
@@ -1352,7 +1434,7 @@ export default function App() {
           className="flex flex-col items-center gap-0.5 text-[10px] font-mono text-[#A7B8B0] hover:text-white"
         >
           {isPrivate ? (
-            <EyeOff className="w-4 h-4 text-[#E5B85B]" />
+            <EyeOff className="w-4 h-4 text-[#4ADE80]" />
           ) : (
             <Eye className="w-4 h-4" />
           )}
