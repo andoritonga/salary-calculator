@@ -1,6 +1,6 @@
 # 💰 Kalkulator Gaji & Offering (PPh 21 TER PMK 168/2023 + BPJS)
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-gaji.ritonga.xyz-emerald?style=for-the-badge&logo=cloudflare)](https://gaji.ritonga.ai.id)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-gaji.ritonga.ai.id-emerald?style=for-the-badge&logo=cloudflare)](https://gaji.ritonga.ai.id)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
