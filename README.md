@@ -6,7 +6,7 @@
 
 Aplikasi web modern untuk menghitung gaji bersih (*Take Home Pay* / THP), estimasi kenaikan negosiasi penawaran kerja (*job offering*), simulasi slip THR & Desember, dan komparasi *side-by-side* secara akurat sesuai regulasi perpajakan Indonesia terbaru.
 
-🔗 **Akses Online**: [https://gaji.ritonga.xyz](https://gaji.ritonga.ai.id)
+🔗 **Akses Online**: [https://gaji.ritonga.ai.id](https://gaji.ritonga.ai.id)
 
 ---
 
