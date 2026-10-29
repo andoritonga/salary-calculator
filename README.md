@@ -1,12 +1,12 @@
 # 💰 Kalkulator Gaji & Offering (PPh 21 TER PMK 168/2023 + BPJS)
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-gaji.ritonga.xyz-emerald?style=for-the-badge&logo=cloudflare)](https://nego-gaji.ritonga.xyz)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-gaji.ritonga.xyz-emerald?style=for-the-badge&logo=cloudflare)](https://gaji.ritonga.ai.id)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 Aplikasi web modern untuk menghitung gaji bersih (*Take Home Pay* / THP), estimasi kenaikan negosiasi penawaran kerja (*job offering*), simulasi slip THR & Desember, dan komparasi *side-by-side* secara akurat sesuai regulasi perpajakan Indonesia terbaru.
 
-🔗 **Akses Online**: [https://gaji.ritonga.xyz](https://gaji.ritonga.xyz)
+🔗 **Akses Online**: [https://gaji.ritonga.xyz](https://gaji.ritonga.ai.id)
 
 ---
 
