@@ -51,50 +51,47 @@ export default function SalaryModals({
   return (
     <>
       {/* =====================================================================
-          MODAL 1: NEGOTIATION & REVERSE NET-TO-GROSS WORKBENCH
+          MODAL 1: NEGOTIATION & REVERSE NET-TO-GROSS CALCULATOR
       ===================================================================== */}
       {showNegotiateModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn no-print"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn no-print"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowNegotiateModal(false)
           }}
         >
-          <div className="bg-[var(--bg-elevated)] rounded-t-md sm:rounded-sm border-2 border-[var(--border-strong)] shadow-[0_24px_60px_-15px_rgba(0,0,0,0.65)] w-full max-w-xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
-            {/* Modal Vault Header */}
-            <div className="bg-[#0D1F18] px-5 py-4 text-[#F5EFE4] flex items-center justify-between shrink-0 border-b-2 border-[#9A6B13]">
+          <div className="bg-slate-900 rounded-t-2xl sm:rounded-2xl border border-slate-800 shadow-2xl w-full max-w-xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#9A6B13]/20 rounded-sm border border-[#9A6B13]/50 text-[#E5B85B]">
+                <div className="p-2 bg-white/15 rounded-xl backdrop-blur-sm">
                   <Target className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#E5B85B]">
-                    FOLIO SCHEDULE III // COMPENSATION ADVISORY
-                  </div>
-                  <h3 className="text-lg font-display font-bold tracking-tight text-[#F5EFE4]">
+                  <h3 className="text-lg font-bold tracking-tight">
                     {t('negotiateModalTitle')}
                   </h3>
-                  <p className="text-[11px] text-[#A7B8B0]">{t('negotiateModalSubtitle')}</p>
+                  <p className="text-xs text-emerald-100">{t('negotiateModalSubtitle')}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowNegotiateModal(false)}
-                className="p-1.5 text-[#A7B8B0] hover:text-white rounded-sm hover:bg-white/10 transition-colors"
+                className="p-1.5 text-emerald-100 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Mode Switcher Tabs */}
-            <div className="bg-[var(--bg-secondary)] px-5 pt-2.5 border-b border-[var(--border-hairline)] flex gap-2 shrink-0">
+            <div className="bg-slate-950/60 px-6 pt-3 border-b border-slate-800 flex gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setNegotiateMode('percentage')}
-                className={`px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold rounded-t-sm border-t border-x transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 text-xs font-semibold rounded-t-xl border-t border-x transition-all flex items-center gap-1.5 ${
                   negotiateMode === 'percentage'
-                    ? 'bg-[var(--bg-elevated)] text-[var(--accent-primary)] border-[var(--border-hairline)] -mb-px pb-2.5'
-                    : 'bg-transparent text-[var(--text-secondary)] border-transparent hover:text-[var(--text-primary)]'
+                    ? 'bg-slate-900 text-emerald-400 border-slate-800 -mb-px pb-2.5'
+                    : 'bg-transparent text-slate-400 border-transparent hover:text-slate-200'
                 }`}
               >
                 <Target className="w-3.5 h-3.5" />
@@ -103,10 +100,10 @@ export default function SalaryModals({
               <button
                 type="button"
                 onClick={() => setNegotiateMode('reverse')}
-                className={`px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold rounded-t-sm border-t border-x transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 text-xs font-semibold rounded-t-xl border-t border-x transition-all flex items-center gap-1.5 ${
                   negotiateMode === 'reverse'
-                    ? 'bg-[var(--bg-elevated)] text-[var(--accent-secondary)] border-[var(--border-hairline)] -mb-px pb-2.5'
-                    : 'bg-transparent text-[var(--text-secondary)] border-transparent hover:text-[var(--text-primary)]'
+                    ? 'bg-slate-900 text-sky-400 border-slate-800 -mb-px pb-2.5'
+                    : 'bg-transparent text-slate-400 border-transparent hover:text-slate-200'
                 }`}
               >
                 <RefreshCw className="w-3.5 h-3.5" />
@@ -115,12 +112,12 @@ export default function SalaryModals({
             </div>
 
             {/* Modal Body */}
-            <div className="p-5 sm:p-6 space-y-5 overflow-y-auto">
+            <div className="p-6 space-y-5 overflow-y-auto">
               {negotiateMode === 'percentage' ? (
                 <div className="space-y-4">
                   {/* Quick Percentage Presets */}
                   <div>
-                    <label className="block text-[11px] font-mono uppercase tracking-wider font-bold text-[var(--text-secondary)] mb-2">
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                       {t('presetLabel')}
                     </label>
                     <div className="grid grid-cols-5 gap-2">
@@ -129,10 +126,10 @@ export default function SalaryModals({
                           key={pct}
                           type="button"
                           onClick={() => setTargetIncrementPct(pct)}
-                          className={`py-2 rounded-sm font-mono text-xs font-bold border transition-all ${
+                          className={`py-2 rounded-xl text-xs font-bold border transition-all ${
                             targetIncrementPct === pct
-                              ? 'bg-[var(--accent-primary-solid)] text-white border-[var(--accent-primary)] shadow-sm'
-                              : 'bg-[var(--bg-primary)] text-[var(--text-primary)] border-[var(--border-hairline)] hover:border-[var(--border-strong)]'
+                              ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-sm'
+                              : 'bg-slate-950/60 text-slate-300 border-slate-800 hover:border-slate-700'
                           }`}
                         >
                           +{pct}%
@@ -142,12 +139,12 @@ export default function SalaryModals({
                   </div>
 
                   {/* Range Slider */}
-                  <div className="bg-[var(--bg-primary)] p-4 rounded-sm border border-[var(--border-hairline)]">
+                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-mono uppercase tracking-wider font-bold text-[var(--text-secondary)]">
+                      <span className="text-xs font-medium text-slate-400">
                         {t('sliderLabel')}
                       </span>
-                      <span className="font-mono text-lg font-bold text-[var(--accent-primary)] bg-[var(--accent-primary-soft)] px-2.5 py-0.5 rounded-sm border border-[var(--accent-primary)]/30 tabular-nums">
+                      <span className="text-base font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/25 tabular-nums">
                         +{targetIncrementPct}%
                       </span>
                     </div>
@@ -158,13 +155,13 @@ export default function SalaryModals({
                       step="5"
                       value={targetIncrementPct}
                       onChange={(e) => setTargetIncrementPct(Number(e.target.value))}
-                      className="w-full ledger-slider"
+                      className="w-full"
                     />
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="bg-[var(--bg-primary)] p-4 rounded-sm border border-[var(--border-hairline)]">
+                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
                     <CurrencyInput
                       label={t('reverseInputLabel')}
                       badge={t('reverseBadge')}
@@ -175,37 +172,37 @@ export default function SalaryModals({
                     />
                   </div>
 
-                  <div className="bg-[var(--accent-secondary-soft)] border border-[var(--accent-secondary)]/40 p-4 rounded-sm">
-                    <div className="text-[11px] font-mono uppercase tracking-wider font-bold text-[var(--accent-secondary)]">
+                  <div className="bg-sky-500/10 border border-sky-500/25 p-4 rounded-xl">
+                    <div className="text-xs font-semibold text-sky-400">
                       {t('requiredGrossLabel')}
                     </div>
-                    <div className="font-mono text-2xl font-bold text-[var(--text-primary)] mt-1 tabular-nums">
+                    <div className="text-2xl font-bold text-white mt-1 tabular-nums">
                       {renderIDR(reverseGrossBasic)}
                     </div>
-                    <div className="text-[11px] text-[var(--text-secondary)] mt-1">
+                    <div className="text-xs text-slate-400 mt-1">
                       {t('requiredGrossNote', { ptkp: sharedPtkp })}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Simulation Summary Vault Voucher */}
-              <div className="bg-[#0D1F18] text-[#F5EFE4] p-4 rounded-sm border border-[#9A6B13] space-y-2.5">
+              {/* Simulation Summary Card */}
+              <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-2.5">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-mono text-[#A7B8B0]">{t('targetGrossMonthly')}</span>
-                  <span className="font-mono font-bold text-white tabular-nums">
+                  <span className="text-slate-400">{t('targetGrossMonthly')}</span>
+                  <span className="font-semibold text-slate-200 tabular-nums">
                     {renderIDR(targetSimulationCalc.monthly.cashGross)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-xs border-t border-white/10 pt-2">
-                  <span className="font-mono text-[#A7B8B0]">{t('targetNetMonthly')}</span>
-                  <span className="font-mono font-bold text-base text-[#4ADE80] tabular-nums">
+                <div className="flex justify-between items-center text-xs border-t border-slate-800/80 pt-2">
+                  <span className="text-slate-300 font-medium">{t('targetNetMonthly')}</span>
+                  <span className="font-bold text-base text-emerald-400 tabular-nums">
                     {renderIDR(targetSimulationCalc.monthly.netSalary)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-xs border-t border-white/10 pt-2">
-                  <span className="font-mono text-[#A7B8B0]">{t('targetNetAnnual')}</span>
-                  <span className="font-mono font-bold text-[#EAB308] tabular-nums">
+                <div className="flex justify-between items-center text-xs border-t border-slate-800/80 pt-2">
+                  <span className="text-slate-400">{t('targetNetAnnual')}</span>
+                  <span className="font-semibold text-sky-400 tabular-nums">
                     {renderIDR(targetSimulationCalc.annual.netSalary)}
                   </span>
                 </div>
@@ -214,7 +211,7 @@ export default function SalaryModals({
               <button
                 type="button"
                 onClick={applyTargetGrossToOffering}
-                className="w-full py-3 px-4 bg-[var(--accent-primary-solid)] hover:bg-[var(--accent-primary-hover)] text-white font-mono text-xs uppercase tracking-wider font-bold rounded-sm shadow-[0_2px_0_0_var(--shadow-ledger)] transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-emerald-500/15 transition-all flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>{t('applyTargetToOffering', { name: activeOffering.name })}</span>
@@ -229,55 +226,52 @@ export default function SalaryModals({
       ===================================================================== */}
       {showSpecialSlipsModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn no-print"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn no-print"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowSpecialSlipsModal(false)
           }}
         >
-          <div className="bg-[var(--bg-elevated)] rounded-t-md sm:rounded-sm border-2 border-[var(--border-strong)] shadow-[0_24px_60px_-15px_rgba(0,0,0,0.65)] w-full max-w-3xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
+          <div className="bg-slate-900 rounded-t-2xl sm:rounded-2xl border border-slate-800 shadow-2xl w-full max-w-3xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
             {/* Header */}
-            <div className="bg-[#0D1F18] px-5 py-4 text-[#F5EFE4] flex items-center justify-between shrink-0 border-b-2 border-[#0B5D3F]">
+            <div className="bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#0B5D3F]/30 rounded-sm border border-[#4ADE80]/30 text-[#4ADE80]">
+                <div className="p-2 bg-white/15 rounded-xl backdrop-blur-sm">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#4ADE80]">
-                    FOLIO SCHEDULE IV // IRREGULAR &amp; YEAR-END TAX AUDIT
-                  </div>
-                  <h3 className="text-lg font-display font-bold tracking-tight text-[#F5EFE4]">
+                  <h3 className="text-lg font-bold tracking-tight">
                     {t('specialSlipsModalTitle')}
                   </h3>
-                  <p className="text-[11px] text-[#A7B8B0]">{t('specialSlipsModalSubtitle')}</p>
+                  <p className="text-xs text-sky-100">{t('specialSlipsModalSubtitle')}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowSpecialSlipsModal(false)}
-                className="p-1.5 text-[#A7B8B0] hover:text-white rounded-sm hover:bg-white/10 transition-colors"
+                className="p-1.5 text-sky-100 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Body */}
-            <div className="p-5 sm:p-6 space-y-6 overflow-y-auto">
-              {/* Target Dossier Selector */}
-              <div className="bg-[var(--bg-primary)] p-3.5 rounded-sm border border-[var(--border-hairline)] flex flex-wrap items-center justify-between gap-3">
-                <span className="text-xs font-mono uppercase tracking-wider font-bold text-[var(--text-primary)]">
+            <div className="p-5 sm:p-6 space-y-5 overflow-y-auto">
+              {/* Target Selector */}
+              <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <span className="text-xs font-semibold text-slate-300">
                   {t('targetSimulationLabel')}
                 </span>
-                <div className="flex bg-[var(--bg-secondary)] p-1 rounded-sm border border-[var(--border-hairline)] gap-1">
+                <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 gap-1">
                   <button
                     type="button"
                     onClick={() => {
                       setSpecialSlipTarget('existing')
                       setThrDisbursedAmount(existingBasic)
                     }}
-                    className={`px-3 py-1 rounded-sm font-mono text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       specialSlipTarget === 'existing'
-                        ? 'bg-[var(--accent-primary-solid)] text-white'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        ? 'bg-emerald-500 text-slate-950 font-bold'
+                        : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
                     {t('currentSalary')}
@@ -288,10 +282,10 @@ export default function SalaryModals({
                       setSpecialSlipTarget('offering')
                       setThrDisbursedAmount(activeOffering.basic)
                     }}
-                    className={`px-3 py-1 rounded-sm font-mono text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       specialSlipTarget === 'offering'
-                        ? 'bg-[var(--accent-primary-solid)] text-white'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        ? 'bg-emerald-500 text-slate-950 font-bold'
+                        : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
                     {activeOffering.name}
@@ -300,13 +294,13 @@ export default function SalaryModals({
               </div>
 
               {/* Part 1: THR / Bonus Disbursed Month Simulator */}
-              <div className="border border-[var(--border-strong)] rounded-sm overflow-hidden bg-[var(--bg-elevated)]">
-                <div className="bg-[var(--bg-secondary)] px-4 py-3 border-b border-[var(--border-hairline)] flex flex-wrap items-center justify-between gap-2">
+              <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/40">
+                <div className="bg-slate-900/90 px-4 py-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <h4 className="font-display font-bold text-base text-[var(--text-primary)]">
+                    <h4 className="font-bold text-sm text-white">
                       1. {t('thrSectionTitle')}
                     </h4>
-                    <p className="text-xs text-[var(--text-secondary)]">{t('thrSectionSubtitle')}</p>
+                    <p className="text-xs text-slate-400">{t('thrSectionSubtitle')}</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     <button
@@ -316,7 +310,7 @@ export default function SalaryModals({
                           specialSlipTarget === 'existing' ? existingBasic : activeOffering.basic
                         )
                       }
-                      className="px-2.5 py-1 text-[11px] font-mono font-bold bg-[var(--bg-elevated)] border border-[var(--border-hairline)] rounded-sm hover:border-[var(--accent-primary)] text-[var(--text-primary)]"
+                      className="px-2.5 py-1 text-[11px] font-semibold bg-slate-800/80 border border-slate-700 rounded-lg hover:border-emerald-500/50 text-slate-200 transition-colors"
                     >
                       {t('disbursedPreset1x')}
                     </button>
@@ -327,7 +321,7 @@ export default function SalaryModals({
                           (specialSlipTarget === 'existing' ? existingBasic : activeOffering.basic) * 2
                         )
                       }
-                      className="px-2.5 py-1 text-[11px] font-mono font-bold bg-[var(--bg-elevated)] border border-[var(--border-hairline)] rounded-sm hover:border-[var(--accent-primary)] text-[var(--text-primary)]"
+                      className="px-2.5 py-1 text-[11px] font-semibold bg-slate-800/80 border border-slate-700 rounded-lg hover:border-emerald-500/50 text-slate-200 transition-colors"
                     >
                       {t('disbursedPreset2x')}
                     </button>
@@ -341,7 +335,7 @@ export default function SalaryModals({
                         const thrM = Math.max(0, annualMultiplier - 12)
                         setThrDisbursedAmount((b + f) * thrM + bon)
                       }}
-                      className="px-2.5 py-1 text-[11px] font-mono font-bold bg-[var(--accent-primary-soft)] border border-[var(--accent-primary)]/40 rounded-sm hover:border-[var(--accent-primary)] text-[var(--accent-primary)]"
+                      className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-500/15 border border-emerald-500/30 rounded-lg hover:border-emerald-400 text-emerald-300 transition-colors"
                     >
                       {t('disbursedPresetPackage')}
                     </button>
@@ -357,56 +351,56 @@ export default function SalaryModals({
                     isPrivate={isPrivate}
                   />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {/* Regular Month Slip */}
-                    <div className="bg-[var(--bg-primary)] p-4 rounded-sm border border-[var(--border-hairline)] space-y-2 text-xs">
-                      <div className="font-mono font-bold uppercase tracking-wider text-[var(--text-secondary)] border-b border-[var(--border-hairline)] pb-1.5">
+                    <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+                      <div className="font-semibold text-slate-400 border-b border-slate-800 pb-1.5">
                         {t('slipRegularTitle')}
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-slate-300">
                         <span>{t('slipRegularGross')}</span>
-                        <span className="font-mono font-bold tabular-nums">
+                        <span className="font-semibold text-white tabular-nums">
                           {renderIDR(bonusMonthSim.regularMonthlyGross)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-[var(--semantic-danger)]">
+                      <div className="flex justify-between text-rose-400">
                         <span>
                           {t('slipRegularPph21')} ({bonusMonthSim.regularTerPct}%)
                         </span>
-                        <span className="font-mono font-bold tabular-nums">
+                        <span className="font-semibold tabular-nums">
                           -{renderIDR(bonusMonthSim.regularPph21)}
                         </span>
                       </div>
-                      <div className="flex justify-between border-t border-[var(--border-hairline)] pt-2 font-bold text-sm">
-                        <span>{t('slipRegularNet')}</span>
-                        <span className="font-mono text-[var(--text-primary)] tabular-nums">
+                      <div className="flex justify-between border-t border-slate-800 pt-2 font-bold text-sm">
+                        <span className="text-slate-200">{t('slipRegularNet')}</span>
+                        <span className="text-white tabular-nums">
                           {renderIDR(bonusMonthSim.regularMonthlyNet)}
                         </span>
                       </div>
                     </div>
 
                     {/* THR / Bonus Month Slip */}
-                    <div className="bg-[#0D1F18] text-[#F5EFE4] p-4 rounded-sm border border-[#9A6B13] space-y-2 text-xs">
-                      <div className="font-mono font-bold uppercase tracking-wider text-[#E5B85B] border-b border-white/10 pb-1.5">
+                    <div className="bg-emerald-500/[0.08] p-4 rounded-xl border border-emerald-500/25 space-y-2 text-xs">
+                      <div className="font-semibold text-emerald-300 border-b border-emerald-500/20 pb-1.5">
                         {t('slipBonusTitle')}
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#A7B8B0]">{t('slipBonusGross')}</span>
-                        <span className="font-mono font-bold text-white tabular-nums">
+                      <div className="flex justify-between text-slate-300">
+                        <span>{t('slipBonusGross')}</span>
+                        <span className="font-semibold text-white tabular-nums">
                           {renderIDR(bonusMonthSim.disbursedCashGross)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-[#F87171]">
+                      <div className="flex justify-between text-rose-400">
                         <span>
                           {t('slipBonusPph21')} ({bonusMonthSim.disbursedTerPct}%)
                         </span>
-                        <span className="font-mono font-bold tabular-nums">
+                        <span className="font-semibold tabular-nums">
                           -{renderIDR(bonusMonthSim.disbursedPph21)}
                         </span>
                       </div>
-                      <div className="flex justify-between border-t border-white/15 pt-2 font-bold text-sm">
-                        <span className="text-[#E5B85B]">{t('slipBonusNet')}</span>
-                        <span className="font-mono text-[#4ADE80] tabular-nums">
+                      <div className="flex justify-between border-t border-emerald-500/20 pt-2 font-bold text-sm">
+                        <span className="text-emerald-200">{t('slipBonusNet')}</span>
+                        <span className="text-emerald-400 tabular-nums">
                           {renderIDR(bonusMonthSim.disbursedNetSalary)}
                         </span>
                       </div>
@@ -416,21 +410,21 @@ export default function SalaryModals({
               </div>
 
               {/* Part 2: December Pasal 17 True-Up Reconciliation */}
-              <div className="border border-[var(--border-strong)] rounded-sm overflow-hidden bg-[var(--bg-elevated)]">
-                <div className="bg-[var(--bg-secondary)] px-4 py-3 border-b border-[var(--border-hairline)] flex flex-wrap items-center justify-between gap-2">
+              <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/40">
+                <div className="bg-slate-900/90 px-4 py-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <h4 className="font-display font-bold text-base text-[var(--text-primary)]">
+                    <h4 className="font-bold text-sm text-white">
                       2. {t('decTrueUpTitle')}
                     </h4>
-                    <p className="text-xs text-[var(--text-secondary)]">{t('decTrueUpSubtitle')}</p>
+                    <p className="text-xs text-slate-400">{t('decTrueUpSubtitle')}</p>
                   </div>
                   <span
-                    className={`px-2.5 py-1 rounded-sm font-mono text-[10px] font-bold uppercase border ${
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase border ${
                       decemberTrueUpSim.rawDecemberPph21 < 0
-                        ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] border-[var(--accent-primary)]/40'
+                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                         : decemberTrueUpSim.status === 'underpaid'
-                        ? 'bg-[var(--semantic-danger-soft)] text-[var(--semantic-danger)] border-[var(--semantic-danger)]/40'
-                        : 'bg-[var(--accent-secondary-soft)] text-[var(--accent-secondary)] border-[var(--accent-secondary)]/40'
+                        ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+                        : 'bg-sky-500/15 text-sky-300 border-sky-500/30'
                     }`}
                   >
                     {decemberTrueUpSim.rawDecemberPph21 < 0
@@ -442,57 +436,57 @@ export default function SalaryModals({
                 </div>
 
                 <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                  <div className="bg-[var(--bg-primary)] p-3.5 rounded-sm border border-[var(--border-hairline)] space-y-1.5">
-                    <div className="font-mono font-bold text-[11px] uppercase text-[var(--text-secondary)]">
+                  <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                    <div className="font-semibold text-[11px] uppercase tracking-wider text-slate-400">
                       {t('decCol1Title')}
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between text-slate-300">
                       <span>{t('decCol1Routine')}</span>
-                      <span className="font-mono tabular-nums">
+                      <span className="tabular-nums text-white">
                         {renderIDR(decemberTrueUpSim.routineJanNovTax)}
                       </span>
                     </div>
-                    <div className="flex justify-between text-[var(--accent-secondary)]">
+                    <div className="flex justify-between text-sky-400">
                       <span>{t('decCol1BonusSpike')}</span>
-                      <span className="font-mono tabular-nums">
+                      <span className="tabular-nums">
                         +{renderIDR(decemberTrueUpSim.bonusTerTax)}
                       </span>
                     </div>
-                    <div className="flex justify-between font-bold border-t border-[var(--border-hairline)] pt-1.5">
-                      <span>{t('decCol1Total')}</span>
-                      <span className="font-mono text-[var(--semantic-danger)] tabular-nums">
+                    <div className="flex justify-between font-bold border-t border-slate-800 pt-1.5">
+                      <span className="text-slate-200">{t('decCol1Total')}</span>
+                      <span className="text-rose-400 tabular-nums">
                         {renderIDR(decemberTrueUpSim.totalPaidJanNov)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="bg-[var(--bg-primary)] p-3.5 rounded-sm border border-[var(--border-hairline)] space-y-1.5">
-                    <div className="font-mono font-bold text-[11px] uppercase text-[var(--text-secondary)]">
+                  <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                    <div className="font-semibold text-[11px] uppercase tracking-wider text-slate-400">
                       {t('decCol2Title')}
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between text-slate-300">
                       <span>{t('decCol2Gross')}</span>
-                      <span className="font-mono tabular-nums">
+                      <span className="tabular-nums text-white">
                         {renderIDR(decemberTrueUpSim.annualCashGross)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between text-slate-300">
                       <span>{t('decCol2Annual')}</span>
-                      <span className="font-mono tabular-nums">
+                      <span className="tabular-nums text-white">
                         {renderIDR(decemberTrueUpSim.totalAnnualTax)}
                       </span>
                     </div>
-                    <div className="flex justify-between font-bold border-t border-[var(--border-hairline)] pt-1.5">
-                      <span>
+                    <div className="flex justify-between font-bold border-t border-slate-800 pt-1.5">
+                      <span className="text-slate-200">
                         {decemberTrueUpSim.rawDecemberPph21 < 0
                           ? t('decCol2Overpaid')
                           : t('decCol2Remaining')}
                       </span>
                       <span
-                        className={`font-mono tabular-nums ${
+                        className={`tabular-nums ${
                           decemberTrueUpSim.rawDecemberPph21 < 0
-                            ? 'text-[var(--accent-primary)]'
-                            : 'text-[var(--accent-secondary)]'
+                            ? 'text-emerald-400'
+                            : 'text-sky-400'
                         }`}
                       >
                         {decemberTrueUpSim.rawDecemberPph21 < 0
@@ -502,25 +496,25 @@ export default function SalaryModals({
                     </div>
                   </div>
 
-                  <div className="bg-[#0D1F18] text-[#F5EFE4] p-3.5 rounded-sm border border-[#0B5D3F] space-y-1.5">
-                    <div className="font-mono font-bold text-[11px] uppercase text-[#4ADE80]">
+                  <div className="bg-emerald-500/[0.08] p-3.5 rounded-xl border border-emerald-500/25 space-y-1.5">
+                    <div className="font-semibold text-[11px] uppercase tracking-wider text-emerald-300">
                       {t('decCol3Title')}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#A7B8B0]">{t('slipRegularGross')}</span>
-                      <span className="font-mono text-white tabular-nums">
+                    <div className="flex justify-between text-slate-300">
+                      <span>{t('slipRegularGross')}</span>
+                      <span className="text-white tabular-nums">
                         {renderIDR(decemberTrueUpSim.monthlyCashGross)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#A7B8B0]">
+                    <div className="flex justify-between text-slate-300">
+                      <span>
                         {decemberTrueUpSim.rawDecemberPph21 < 0
                           ? t('decCol3Refund')
                           : t('decCol3Tax')}
                       </span>
                       <span
-                        className={`font-mono tabular-nums ${
-                          decemberTrueUpSim.rawDecemberPph21 < 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'
+                        className={`tabular-nums font-medium ${
+                          decemberTrueUpSim.rawDecemberPph21 < 0 ? 'text-emerald-400' : 'text-rose-400'
                         }`}
                       >
                         {decemberTrueUpSim.rawDecemberPph21 < 0 ? '+' : '-'}
@@ -531,9 +525,9 @@ export default function SalaryModals({
                         )}
                       </span>
                     </div>
-                    <div className="flex justify-between font-bold border-t border-white/15 pt-1.5">
-                      <span className="text-[#E5B85B]">{t('decCol3Net')}</span>
-                      <span className="font-mono text-[#4ADE80] tabular-nums">
+                    <div className="flex justify-between font-bold border-t border-emerald-500/20 pt-1.5">
+                      <span className="text-emerald-200">{t('decCol3Net')}</span>
+                      <span className="text-emerald-400 tabular-nums">
                         {renderIDR(decemberTrueUpSim.decemberNetSalary)}
                       </span>
                     </div>
@@ -550,34 +544,34 @@ export default function SalaryModals({
       ===================================================================== */}
       {showResetModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn no-print"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn no-print"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowResetModal(false)
           }}
         >
-          <div className="bg-[var(--bg-elevated)] rounded-sm border-2 border-[var(--border-strong)] shadow-2xl w-full max-w-md overflow-hidden animate-slideUp p-6">
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl w-full max-w-md overflow-hidden animate-slideUp p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-[var(--accent-secondary-soft)] text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 rounded-sm">
+                <div className="p-2 bg-amber-500/15 text-amber-400 border border-amber-500/30 rounded-xl">
                   <HelpCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-display font-bold text-[var(--text-primary)]">
+                  <h3 className="text-base font-bold text-white">
                     {t('resetModalTitle')}
                   </h3>
-                  <p className="text-xs text-[var(--text-secondary)]">{t('resetModalSubtitle')}</p>
+                  <p className="text-xs text-slate-400">{t('resetModalSubtitle')}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowResetModal(false)}
-                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1"
+                className="text-slate-400 hover:text-white p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-[var(--text-secondary)] mb-5 leading-relaxed">
+            <p className="text-xs text-slate-400 mb-5 leading-relaxed">
               {t('resetModalDesc')}
             </p>
 
@@ -585,7 +579,7 @@ export default function SalaryModals({
               <button
                 type="button"
                 onClick={clearAllNumbersToZero}
-                className="w-full py-2.5 px-4 rounded-sm border border-[var(--semantic-danger)]/40 bg-[var(--semantic-danger-soft)] hover:bg-[#B42318] text-[var(--semantic-danger)] hover:text-white font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-2"
               >
                 <Trash2 className="w-4 h-4" />
                 <span>{t('clearAllToZeroBtn')}</span>
@@ -594,7 +588,7 @@ export default function SalaryModals({
               <button
                 type="button"
                 onClick={resetToDemoDefaults}
-                className="w-full py-2.5 px-4 rounded-sm border border-[var(--border-strong)] bg-[var(--bg-primary)] hover:bg-[var(--accent-primary-solid)] text-[var(--text-primary)] hover:text-white font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-emerald-500 text-slate-200 hover:text-slate-950 text-xs font-bold transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>{t('resetToDemoBtn')}</span>
@@ -603,7 +597,7 @@ export default function SalaryModals({
               <button
                 type="button"
                 onClick={() => setShowResetModal(false)}
-                className="w-full py-2 text-xs font-mono uppercase tracking-wider font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                className="w-full py-2 text-xs font-semibold text-slate-400 hover:text-slate-200"
               >
                 {t('cancelBtn')}
               </button>

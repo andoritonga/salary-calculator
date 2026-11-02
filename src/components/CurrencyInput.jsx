@@ -10,11 +10,11 @@ export default function CurrencyInput({
   placeholder = '0',
   disabled = false,
   highlight = false,
-  isPrivate = false,
   isPrivacy = false,
+  isPrivate = false,
 }) {
   const [isFocused, setIsFocused] = useState(false)
-  const privacyActive = Boolean(isPrivate || isPrivacy)
+  const shouldBlur = (isPrivacy || isPrivate) && !isFocused
 
   const handleChange = (e) => {
     const raw = e.target.value
@@ -25,44 +25,21 @@ export default function CurrencyInput({
   const displayVal = value ? formatNumberWithDots(value) : ''
 
   return (
-    <div className="group">
-      <div className="flex items-center justify-between mb-1.5 gap-2">
-        <label className="text-xs font-bold tracking-tight text-[var(--text-primary)]">
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="text-xs font-medium text-slate-300">
           {label}
         </label>
         {badge && (
-          <span
-            className={`font-mono text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-sm border ${
-              highlight
-                ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
-                : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-hairline)]'
-            }`}
-          >
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-400 border border-slate-700/50">
             {badge}
           </span>
         )}
       </div>
-
-      <div
-        className={`relative flex items-stretch rounded-sm border transition-all duration-150 overflow-hidden ${
-          highlight
-            ? isFocused
-              ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/20 bg-[var(--bg-elevated)] shadow-sm'
-              : 'border-[var(--accent-primary)]/50 bg-[var(--bg-elevated)] hover:border-[var(--accent-primary)]'
-            : isFocused
-              ? 'border-[var(--border-strong)] ring-2 ring-[var(--border-strong)]/15 bg-[var(--bg-elevated)]'
-              : 'border-[var(--border-hairline)] bg-[var(--bg-primary)] hover:border-[var(--border-strong)]'
-        }`}
-      >
-        <div
-          className={`px-3 flex items-center justify-center border-r font-mono text-xs font-bold select-none shrink-0 ${
-            highlight
-              ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
-              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-hairline)]'
-          }`}
-        >
-          IDR
-        </div>
+      <div className="relative">
+        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-500 select-none">
+          Rp
+        </span>
         <input
           type="text"
           inputMode="numeric"
@@ -72,20 +49,17 @@ export default function CurrencyInput({
           onBlur={() => setIsFocused(false)}
           disabled={disabled}
           placeholder={placeholder}
-          className={`w-full px-3.5 py-2.5 bg-transparent font-mono text-sm sm:text-base font-bold tabular-nums tracking-tight focus:outline-none transition-all duration-150 ${
-            privacyActive && !isFocused ? 'blur-[6px] select-none hover:blur-none' : ''
+          className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-950/70 hover:bg-slate-950/90 focus:bg-slate-950 border rounded-xl text-sm font-semibold tabular-nums transition-all duration-150 focus:outline-none ${
+            shouldBlur ? 'blur-[5px] select-none hover:blur-none' : ''
           } ${
             highlight
-              ? 'text-[var(--accent-primary)] placeholder:text-[var(--accent-primary)]/35'
-              : 'text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50'
+              ? 'border-emerald-500/40 text-emerald-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 shadow-sm shadow-emerald-500/5'
+              : 'border-slate-800 text-slate-100 hover:border-slate-700 focus:border-emerald-500/70 focus:ring-2 focus:ring-emerald-500/20'
           }`}
         />
       </div>
-
       {subtitle && (
-        <p className="text-[11px] text-[var(--text-muted)] mt-1 leading-relaxed font-sans">
-          {subtitle}
-        </p>
+        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{subtitle}</p>
       )}
     </div>
   )

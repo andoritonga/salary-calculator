@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import {
+  Calculator,
   TrendingUp,
   TrendingDown,
   Building2,
@@ -20,10 +21,7 @@ import {
   Sliders,
   Layers,
   FileSpreadsheet,
-  Landmark,
   ShieldCheck,
-  Sun,
-  Moon,
 } from 'lucide-react'
 import {
   PTKP_LIST,
@@ -56,30 +54,6 @@ export default function App() {
 
   // Language ('id' | 'en')
   const [lang, setLang] = useState(savedState?.lang ?? 'id')
-
-  // Theme ('light' | 'dark')
-  const [theme, setTheme] = useState(() => {
-    if (savedState?.theme === 'dark' || savedState?.theme === 'light') {
-      return savedState.theme
-    }
-    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
-      return 'dark'
-    }
-    return 'light'
-  })
-
-  useEffect(() => {
-    const root = document.documentElement
-    if (theme === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
-  }, [theme])
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
-  }
 
   const t = (key, params = {}) => {
     let str = translations[lang]?.[key] || translations.id[key] || key
@@ -134,7 +108,6 @@ export default function App() {
         STORAGE_KEY,
         JSON.stringify({
           lang,
-          theme,
           existingBasic,
           existingFixed,
           existingBonus,
@@ -154,7 +127,6 @@ export default function App() {
     }
   }, [
     lang,
-    theme,
     existingBasic,
     existingFixed,
     existingBonus,
@@ -270,7 +242,7 @@ export default function App() {
       ? (deltaAnnualNet / existingCalc.annual.netSalary) * 100
       : 0
 
-  // Gross-to-Net Retention Waterfall Percentages
+  // Gross-to-Net Retention Ratio
   const offeringRetentionPct =
     offeringCalc.monthly.cashGross > 0
       ? Math.min(
@@ -485,16 +457,16 @@ export default function App() {
 
   const renderDeltaBadge = (val, invertColor = false) => {
     if (val === 0) {
-      return <span className="font-mono text-[11px] text-[var(--text-muted)]">Rp 0</span>
+      return <span className="text-[11px] text-slate-500">Rp 0</span>
     }
     const isPositiveVal = val > 0
     const isGood = invertColor ? !isPositiveVal : isPositiveVal
     return (
       <span
-        className={`inline-flex items-center px-2 py-0.5 rounded-sm font-mono text-[11px] font-bold tabular-nums border ${
+        className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-bold tabular-nums border ${
           isGood
-            ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] border-[var(--accent-primary)]/35'
-            : 'bg-[var(--semantic-danger-soft)] text-[var(--semantic-danger)] border-[var(--semantic-danger)]/35'
+            ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+            : 'bg-rose-500/15 text-rose-300 border-rose-500/30'
         }`}
       >
         {isPositiveVal ? '+' : ''}
@@ -504,64 +476,47 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] pb-24 lg:pb-12 transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-[#0B0F19] text-slate-100 pb-24 lg:pb-12">
       {/* =====================================================================
-          1. TOP STATUTORY REGULATION TICKER (LOMBARD LEDGER TAPE)
+          1. CLEAN STICKY HEADER
       ===================================================================== */}
-      <div className="bg-[#0D1F18] text-[#A7B8B0] border-b border-[#9A6B13]/40 text-[11px] font-mono tracking-wider py-1.5 px-4 no-print">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#4ADE80]" />
-            <span className="text-[#E5B85B] font-bold">STATUTORY LEDGER:</span>
-            <span>PP 58/2023 &amp; PMK 168/2023 (TER PPh 21)</span>
-            <span className="hidden md:inline text-white/25">•</span>
-            <span className="hidden md:inline">PASAL 17 UU HPP</span>
-          </div>
-          <div className="hidden sm:flex items-center gap-3 text-[10px] text-[#A7B8B0]">
-            <span>BPJS KES CAP: Rp 12.000.000</span>
-            <span className="text-white/25">|</span>
-            <span>JP CAP: Rp 10.042.300</span>
-          </div>
-        </div>
-      </div>
-
-      {/* =====================================================================
-          2. STICKY EDITORIAL MASTHEAD
-      ===================================================================== */}
-      <header className="bg-[var(--bg-elevated)]/95 backdrop-blur-md border-b-2 border-[var(--border-strong)] sticky top-0 z-30 no-print transition-colors duration-200">
+      <header className="bg-[#0B0F19]/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-30 no-print pt-safe">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-3">
-            {/* Brand & Folio Stamp */}
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="bg-[#0D1F18] p-2.5 rounded-sm border border-[#9A6B13] text-[#E5B85B] shrink-0 shadow-[0_2px_0_0_var(--shadow-ledger)]">
-                <Landmark className="w-5 h-5" />
+            {/* Brand Title */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="bg-emerald-500/15 p-2.5 rounded-xl border border-emerald-500/30 text-emerald-400 shrink-0">
+                <Calculator className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="folio-stamp text-[var(--accent-secondary)]">
-                    FOLIO N° 01 // EXECUTIVE COMPENSATION DOSSIER
+                  <h1 className="text-base sm:text-lg font-bold text-white tracking-tight truncate">
+                    {t('appTitle')}
+                  </h1>
+                  <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                    {t('appBadge')}
                   </span>
                 </div>
-                <h1 className="text-lg sm:text-xl font-display font-bold text-[var(--text-primary)] tracking-tight truncate">
-                  {t('appTitle')}
-                </h1>
+                <p className="text-[11px] text-slate-400 truncate hidden sm:block">
+                  {t('appSubtitle')}
+                </p>
               </div>
             </div>
 
-            {/* Masthead Controls */}
+            {/* Action Controls */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               {/* Language Switcher */}
               <div
-                className="flex items-center bg-[var(--bg-secondary)] p-0.5 rounded-sm border border-[var(--border-hairline)]"
+                className="flex items-center bg-slate-900 p-0.5 rounded-xl border border-slate-800"
                 title={t('langToggleTitle')}
               >
                 <button
                   type="button"
                   onClick={() => setLang('id')}
-                  className={`px-2 py-1 rounded-sm text-[11px] font-mono font-bold transition-all ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                     lang === 'id'
-                      ? 'bg-[var(--accent-primary-solid)] text-white'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      ? 'bg-emerald-500 text-slate-950'
+                      : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   ID
@@ -569,46 +524,25 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setLang('en')}
-                  className={`px-2 py-1 rounded-sm text-[11px] font-mono font-bold transition-all ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                     lang === 'en'
-                      ? 'bg-[var(--accent-primary-solid)] text-white'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      ? 'bg-emerald-500 text-slate-950'
+                      : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   EN
                 </button>
               </div>
 
-              {/* Dark / Light Mode Toggle */}
-              <button
-                type="button"
-                onClick={toggleTheme}
-                title={theme === 'dark' ? t('themeTitleToLight') : t('themeTitleToDark')}
-                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all ${
-                  theme === 'dark'
-                    ? 'bg-[var(--accent-secondary-soft)] border-[var(--accent-secondary)] text-[var(--accent-secondary)]'
-                    : 'bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]'
-                }`}
-              >
-                {theme === 'dark' ? (
-                  <Sun className="w-4 h-4 sm:mr-1.5" />
-                ) : (
-                  <Moon className="w-4 h-4 sm:mr-1.5" />
-                )}
-                <span className="hidden md:inline">
-                  {theme === 'dark' ? t('themeLight') : t('themeDark')}
-                </span>
-              </button>
-
               {/* Privacy Blur Toggle */}
               <button
                 type="button"
                 onClick={() => setIsPrivate(!isPrivate)}
                 title={isPrivate ? t('privacyTitleOn') : t('privacyTitleOff')}
-                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all ${
+                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
                   isPrivate
-                    ? 'bg-[var(--accent-primary-soft)] border-[var(--accent-primary)] text-[var(--accent-primary)]'
-                    : 'bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]'
+                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
                 }`}
               >
                 {isPrivate ? (
@@ -626,7 +560,7 @@ export default function App() {
                 type="button"
                 onClick={() => window.print()}
                 title={t('pdfTitle')}
-                className="hidden sm:inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold text-[var(--text-secondary)] bg-[var(--bg-elevated)] border border-[var(--border-hairline)] rounded-sm hover:bg-[var(--bg-secondary)] transition-all"
+                className="hidden sm:inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-all"
               >
                 <Printer className="w-4 h-4 lg:mr-1.5" />
                 <span className="hidden lg:inline">{t('pdf')}</span>
@@ -637,15 +571,15 @@ export default function App() {
                 type="button"
                 onClick={handleCopySummary}
                 title={t('copyTitle')}
-                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all ${
+                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
                   copiedSummary
-                    ? 'bg-[var(--accent-primary-soft)] border-[var(--accent-primary)] text-[var(--accent-primary)]'
-                    : 'bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]'
+                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
                 }`}
               >
                 {copiedSummary ? (
                   <>
-                    <Check className="w-4 h-4 sm:mr-1 text-[var(--accent-primary)]" />
+                    <Check className="w-4 h-4 sm:mr-1 text-emerald-400" />
                     <span className="hidden sm:inline">{t('copied')}</span>
                   </>
                 ) : (
@@ -661,7 +595,7 @@ export default function App() {
                 type="button"
                 onClick={() => setShowResetModal(true)}
                 title={t('resetTitle')}
-                className="inline-flex items-center px-2 py-1.5 text-xs font-mono font-bold text-[var(--text-secondary)] bg-[var(--bg-elevated)] border border-[var(--border-hairline)] rounded-sm hover:bg-[var(--bg-secondary)] transition-all"
+                className="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-all"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
@@ -671,10 +605,10 @@ export default function App() {
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 title={t('optionsTitle')}
-                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all ${
+                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
                   showAdvanced
-                    ? 'bg-[var(--accent-primary-solid)] text-white border-[var(--accent-primary)]'
-                    : 'bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]'
+                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold'
+                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
                 }`}
               >
                 <Sliders className="w-4 h-4 sm:mr-1.5" />
@@ -690,27 +624,27 @@ export default function App() {
 
           {/* Collapsible Statutory Parameters Drawer */}
           {showAdvanced && (
-            <div className="mt-3 pt-3 border-t border-dashed border-[var(--border-hairline)] grid grid-cols-1 md:grid-cols-3 gap-4 bg-[var(--bg-primary)] p-4 rounded-sm animate-fadeIn">
+            <div className="mt-3 pt-3 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900/90 p-4 rounded-xl animate-fadeIn">
               {/* BPJS Components */}
               <div className="space-y-2">
-                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[var(--accent-primary)]">
+                <div className="text-[11px] uppercase tracking-wider font-bold text-emerald-400">
                   {t('bpjsComponentTitle')}
                 </div>
-                <label className="flex items-center gap-2 text-xs text-[var(--text-primary)] cursor-pointer">
+                <label className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={enableBpjsKes}
                     onChange={(e) => setEnableBpjsKes(e.target.checked)}
-                    className="rounded-sm accent-[#0B5D3F]"
+                    className="rounded accent-emerald-500"
                   />
                   <span>{t('bpjsKesLabel')}</span>
                 </label>
-                <label className="flex items-center gap-2 text-xs text-[var(--text-primary)] cursor-pointer">
+                <label className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={enableBpjsTk}
                     onChange={(e) => setEnableBpjsTk(e.target.checked)}
-                    className="rounded-sm accent-[#0B5D3F]"
+                    className="rounded accent-emerald-500"
                   />
                   <span>{t('bpjsTkLabel')}</span>
                 </label>
@@ -718,24 +652,24 @@ export default function App() {
 
               {/* Tax Base Config */}
               <div className="space-y-1.5">
-                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[var(--accent-primary)]">
+                <div className="text-[11px] uppercase tracking-wider font-bold text-emerald-400">
                   {t('taxBaseTitle')}
                 </div>
-                <label className="flex items-start gap-2 text-xs text-[var(--text-primary)] cursor-pointer">
+                <label className="flex items-start gap-2 text-xs text-slate-200 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={includeCompanyPremiInTax}
                     onChange={(e) => setIncludeCompanyPremiInTax(e.target.checked)}
-                    className="mt-0.5 rounded-sm accent-[#0B5D3F]"
+                    className="mt-0.5 rounded accent-emerald-500"
                   />
                   <span>{t('taxBaseLabel')}</span>
                 </label>
-                <p className="text-[11px] text-[var(--text-muted)]">{t('taxBaseNote')}</p>
+                <p className="text-[11px] text-slate-400">{t('taxBaseNote')}</p>
               </div>
 
               {/* Annual Multiplier */}
               <div className="space-y-1.5">
-                <div className="font-mono text-[10px] uppercase tracking-widest font-bold text-[var(--accent-secondary)]">
+                <div className="text-[11px] uppercase tracking-wider font-bold text-sky-400">
                   {t('multiplierTitle')}
                 </div>
                 <div className="flex gap-1.5">
@@ -744,17 +678,17 @@ export default function App() {
                       key={m}
                       type="button"
                       onClick={() => setAnnualMultiplier(m)}
-                      className={`px-3 py-1 rounded-sm font-mono text-xs font-bold border transition-all ${
+                      className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
                         annualMultiplier === m
-                          ? 'bg-[var(--accent-primary-solid)] text-white border-[var(--accent-primary)]'
-                          : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-[var(--border-hairline)]'
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-400'
+                          : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
                       }`}
                     >
                       {m}x
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] text-[var(--text-muted)]">{t('multiplierNote')}</p>
+                <p className="text-[11px] text-slate-400">{t('multiplierNote')}</p>
               </div>
             </div>
           )}
@@ -762,57 +696,42 @@ export default function App() {
       </header>
 
       {/* =====================================================================
-          MAIN BROADSHEET WORKSPACE
+          MAIN WORKSPACE
       ===================================================================== */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 w-full">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5 sm:space-y-6 flex-1 w-full">
         {/* ===================================================================
-            3. CENTRAL BANK VAULT HERO (EXECUTIVE COMPENSATION VERDICT)
+            2. CLEAN HERO SUMMARY CARD
         =================================================================== */}
-        <section className="rounded-sm overflow-hidden border-2 border-[var(--border-strong)] shadow-[0_6px_0_0_var(--shadow-ledger)] bg-[#0D1F18] text-[#F5EFE4]">
-          {/* Vault Classification Strip */}
-          <div className="bg-[#081510] px-5 sm:px-7 py-2.5 border-b border-white/10 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <span className="px-2 py-0.5 rounded-sm text-[10px] font-mono uppercase tracking-[0.15em] font-bold bg-[#9A6B13]/25 text-[#E5B85B] border border-[#9A6B13]/50">
-                EXECUTIVE VERDICT // {activeOffering.name.toUpperCase()}
-              </span>
-              <span className="text-[11px] font-mono text-[#A7B8B0]">
-                PTKP {sharedPtkp} • TER {offeringCalc.terCategory} ({offeringCalc.terPercentage}%)
-              </span>
-            </div>
-            <div className="text-[11px] font-mono text-[#A7B8B0]">
-              CTC / EMPLOYER COST:{' '}
-              <strong className="text-[#E5B85B] tabular-nums">
-                {renderIDR(offeringCalc.monthly.totalEmployerCost)}
-              </strong>
-              {t('perMonth')}
-            </div>
-          </div>
-
-          {/* Asymmetric 12-Col Vault Grid */}
-          <div className="p-5 sm:p-7 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            {/* LEFT 7 COLS: Monumental Delta & Gross-to-Net Retention Waterfall */}
+        <section className="rounded-2xl overflow-hidden border border-slate-800/80 bg-gradient-to-br from-slate-900/95 via-slate-900/85 to-slate-900/70 shadow-xl">
+          <div className="p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            {/* LEFT 7 COLS: Monthly THP Difference & Retention Bar */}
             <div className="lg:col-span-7 space-y-4">
               <div>
-                <div className="text-xs font-mono uppercase tracking-[0.14em] text-[#A7B8B0] mb-1">
-                  {t('heroTitle')}
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                  <span className="text-xs font-medium text-slate-400">
+                    {t('heroTitle')}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700/70">
+                    PTKP {sharedPtkp} • TER {offeringCalc.terCategory} ({offeringCalc.terPercentage}%)
+                  </span>
                 </div>
-                <div className="flex flex-wrap items-baseline gap-3">
+                <div className="flex flex-wrap items-baseline gap-2.5">
                   <h2
-                    className={`text-3xl sm:text-5xl font-mono font-bold tracking-tight tabular-nums ${
-                      deltaMonthlyNet >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'
+                    className={`text-2xl sm:text-4xl font-extrabold tracking-tight tabular-nums ${
+                      deltaMonthlyNet >= 0 ? 'text-emerald-400' : 'text-rose-400'
                     }`}
                   >
                     {deltaMonthlyNet >= 0 ? '+' : ''}
                     {renderIDR(deltaMonthlyNet)}
-                    <span className="text-base sm:text-lg font-normal text-[#A7B8B0] ml-1">
+                    <span className="text-sm sm:text-base font-normal text-slate-400 ml-1">
                       {t('perMonth')}
                     </span>
                   </h2>
                   <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-mono font-bold border tabular-nums ${
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border tabular-nums ${
                       deltaMonthlyNet >= 0
-                        ? 'bg-[#0B5D3F]/40 text-[#4ADE80] border-[#4ADE80]/40'
-                        : 'bg-[#B42318]/40 text-[#F87171] border-[#F87171]/40'
+                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                        : 'bg-rose-500/15 text-rose-300 border-rose-500/30'
                     }`}
                   >
                     {deltaMonthlyNet >= 0 ? (
@@ -826,33 +745,36 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Live Gross-to-Net Retention Waterfall Bar */}
-              <div className="bg-black/25 p-3.5 rounded-sm border border-white/10 space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-mono">
-                  <span className="text-[#A7B8B0] uppercase tracking-wider">
-                    RASIO RETENSI GAJI BERSIH ({activeOffering.name.toUpperCase()})
+              {/* Clean Retention Bar & Annual Summary */}
+              <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 space-y-2">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-400 font-medium">
+                    Rasio Gaji Bersih ({activeOffering.name})
                   </span>
-                  <span className="text-[#E5B85B] font-bold tabular-nums">
-                    {offeringRetentionPct.toFixed(1)}% THP •{' '}
-                    {(100 - offeringRetentionPct).toFixed(1)}% Pajak &amp; BPJS
+                  <span className="text-slate-300 font-semibold tabular-nums">
+                    <span className="text-emerald-400">{offeringRetentionPct.toFixed(1)}% THP</span>
+                    {' • '}
+                    <span className="text-slate-400">
+                      {(100 - offeringRetentionPct).toFixed(1)}% Pajak &amp; BPJS
+                    </span>
                   </span>
                 </div>
-                <div className="w-full h-2.5 bg-white/10 rounded-sm overflow-hidden flex">
+                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden flex">
                   <div
                     style={{ width: `${offeringRetentionPct}%` }}
-                    className="bg-[#4ADE80] h-full transition-all duration-300"
+                    className="bg-emerald-500 h-full transition-all duration-300"
                   />
                   <div
                     style={{ width: `${Math.max(0, 100 - offeringRetentionPct)}%` }}
-                    className="bg-[#E5B85B] h-full transition-all duration-300"
+                    className="bg-rose-500/60 h-full transition-all duration-300"
                   />
                 </div>
-                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-[#A7B8B0] pt-0.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 pt-0.5">
                   <span>
                     {t('heroAnnualNote', { multiplier: annualMultiplier })}{' '}
                     <strong
                       className={`tabular-nums ${
-                        deltaAnnualNet >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'
+                        deltaAnnualNet >= 0 ? 'text-emerald-400' : 'text-rose-400'
                       }`}
                     >
                       {deltaAnnualNet >= 0 ? '+' : ''}
@@ -864,42 +786,42 @@ export default function App() {
               </div>
             </div>
 
-            {/* RIGHT 5 COLS: Side-by-Side Perforated Voucher Stubs */}
+            {/* RIGHT 5 COLS: Side-by-Side Current vs Offering THP Cards */}
             <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Current Baseline Voucher */}
-              <div className="bg-white/5 border border-white/15 rounded-sm p-4 flex flex-col justify-between">
+              {/* Current Baseline */}
+              <div className="bg-slate-950/60 border border-slate-800/90 rounded-xl p-4 flex flex-col justify-between">
                 <div>
-                  <div className="text-[10px] font-mono uppercase tracking-[0.15em] text-[#A7B8B0] mb-1">
+                  <div className="text-[11px] font-medium text-slate-400 mb-1">
                     {t('currentSalary')} (THP)
                   </div>
-                  <div className="text-lg sm:text-xl font-mono font-bold text-white tabular-nums">
+                  <div className="text-lg sm:text-xl font-bold text-white tabular-nums">
                     {renderIDR(existingCalc.monthly.netSalary)}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-white/10 text-[11px] font-mono text-[#A7B8B0] flex justify-between">
+                <div className="mt-3 pt-2.5 border-t border-slate-800/80 text-xs text-slate-400 flex justify-between">
                   <span>Bruto:</span>
-                  <span className="text-white tabular-nums">
+                  <span className="text-slate-200 font-medium tabular-nums">
                     {renderIDR(existingCalc.monthly.cashGross)}
                   </span>
                 </div>
               </div>
 
-              {/* Active Offering Voucher */}
-              <div className="bg-[#0B5D3F]/35 border border-[#4ADE80]/40 rounded-sm p-4 flex flex-col justify-between">
+              {/* Active Offering */}
+              <div className="bg-emerald-500/[0.08] border border-emerald-500/30 rounded-xl p-4 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-[#E5B85B] font-bold">
+                    <span className="text-[11px] font-semibold text-emerald-300">
                       {activeOffering.name} (THP)
                     </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#4ADE80]" />
+                    <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
                   </div>
-                  <div className="text-lg sm:text-xl font-mono font-bold text-[#4ADE80] tabular-nums">
+                  <div className="text-lg sm:text-xl font-bold text-emerald-400 tabular-nums">
                     {renderIDR(offeringCalc.monthly.netSalary)}
                   </div>
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-white/15 text-[11px] font-mono text-[#A7B8B0] flex justify-between">
+                <div className="mt-3 pt-2.5 border-t border-emerald-500/20 text-xs text-slate-300 flex justify-between">
                   <span>Bruto:</span>
-                  <span className="text-[#E5B85B] font-bold tabular-nums">
+                  <span className="text-emerald-200 font-semibold tabular-nums">
                     {renderIDR(offeringCalc.monthly.cashGross)}
                   </span>
                 </div>
@@ -909,15 +831,15 @@ export default function App() {
         </section>
 
         {/* ===================================================================
-            4. UNIFIED DOSSIER CONTROL BAR (OFFER TABS, MODALS, PTKP SELECTOR)
+            3. UNIFIED CONTROL BAR (OFFER TABS, QUICK TOOLS, PTKP SELECTOR)
         =================================================================== */}
-        <section className="bg-[var(--bg-elevated)] rounded-sm border border-[var(--border-strong)] p-4 shadow-[0_3px_0_0_var(--shadow-ledger)] space-y-4 no-print">
-          {/* Top Row: Offer Scenarios & Quick Advisory Tools */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-[var(--border-hairline)] pb-3.5">
+        <section className="bg-slate-900/75 rounded-2xl border border-slate-800/80 p-4 space-y-4 no-print">
+          {/* Top Row: Multi-Offer Tabs & Modal Triggers */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-800/80 pb-3.5">
             {/* Multi-Offer Tabs */}
             <div className="flex items-center flex-wrap gap-2">
-              <span className="text-[11px] font-mono font-bold text-[var(--text-secondary)] uppercase tracking-wider mr-1 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+              <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-emerald-400" />
                 {t('offeringsLabel')}
               </span>
 
@@ -927,10 +849,10 @@ export default function App() {
                   <div
                     key={offer.id}
                     onClick={() => setActiveOfferingId(offer.id)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-sm border text-xs font-mono font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-[var(--accent-primary-solid)] border-[var(--accent-primary)] text-white shadow-sm'
-                        : 'bg-[var(--bg-primary)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
+                        ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-bold shadow-sm'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700'
                     }`}
                   >
                     <span>{offer.name}</span>
@@ -939,7 +861,7 @@ export default function App() {
                         type="button"
                         onClick={(e) => removeOfferingTab(offer.id, e)}
                         title={t('deleteOffering')}
-                        className="p-0.5 rounded-sm hover:bg-white/20"
+                        className="p-0.5 rounded hover:bg-black/20"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -953,7 +875,7 @@ export default function App() {
                   type="button"
                   onClick={addOfferingTab}
                   title={t('addOffering')}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-sm border border-dashed border-[var(--accent-secondary)] text-[var(--accent-secondary)] hover:bg-[var(--accent-secondary-soft)] text-xs font-mono font-bold transition-colors"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-dashed border-slate-700 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 text-xs font-semibold transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>{t('addOffering')}</span>
@@ -967,7 +889,7 @@ export default function App() {
                 type="button"
                 onClick={() => setShowNegotiateModal(true)}
                 title={t('negotiationToolDesc')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono uppercase tracking-wider font-bold bg-[var(--accent-primary-solid)] text-white hover:bg-[var(--accent-primary-hover)] border border-[var(--accent-primary)]/40 shadow-[0_2px_0_0_var(--shadow-ledger)] transition-all"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 transition-all"
               >
                 <Target className="w-3.5 h-3.5" />
                 <span>{t('negotiationTool')}</span>
@@ -981,7 +903,7 @@ export default function App() {
                   setShowSpecialSlipsModal(true)
                 }}
                 title={t('specialSlipsDesc')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono uppercase tracking-wider font-bold bg-[var(--accent-secondary-soft)] text-[var(--accent-secondary)] hover:opacity-90 border border-[var(--accent-secondary)]/40 transition-all"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 border border-sky-500/30 transition-all"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
                 <span>{t('specialSlips')}</span>
@@ -992,18 +914,17 @@ export default function App() {
           {/* Bottom Row: Global PTKP Selector */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)] shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
               <div>
-                <span className="text-xs font-mono uppercase tracking-wider font-bold text-[var(--text-primary)]">
+                <span className="text-xs font-semibold text-slate-200">
                   {t('ptkpLabel')}
                 </span>
-                <span className="hidden sm:inline text-xs font-mono text-[var(--accent-primary)] font-bold ml-2">
-                  [
+                <span className="hidden sm:inline text-xs text-emerald-400 font-medium ml-2">
+                  •{' '}
                   {t('ptkpEffectiveRate', {
                     cat: offeringCalc.terCategory,
                     rate: offeringCalc.terPercentage,
                   })}
-                  ]
                 </span>
               </div>
             </div>
@@ -1017,16 +938,16 @@ export default function App() {
                     type="button"
                     onClick={() => setSharedPtkp(p.code)}
                     title={p.label}
-                    className={`py-1.5 px-2.5 rounded-sm border text-center transition-all ${
+                    className={`py-1.5 px-2.5 rounded-xl border text-center transition-all ${
                       active
-                        ? 'bg-[var(--accent-primary-solid)] border-[var(--accent-primary)] text-white font-bold shadow-sm'
-                        : 'bg-[var(--bg-primary)] border-[var(--border-hairline)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
+                        ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-bold shadow-sm'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700'
                     }`}
                   >
-                    <div className="text-xs font-mono">{p.code}</div>
+                    <div className="text-xs font-bold">{p.code}</div>
                     <div
-                      className={`text-[9px] font-mono ${
-                        active ? 'text-[#E5B85B]' : 'text-[var(--text-muted)]'
+                      className={`text-[9px] font-medium ${
+                        active ? 'text-slate-900' : 'text-slate-500'
                       }`}
                     >
                       TER {p.category}
@@ -1039,7 +960,7 @@ export default function App() {
         </section>
 
         {/* Mobile Segmented Card Filter */}
-        <div className="flex lg:hidden bg-[var(--bg-secondary)] p-1 rounded-sm border border-[var(--border-hairline)] no-print">
+        <div className="flex lg:hidden bg-slate-900/90 p-1 rounded-xl border border-slate-800 no-print">
           {[
             { id: 'both', label: t('mobileFilterBoth') },
             { id: 'existing', label: t('mobileFilterExisting') },
@@ -1049,10 +970,10 @@ export default function App() {
               key={tab.id}
               type="button"
               onClick={() => setMobileInputView(tab.id)}
-              className={`flex-1 py-1.5 text-xs font-mono uppercase font-bold rounded-sm transition-all ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 mobileInputView === tab.id
-                  ? 'bg-[var(--accent-primary-solid)] text-white'
-                  : 'text-[var(--text-secondary)]'
+                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               {tab.label}
@@ -1061,35 +982,32 @@ export default function App() {
         </div>
 
         {/* ===================================================================
-            5. SIDE-BY-SIDE TACTILE PAYSLIP VOUCHER CARDS
+            4. SIDE-BY-SIDE SALARY INPUT CARDS
         =================================================================== */}
-        <section id="section-inputs" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section id="section-inputs" className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
           {/* =================================================================
-              SCHEDULE I: EXISTING SALARY VOUCHER
+              CARD 1: EXISTING SALARY
           ================================================================= */}
           <div
-            className={`bg-[var(--bg-elevated)] rounded-sm border border-[var(--border-strong)] shadow-[0_3px_0_0_var(--shadow-ledger)] overflow-hidden flex flex-col justify-between ${
+            className={`bg-slate-900/75 rounded-2xl border border-slate-800/80 shadow-lg overflow-hidden flex flex-col justify-between ${
               mobileInputView === 'offering' ? 'hidden lg:flex' : 'flex'
             }`}
           >
             <div>
               {/* Card Header */}
-              <div className="bg-[var(--bg-secondary)] px-5 py-4 border-b border-[var(--border-strong)] flex items-center justify-between gap-2">
+              <div className="bg-slate-900/90 px-5 py-4 border-b border-slate-800/80 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5">
-                  <Building2 className="w-4 h-4 text-[var(--text-secondary)]" />
-                  <div>
-                    <div className="folio-stamp text-[var(--text-muted)]">
-                      SCHEDULE I // BASELINE VOUCHER
-                    </div>
-                    <h2 className="font-display font-bold text-base sm:text-lg text-[var(--text-primary)]">
-                      {t('existingCardTitle')}
-                    </h2>
+                  <div className="p-2 rounded-xl bg-slate-800 text-slate-300">
+                    <Building2 className="w-4 h-4" />
                   </div>
+                  <h2 className="font-bold text-base text-white">
+                    {t('existingCardTitle')}
+                  </h2>
                 </div>
 
                 {/* Tax Scheme Selector + Clear Button */}
                 <div className="flex items-center gap-1.5 no-print">
-                  <div className="flex bg-[var(--bg-primary)] p-0.5 rounded-sm border border-[var(--border-hairline)]">
+                  <div className="flex bg-slate-950 p-0.5 rounded-xl border border-slate-800">
                     {[
                       { id: 'gross', label: 'Gross' },
                       { id: 'gross_up', label: 'Gross-Up' },
@@ -1099,10 +1017,10 @@ export default function App() {
                         key={scheme.id}
                         type="button"
                         onClick={() => setExistingTaxMethod(scheme.id)}
-                        className={`px-2 py-1 rounded-sm font-mono text-[10px] font-bold uppercase transition-all ${
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
                           existingTaxMethod === scheme.id
-                            ? 'bg-[var(--accent-primary-solid)] text-white'
-                            : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                            ? 'bg-slate-800 text-white font-bold'
+                            : 'text-slate-400 hover:text-slate-200'
                         }`}
                       >
                         {scheme.label}
@@ -1117,7 +1035,7 @@ export default function App() {
                       setExistingBonus(0)
                     }}
                     title={t('clearCardTitle')}
-                    className="p-1.5 text-[var(--text-muted)] hover:text-[var(--semantic-danger)] rounded-sm border border-transparent hover:border-[var(--border-hairline)] transition-colors"
+                    className="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800/60 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -1151,71 +1069,65 @@ export default function App() {
               </div>
             </div>
 
-            {/* Perforated Tear-Off Net Pay Stub */}
-            <div>
-              <div className="payslip-perforation" />
-              <div className="bg-[var(--bg-secondary)]/85 px-5 py-4 space-y-2">
-                <div className="flex justify-between text-xs font-mono text-[var(--text-secondary)]">
-                  <span>{t('monthlyGrossSub')}</span>
-                  <span className="font-bold text-[var(--text-primary)] tabular-nums">
-                    {renderIDR(existingCalc.monthly.cashGross)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-xs font-mono text-[var(--semantic-danger)]">
-                  <span>
-                    {t('deductionsSub')} (TER {existingCalc.terPercentage}%)
-                  </span>
-                  <span className="font-bold tabular-nums">
-                    -{renderIDR(existingCalc.monthly.totalDeductions)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-baseline border-t border-[var(--border-strong)] pt-2.5">
-                  <span className="font-mono text-xs uppercase tracking-wider font-bold text-[var(--text-primary)]">
-                    {t('monthlyNetSub')}
-                  </span>
-                  <span className="font-mono text-xl font-bold text-[var(--text-primary)] tabular-nums">
-                    {renderIDR(existingCalc.monthly.netSalary)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-[11px] font-mono text-[var(--text-muted)] pt-0.5">
-                  <span>{t('annualNetSub')}</span>
-                  <span className="font-bold text-[var(--text-secondary)] tabular-nums">
-                    {renderIDR(existingCalc.annual.netSalary)}
-                  </span>
-                </div>
+            {/* Clean Card Footer */}
+            <div className="bg-slate-950/70 border-t border-slate-800/80 px-5 py-4 space-y-2">
+              <div className="flex justify-between text-xs text-slate-400">
+                <span>{t('monthlyGrossSub')}</span>
+                <span className="font-semibold text-slate-200 tabular-nums">
+                  {renderIDR(existingCalc.monthly.cashGross)}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-rose-400">
+                <span>
+                  {t('deductionsSub')} (TER {existingCalc.terPercentage}%)
+                </span>
+                <span className="font-semibold tabular-nums">
+                  -{renderIDR(existingCalc.monthly.totalDeductions)}
+                </span>
+              </div>
+              <div className="flex justify-between items-baseline border-t border-slate-800 pt-2.5">
+                <span className="text-xs font-bold text-slate-200">
+                  {t('monthlyNetSub')}
+                </span>
+                <span className="text-lg sm:text-xl font-bold text-white tabular-nums">
+                  {renderIDR(existingCalc.monthly.netSalary)}
+                </span>
+              </div>
+              <div className="flex justify-between text-[11px] text-slate-400 pt-0.5">
+                <span>{t('annualNetSub')}</span>
+                <span className="font-semibold text-slate-300 tabular-nums">
+                  {renderIDR(existingCalc.annual.netSalary)}
+                </span>
               </div>
             </div>
           </div>
 
           {/* =================================================================
-              SCHEDULE II: PROPOSED OFFERING VOUCHER
+              CARD 2: PROPOSED OFFERING
           ================================================================= */}
           <div
-            className={`bg-[var(--bg-elevated)] rounded-sm border-2 border-[var(--accent-primary)] shadow-[0_3px_0_0_var(--accent-primary-solid)] overflow-hidden flex flex-col justify-between ${
+            className={`bg-slate-900/75 rounded-2xl border border-emerald-500/35 shadow-lg overflow-hidden flex flex-col justify-between ${
               mobileInputView === 'existing' ? 'hidden lg:flex' : 'flex'
             }`}
           >
             <div>
               {/* Card Header */}
-              <div className="bg-[var(--accent-primary-soft)] px-5 py-4 border-b border-[var(--accent-primary)]/30 flex items-center justify-between gap-2">
+              <div className="bg-emerald-500/[0.08] px-5 py-4 border-b border-emerald-500/20 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <Briefcase className="w-4 h-4 text-[var(--accent-primary)] shrink-0" />
-                  <div className="min-w-0">
-                    <div className="folio-stamp text-[var(--accent-primary)]">
-                      SCHEDULE II // OFFERING VOUCHER
-                    </div>
-                    <input
-                      type="text"
-                      value={activeOffering.name}
-                      onChange={(e) => updateActiveOffering('name', e.target.value)}
-                      className="font-display font-bold text-base sm:text-lg text-[var(--text-primary)] bg-transparent border-b border-transparent hover:border-[var(--accent-primary)] focus:border-[var(--accent-primary)] focus:outline-none truncate w-full"
-                    />
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0">
+                    <Briefcase className="w-4 h-4" />
                   </div>
+                  <input
+                    type="text"
+                    value={activeOffering.name}
+                    onChange={(e) => updateActiveOffering('name', e.target.value)}
+                    className="font-bold text-base text-white bg-transparent border-b border-transparent hover:border-emerald-500/50 focus:border-emerald-400 focus:outline-none truncate w-full"
+                  />
                 </div>
 
                 {/* Tax Scheme Selector + Clear Button */}
                 <div className="flex items-center gap-1.5 no-print shrink-0">
-                  <div className="flex bg-[var(--bg-primary)] p-0.5 rounded-sm border border-[var(--border-hairline)]">
+                  <div className="flex bg-slate-950 p-0.5 rounded-xl border border-slate-800">
                     {[
                       { id: 'gross', label: 'Gross' },
                       { id: 'gross_up', label: 'Gross-Up' },
@@ -1225,10 +1137,10 @@ export default function App() {
                         key={scheme.id}
                         type="button"
                         onClick={() => updateActiveOffering('taxMethod', scheme.id)}
-                        className={`px-2 py-1 rounded-sm font-mono text-[10px] font-bold uppercase transition-all ${
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
                           activeOffering.taxMethod === scheme.id
-                            ? 'bg-[var(--accent-primary-solid)] text-white'
-                            : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                            ? 'bg-emerald-500 text-slate-950 font-bold'
+                            : 'text-slate-400 hover:text-slate-200'
                         }`}
                       >
                         {scheme.label}
@@ -1243,7 +1155,7 @@ export default function App() {
                       updateActiveOffering('bonus', 0)
                     }}
                     title={t('clearCardTitle')}
-                    className="p-1.5 text-[var(--text-muted)] hover:text-[var(--semantic-danger)] rounded-sm border border-transparent hover:border-[var(--border-hairline)] transition-colors"
+                    className="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800/60 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -1278,45 +1190,42 @@ export default function App() {
               </div>
             </div>
 
-            {/* Perforated Tear-Off Net Pay Stub */}
-            <div>
-              <div className="payslip-perforation" />
-              <div className="bg-[var(--accent-primary-soft)] px-5 py-4 space-y-2">
-                <div className="flex justify-between text-xs font-mono text-[var(--text-secondary)]">
-                  <span>{t('monthlyGrossSub')}</span>
-                  <span className="font-bold text-[var(--text-primary)] tabular-nums">
-                    {renderIDR(offeringCalc.monthly.cashGross)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-xs font-mono text-[var(--semantic-danger)]">
-                  <span>
-                    {t('deductionsSub')} (TER {offeringCalc.terPercentage}%)
-                  </span>
-                  <span className="font-bold tabular-nums">
-                    -{renderIDR(offeringCalc.monthly.totalDeductions)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-baseline border-t border-[var(--accent-primary)]/40 pt-2.5">
-                  <span className="font-mono text-xs uppercase tracking-wider font-bold text-[var(--accent-primary)]">
-                    {t('monthlyNetSub')}
-                  </span>
-                  <span className="font-mono text-xl font-bold text-[var(--accent-primary)] tabular-nums">
-                    {renderIDR(offeringCalc.monthly.netSalary)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-[11px] font-mono text-[var(--text-secondary)] pt-0.5">
-                  <span>{t('annualNetSub')}</span>
-                  <span className="font-bold text-[var(--accent-secondary)] tabular-nums">
-                    {renderIDR(offeringCalc.annual.netSalary)}
-                  </span>
-                </div>
+            {/* Clean Card Footer */}
+            <div className="bg-emerald-500/[0.06] border-t border-emerald-500/20 px-5 py-4 space-y-2">
+              <div className="flex justify-between text-xs text-slate-300">
+                <span>{t('monthlyGrossSub')}</span>
+                <span className="font-semibold text-white tabular-nums">
+                  {renderIDR(offeringCalc.monthly.cashGross)}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-rose-400">
+                <span>
+                  {t('deductionsSub')} (TER {offeringCalc.terPercentage}%)
+                </span>
+                <span className="font-semibold tabular-nums">
+                  -{renderIDR(offeringCalc.monthly.totalDeductions)}
+                </span>
+              </div>
+              <div className="flex justify-between items-baseline border-t border-emerald-500/25 pt-2.5">
+                <span className="text-xs font-bold text-emerald-300">
+                  {t('monthlyNetSub')}
+                </span>
+                <span className="text-lg sm:text-xl font-bold text-emerald-400 tabular-nums">
+                  {renderIDR(offeringCalc.monthly.netSalary)}
+                </span>
+              </div>
+              <div className="flex justify-between text-[11px] text-slate-300 pt-0.5">
+                <span>{t('annualNetSub')}</span>
+                <span className="font-semibold text-sky-400 tabular-nums">
+                  {renderIDR(offeringCalc.annual.netSalary)}
+                </span>
               </div>
             </div>
           </div>
         </section>
 
         {/* ===================================================================
-            6. DETAILED PAYSLIP & ANNUAL BREAKDOWN AUDIT MATRIX
+            5. DETAILED COMPARISON BREAKDOWN
         =================================================================== */}
         <ComparisonAuditMatrix
           t={t}
@@ -1339,9 +1248,9 @@ export default function App() {
       </main>
 
       {/* =====================================================================
-           EDITORIAL FOOTER
+           CLEAN FOOTER
       ===================================================================== */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-8 lg:py-6 border-t border-[var(--border-hairline)] text-center text-[11px] sm:text-xs font-mono text-[var(--text-muted)] leading-relaxed w-full">
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-8 lg:py-6 border-t border-slate-800/70 text-center text-xs text-slate-500 leading-relaxed w-full">
         {t('footerText')}
       </footer>
 
@@ -1387,11 +1296,11 @@ export default function App() {
       {/* =====================================================================
           MOBILE BOTTOM NAVIGATION DOCK
       ===================================================================== */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0D1F18] border-t-2 border-[#9A6B13] px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] grid grid-cols-5 gap-1 items-center text-[#F5EFE4] no-print shadow-[0_-4px_12px_rgba(0,0,0,0.25)]">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] grid grid-cols-4 gap-1 items-center text-slate-300 no-print shadow-[0_-8px_20px_rgba(0,0,0,0.4)]">
         <button
           type="button"
           onClick={() => setShowNegotiateModal(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#E5B85B] active:bg-white/10 min-w-0"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-[10px] font-semibold text-emerald-400 active:bg-slate-800/60 min-w-0"
         >
           <Target className="w-4 h-4 shrink-0" />
           <span className="truncate w-full text-center leading-tight">{t('mobileTabNegotiate')}</span>
@@ -1399,32 +1308,18 @@ export default function App() {
         <button
           type="button"
           onClick={() => setShowSpecialSlipsModal(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#A7B8B0] hover:text-white active:bg-white/10 min-w-0"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-[10px] font-semibold text-sky-400 active:bg-slate-800/60 min-w-0"
         >
           <FileSpreadsheet className="w-4 h-4 shrink-0" />
           <span className="truncate w-full text-center leading-tight">{t('mobileTabSlips')}</span>
         </button>
         <button
           type="button"
-          onClick={toggleTheme}
-          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#A7B8B0] hover:text-white active:bg-white/10 min-w-0"
-        >
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-[#E5B85B] shrink-0" />
-          ) : (
-            <Moon className="w-4 h-4 shrink-0" />
-          )}
-          <span className="truncate w-full text-center leading-tight">
-            {theme === 'dark' ? t('themeLight') : t('themeDark')}
-          </span>
-        </button>
-        <button
-          type="button"
           onClick={handleCopySummary}
-          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#A7B8B0] hover:text-white active:bg-white/10 min-w-0"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-[10px] font-semibold text-slate-300 hover:text-white active:bg-slate-800/60 min-w-0"
         >
           {copiedSummary ? (
-            <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
+            <Check className="w-4 h-4 text-emerald-400 shrink-0" />
           ) : (
             <Copy className="w-4 h-4 shrink-0" />
           )}
@@ -1435,10 +1330,10 @@ export default function App() {
         <button
           type="button"
           onClick={() => setIsPrivate(!isPrivate)}
-          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#A7B8B0] hover:text-white active:bg-white/10 min-w-0"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-[10px] font-semibold text-slate-300 hover:text-white active:bg-slate-800/60 min-w-0"
         >
           {isPrivate ? (
-            <EyeOff className="w-4 h-4 text-[#4ADE80] shrink-0" />
+            <EyeOff className="w-4 h-4 text-emerald-400 shrink-0" />
           ) : (
             <Eye className="w-4 h-4 shrink-0" />
           )}

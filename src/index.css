@@ -3,82 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-
-  /* Lombard Financial Broadsheet & Sovereign Payroll Palette (Light Mode) */
-  --bg-primary: #F5EFE4;          /* Warm Lombard Financial Broadsheet Paper */
-  --bg-secondary: #ECE3D3;        /* Ledger Section Backing */
-  --bg-elevated: #FCF9F4;         /* Crisp Cotton Payslip Voucher */
-  --bg-sunken: #E4DAC6;           /* Recessed Input / Stamp Well */
-  --bg-vault: #0D1F18;            /* Deep British Racing / Central Bank Obsidian */
-  --bg-vault-light: #152E24;      /* Elevated Vault Panel */
-
-  /* Typography Ink Hierarchy */
-  --text-primary: #111714;        /* Carbon Ledger Ink */
-  --text-secondary: #3E4A43;      /* Secondary Editorial Slate-Pine */
-  --text-muted: #6C7870;          /* Archival Folio & Caption Ink */
-
-  /* Sovereign Financial Accents */
-  --accent-primary: #0B5D3F;      /* Central Bank Emerald (Text & Borders) */
-  --accent-primary-solid: #0B5D3F;/* Solid Button Fill */
-  --accent-primary-hover: #084730;
-  --accent-primary-soft: rgba(11, 93, 63, 0.10);
-
-  --accent-secondary: #9A6B13;    /* Sovereign Bullion Gold */
-  --accent-secondary-soft: rgba(154, 107, 19, 0.12);
-
-  /* Semantic Fiscal Indicators */
-  --semantic-positive: #0B5D3F;   /* Net THP Gain / Credit */
-  --semantic-warning: #A16207;    /* TER Surge / True-Up Notice */
-  --semantic-danger: #B42318;     /* Statutory Tax & BPJS Withholding */
-  --semantic-danger-soft: rgba(180, 35, 24, 0.08);
-
-  /* Structural Rules & Hairlines */
-  --border-hairline: #D4C8B4;     /* 1px Ledger Rule */
-  --border-strong: #111714;       /* Masthead & Accounting Total Rule */
-  --shadow-ledger: #111714;
-
-  /* Typography Tokens */
-  --font-display: 'Newsreader', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-}
-
-html.dark {
   color-scheme: dark;
-
-  /* Central Bank Obsidian Nocturne Palette (Dark Mode) */
-  --bg-primary: #0A130F;          /* Deep Obsidian Night Ledger */
-  --bg-secondary: #101E18;        /* Elevated Night Section Backing */
-  --bg-elevated: #14251E;         /* Nocturnal Payslip Voucher Sheet */
-  --bg-sunken: #070E0B;           /* Recessed Input Well */
-  --bg-vault: #060D0A;            /* Deep Vault Core */
-  --bg-vault-light: #0F2019;      /* Elevated Vault Panel */
-
-  /* Typography Ink Hierarchy */
-  --text-primary: #EFECE6;        /* Crisp Cotton Parchment Ink */
-  --text-secondary: #A7B8B0;      /* Muted Sage-Silver Ink */
-  --text-muted: #6E8278;          /* Archival Night Folio Ink */
-
-  /* Sovereign Financial Accents */
-  --accent-primary: #34D399;      /* Luminous Mint Emerald (Text & Borders) */
-  --accent-primary-solid: #059669;/* Rich Emerald Button Fill */
-  --accent-primary-hover: #047857;
-  --accent-primary-soft: rgba(52, 211, 153, 0.12);
-
-  --accent-secondary: #E5B85B;    /* Luminous Bullion Gold */
-  --accent-secondary-soft: rgba(229, 184, 91, 0.14);
-
-  /* Semantic Fiscal Indicators */
-  --semantic-positive: #34D399;   /* Net THP Gain / Credit */
-  --semantic-warning: #FBBF24;    /* TER Surge / True-Up Notice */
-  --semantic-danger: #F87171;     /* Luminous Carmine Coral for Dark Mode */
-  --semantic-danger-soft: rgba(248, 113, 113, 0.12);
-
-  /* Structural Rules & Hairlines */
-  --border-hairline: #23382E;     /* 1px Night Ledger Rule */
-  --border-strong: #375748;       /* Strong Night Ledger Border */
-  --shadow-ledger: #040806;
 }
 
 html {
@@ -86,98 +11,19 @@ html {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   overscroll-behavior-y: contain;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   min-height: -webkit-fill-available;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
+  background-color: #0B0F19;
+  color: #f1f5f9;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Subtle archival ledger dot-matrix & column grain */
-  background-image:
-    radial-gradient(rgba(17, 23, 20, 0.055) 1px, transparent 1px),
-    linear-gradient(to right, rgba(212, 200, 180, 0.22) 1px, transparent 1px);
-  background-size: 24px 24px, 120px 100%;
-  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-html.dark body {
-  background-image:
-    radial-gradient(rgba(239, 236, 230, 0.04) 1px, transparent 1px),
-    linear-gradient(to right, rgba(35, 56, 46, 0.35) 1px, transparent 1px);
-  background-size: 24px 24px, 120px 100%;
-}
-
-/* Strict Tabular Numerals for Financial Figures */
-.font-mono,
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "zero" 1;
-}
-
-/* Privacy Mode Sensor Blur */
-.privacy-blur {
-  filter: blur(6px);
-  user-select: none;
-  -webkit-user-select: none;
-  transition: filter 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-  display: inline-block;
-  cursor: pointer;
-}
-
-.privacy-blur:hover,
-.privacy-blur:focus {
-  filter: blur(0px);
-}
-
-/* Tactile Perforated Payslip Tear-Off Divider */
-.payslip-perforation {
-  position: relative;
-  border-top: 1.5px dashed var(--border-hairline);
-}
-
-.payslip-perforation::before,
-.payslip-perforation::after {
-  content: '';
-  position: absolute;
-  top: -9px;
-  width: 16px;
-  height: 16px;
-  border-radius: 9999px;
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-hairline);
-}
-
-.payslip-perforation::before {
-  left: -9px;
-}
-
-.payslip-perforation::after {
-  right: -9px;
-}
-
-/* Institutional Accounting Double Bottom Rule */
-.accounting-double-rule {
-  border-bottom: 4px double var(--border-strong);
-}
-
-/* Official Stamp Badge */
-.folio-stamp {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-/* Safe area padding utilities for iOS / Android */
+/* Safe area padding utilities for iOS / Android PWA */
 .pt-safe {
   padding-top: env(safe-area-inset-top, 0px);
 }
@@ -189,32 +35,22 @@ html.dark body {
 }
 
 /* Prevent accidental text highlight on mobile app interactions */
-button, select, summary {
+button,
+select,
+summary {
   user-select: none;
   -webkit-user-select: none;
 }
 
-/* Custom Range Slider for Negotiation War-Room */
-input[type="range"].ledger-slider,
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: var(--bg-sunken);
-  height: 8px;
-  border-radius: 2px;
-  border: 1px solid var(--border-hairline);
+/* Privacy Mode Blur */
+.privacy-blur {
+  filter: blur(5px);
+  user-select: none;
+  transition: filter 0.18s ease;
+  display: inline-block;
 }
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 2px;
-  background: var(--accent-primary-solid);
-  border: 2px solid var(--bg-elevated);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
+.privacy-blur:hover {
+  filter: blur(0px);
 }
 
 /* Custom scrollbar */
@@ -224,24 +60,23 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: #0f172a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-hairline);
-  border-radius: 2px;
+  background: #334155;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: #475569;
 }
 
 /* Print / PDF Export Styling */
 @media print {
   body {
-    background: #ffffff !important;
-    background-image: none !important;
-    color: #111714 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
   }
 
   .no-print {
@@ -254,7 +89,7 @@ input[type="range"]::-webkit-slider-thumb {
 
   .print-clean {
     background-color: #ffffff !important;
-    color: #111714 !important;
+    color: #0f172a !important;
     border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
   }
@@ -263,9 +98,12 @@ input[type="range"]::-webkit-slider-thumb {
     border-collapse: collapse !important;
   }
 
-  table, tr, td, th {
-    color: #111714 !important;
-    border-color: #cbd5e1 !important;
+  table,
+  tr,
+  td,
+  th {
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
     background-color: #ffffff !important;
   }
 }
