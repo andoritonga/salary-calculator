@@ -1341,7 +1341,7 @@ export default function App() {
       {/* =====================================================================
            EDITORIAL FOOTER
       ===================================================================== */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 border-t border-[var(--border-hairline)] text-center text-xs font-mono text-[var(--text-muted)] w-full">
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-8 lg:py-6 border-t border-[var(--border-hairline)] text-center text-[11px] sm:text-xs font-mono text-[var(--text-muted)] leading-relaxed w-full">
         {t('footerText')}
       </footer>
 
@@ -1387,58 +1387,64 @@ export default function App() {
       {/* =====================================================================
           MOBILE BOTTOM NAVIGATION DOCK
       ===================================================================== */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0D1F18] border-t-2 border-[#9A6B13] px-3 py-2 flex items-center justify-around text-[#F5EFE4] no-print">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0D1F18] border-t-2 border-[#9A6B13] px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] grid grid-cols-5 gap-1 items-center text-[#F5EFE4] no-print shadow-[0_-4px_12px_rgba(0,0,0,0.25)]">
         <button
           type="button"
           onClick={() => setShowNegotiateModal(true)}
-          className="flex flex-col items-center gap-0.5 text-[10px] font-mono text-[#E5B85B]"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#E5B85B] active:bg-white/10 min-w-0"
         >
-          <Target className="w-4 h-4" />
-          <span>{t('mobileTabNegotiate')}</span>
+          <Target className="w-4 h-4 shrink-0" />
+          <span className="truncate w-full text-center leading-tight">{t('mobileTabNegotiate')}</span>
         </button>
         <button
           type="button"
           onClick={() => setShowSpecialSlipsModal(true)}
-          className="flex flex-col items-center gap-0.5 text-[10px] font-mono text-[#A7B8B0] hover:text-white"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#A7B8B0] hover:text-white active:bg-white/10 min-w-0"
         >
-          <FileSpreadsheet className="w-4 h-4" />
-          <span>{t('mobileTabSlips')}</span>
+          <FileSpreadsheet className="w-4 h-4 shrink-0" />
+          <span className="truncate w-full text-center leading-tight">{t('mobileTabSlips')}</span>
         </button>
         <button
           type="button"
           onClick={toggleTheme}
-          className="flex flex-col items-center gap-0.5 text-[10px] font-mono text-[#A7B8B0] hover:text-white"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#A7B8B0] hover:text-white active:bg-white/10 min-w-0"
         >
           {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-[#E5B85B]" />
+            <Sun className="w-4 h-4 text-[#E5B85B] shrink-0" />
           ) : (
-            <Moon className="w-4 h-4" />
+            <Moon className="w-4 h-4 shrink-0" />
           )}
-          <span>{theme === 'dark' ? t('themeLight') : t('themeDark')}</span>
+          <span className="truncate w-full text-center leading-tight">
+            {theme === 'dark' ? t('themeLight') : t('themeDark')}
+          </span>
         </button>
         <button
           type="button"
           onClick={handleCopySummary}
-          className="flex flex-col items-center gap-0.5 text-[10px] font-mono text-[#A7B8B0] hover:text-white"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#A7B8B0] hover:text-white active:bg-white/10 min-w-0"
         >
           {copiedSummary ? (
-            <Check className="w-4 h-4 text-[#4ADE80]" />
+            <Check className="w-4 h-4 text-[#4ADE80] shrink-0" />
           ) : (
-            <Copy className="w-4 h-4" />
+            <Copy className="w-4 h-4 shrink-0" />
           )}
-          <span>{copiedSummary ? t('copied') : t('copy')}</span>
+          <span className="truncate w-full text-center leading-tight">
+            {copiedSummary ? t('copied') : t('copy')}
+          </span>
         </button>
         <button
           type="button"
           onClick={() => setIsPrivate(!isPrivate)}
-          className="flex flex-col items-center gap-0.5 text-[10px] font-mono text-[#A7B8B0] hover:text-white"
+          className="flex flex-col items-center justify-center gap-1 py-1 rounded-sm text-[10px] font-mono text-[#A7B8B0] hover:text-white active:bg-white/10 min-w-0"
         >
           {isPrivate ? (
-            <EyeOff className="w-4 h-4 text-[#4ADE80]" />
+            <EyeOff className="w-4 h-4 text-[#4ADE80] shrink-0" />
           ) : (
-            <Eye className="w-4 h-4" />
+            <Eye className="w-4 h-4 shrink-0" />
           )}
-          <span>{isPrivate ? t('privacyActive') : t('privacyInactive')}</span>
+          <span className="truncate w-full text-center leading-tight">
+            {isPrivate ? t('privacyActive') : t('privacyInactive')}
+          </span>
         </button>
       </nav>
     </div>
