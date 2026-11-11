@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import {
   PTKP_LIST,
+  MAX_SAFE_CURRENCY,
   calculateSalary,
   calculateBonusMonthSimulation,
   findRequiredGrossForTargetNet,
@@ -37,16 +38,99 @@ import ComparisonAuditMatrix from './components/ComparisonAuditMatrix'
 import SalaryModals from './components/SalaryModals'
 
 const STORAGE_KEY = 'salary_calc_state_v5'
+const LEGACY_STORAGE_KEYS = [
+  'salary_calc_state_v1',
+  'salary_calc_state_v2',
+  'salary_calc_state_v3',
+  'salary_calc_state_v4',
+]
+const VALID_TAX_METHODS = new Set(['gross', 'gross_up', 'nett'])
+const VALID_LANGS = new Set(['id', 'en'])
+const VALID_MULTIPLIERS = new Set([12, 13, 14, 15])
+const VALID_PTKP_CODES = new Set(PTKP_LIST.map((p) => p.code))
+const MAX_OFFERING_NAME_LEN = 40
 
 const DEFAULT_OFFERINGS = [
   { id: 1, name: 'Penawaran A', basic: 13000000, fixed: 1000000, bonus: 13000000, taxMethod: 'gross' },
 ]
 
+function sanitizeCurrency(val, fallback) {
+  if (typeof val !== 'number' || !Number.isFinite(val) || val < 0) return fallback
+  return Math.min(MAX_SAFE_CURRENCY, Math.trunc(val))
+}
+
+function sanitizeSavedState(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+
+  const lang = VALID_LANGS.has(raw.lang) ? raw.lang : 'id'
+  const existingBasic = sanitizeCurrency(raw.existingBasic, 10000000)
+  const existingFixed = sanitizeCurrency(raw.existingFixed, 500000)
+  const existingBonus = sanitizeCurrency(raw.existingBonus, 5000000)
+  const existingTaxMethod = VALID_TAX_METHODS.has(raw.existingTaxMethod)
+    ? raw.existingTaxMethod
+    : 'gross'
+
+  let offerings = DEFAULT_OFFERINGS
+  if (Array.isArray(raw.offerings) && raw.offerings.length > 0) {
+    const cleaned = raw.offerings
+      .slice(0, 4)
+      .filter((o) => o && typeof o === 'object' && !Array.isArray(o))
+      .map((o, idx) => ({
+        id:
+          typeof o.id === 'number' && Number.isSafeInteger(o.id) && o.id > 0
+            ? o.id
+            : idx + 1,
+        name:
+          typeof o.name === 'string' && o.name.trim().length > 0
+            ? o.name.slice(0, MAX_OFFERING_NAME_LEN)
+            : `${lang === 'id' ? 'Penawaran' : 'Offer'} ${String.fromCharCode(65 + idx)}`,
+        basic: sanitizeCurrency(o.basic, 13000000),
+        fixed: sanitizeCurrency(o.fixed, 1000000),
+        bonus: sanitizeCurrency(o.bonus, 13000000),
+        taxMethod: VALID_TAX_METHODS.has(o.taxMethod) ? o.taxMethod : 'gross',
+      }))
+    if (cleaned.length > 0) {
+      offerings = cleaned
+    }
+  }
+
+  const activeOfferingId = offerings.some((o) => o.id === raw.activeOfferingId)
+    ? raw.activeOfferingId
+    : offerings[0].id
+
+  const sharedPtkp = VALID_PTKP_CODES.has(raw.sharedPtkp) ? raw.sharedPtkp : 'TK/0'
+  const enableBpjsKes = typeof raw.enableBpjsKes === 'boolean' ? raw.enableBpjsKes : true
+  const enableBpjsTk = typeof raw.enableBpjsTk === 'boolean' ? raw.enableBpjsTk : true
+  const includeCompanyPremiInTax =
+    typeof raw.includeCompanyPremiInTax === 'boolean' ? raw.includeCompanyPremiInTax : true
+  const annualMultiplier = VALID_MULTIPLIERS.has(raw.annualMultiplier)
+    ? raw.annualMultiplier
+    : 13
+  const isPrivate = typeof raw.isPrivate === 'boolean' ? raw.isPrivate : false
+
+  return {
+    lang,
+    existingBasic,
+    existingFixed,
+    existingBonus,
+    existingTaxMethod,
+    offerings,
+    activeOfferingId,
+    sharedPtkp,
+    enableBpjsKes,
+    enableBpjsTk,
+    includeCompanyPremiInTax,
+    annualMultiplier,
+    isPrivate,
+  }
+}
+
 export default function App() {
   const [savedState] = useState(() => {
     try {
+      LEGACY_STORAGE_KEYS.forEach((k) => localStorage.removeItem(k))
       const raw = localStorage.getItem(STORAGE_KEY)
-      return raw ? JSON.parse(raw) : null
+      return raw ? sanitizeSavedState(JSON.parse(raw)) : null
     } catch {
       return null
     }
@@ -142,7 +226,7 @@ export default function App() {
   ])
 
   const activeOffering = useMemo(() => {
-    return offerings.find((o) => o.id === activeOfferingId) || offerings[0]
+    return offerings.find((o) => o.id === activeOfferingId) || offerings[0] || DEFAULT_OFFERINGS[0]
   }, [offerings, activeOfferingId])
 
   const updateActiveOffering = (field, value) => {
@@ -382,6 +466,12 @@ export default function App() {
 
   // Reset Handlers
   const clearAllNumbersToZero = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+      LEGACY_STORAGE_KEYS.forEach((k) => localStorage.removeItem(k))
+    } catch {
+      // Ignore storage errors
+    }
     setExistingBasic(0)
     setExistingFixed(0)
     setExistingBonus(0)
@@ -390,6 +480,12 @@ export default function App() {
   }
 
   const resetToDemoDefaults = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+      LEGACY_STORAGE_KEYS.forEach((k) => localStorage.removeItem(k))
+    } catch {
+      // Ignore storage errors
+    }
     setExistingBasic(10000000)
     setExistingFixed(500000)
     setExistingBonus(5000000)
@@ -1119,8 +1215,11 @@ export default function App() {
                   </div>
                   <input
                     type="text"
+                    maxLength={MAX_OFFERING_NAME_LEN}
                     value={activeOffering.name}
-                    onChange={(e) => updateActiveOffering('name', e.target.value)}
+                    onChange={(e) =>
+                      updateActiveOffering('name', e.target.value.slice(0, MAX_OFFERING_NAME_LEN))
+                    }
                     className="font-bold text-base text-white bg-transparent border-b border-transparent hover:border-emerald-500/50 focus:border-emerald-400 focus:outline-none truncate w-full"
                   />
                 </div>

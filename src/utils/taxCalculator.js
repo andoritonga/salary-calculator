@@ -683,18 +683,25 @@ export function formatIDR(amount) {
   }).format(amount)
 }
 
+// Batas nominal aman per input (Rp 100 Miliar) guna mencegah integer overflow / NaN
+export const MAX_SAFE_CURRENCY = 100000000000
+
 // Format integer dengan pemisah ribuan titik (contoh: 15.000.000)
 export function formatNumberWithDots(val) {
   if (val === undefined || val === null || val === '') return ''
-  const num = typeof val === 'number' ? val : Number(String(val).replace(/\D/g, ''))
-  if (isNaN(num)) return ''
-  return num.toLocaleString('id-ID')
+  const num = typeof val === 'number' ? val : Number(String(val).replace(/\D/g, '').slice(0, 15))
+  if (!Number.isFinite(num) || isNaN(num)) return ''
+  const clamped = Math.min(MAX_SAFE_CURRENCY, Math.max(0, Math.trunc(num)))
+  return clamped.toLocaleString('id-ID')
 }
 
-// Parse string berpemisah titik ke integer murni
+// Parse string berpemisah titik ke integer murni dengan batas atas aman
 export function parseNumberFromDots(str) {
   if (!str) return 0
-  const cleaned = String(str).replace(/\D/g, '')
-  return cleaned ? parseInt(cleaned, 10) : 0
+  const cleaned = String(str).replace(/\D/g, '').slice(0, 15)
+  if (!cleaned) return 0
+  const parsed = parseInt(cleaned, 10)
+  if (!Number.isFinite(parsed) || parsed < 0) return 0
+  return Math.min(MAX_SAFE_CURRENCY, parsed)
 }
 

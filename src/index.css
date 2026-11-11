@@ -106,4 +106,11 @@ summary {
     border-color: #e2e8f0 !important;
     background-color: #ffffff !important;
   }
+
+  .privacy-blur,
+  .privacy-blur:hover {
+    filter: blur(6px) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

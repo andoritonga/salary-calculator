@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salary-calc-v12'
+const CACHE_NAME = 'salary-calc-v13'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -26,18 +26,36 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// Fetch event: network first with cache fallback
+// Fetch event: network first with cache fallback (same-origin http/https GET only)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
+
+  let requestUrl
+  try {
+    requestUrl = new URL(event.request.url)
+  } catch {
+    return
+  }
+
+  if (
+    (requestUrl.protocol !== 'http:' && requestUrl.protocol !== 'https:') ||
+    requestUrl.origin !== self.location.origin
+  ) {
+    return
+  }
 
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Clone response and save to cache if valid
-        if (networkResponse && networkResponse.status === 200) {
+        // Clone response and save to cache if valid basic same-origin response
+        if (
+          networkResponse &&
+          networkResponse.status === 200 &&
+          networkResponse.type === 'basic'
+        ) {
           const responseToCache = networkResponse.clone()
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache)
+            cache.put(event.request, responseToCache).catch(() => {})
           })
         }
         return networkResponse
