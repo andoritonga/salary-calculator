@@ -90,13 +90,15 @@ Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di 
 - **Laci Pengaturan & Aksi Cepat Mobile**: Tombol menu navigasi bawah membuka laci pengaturan yang dilengkapi tombol tutup (X) dan pintasan cepat (Cetak PDF, Salin Ringkasan, Reset).
 - **Segmented Mobile Filter Card**: Switcher praktis di atas form input (*Saat Ini / Penawaran / Berdampingan*) untuk mengurangi beban scrolling di layar ponsel.
 - **Floating Quick KPI Strip**: Bar mengambang otomatis yang menampilkan selisih kenaikan Take Home Pay saat pengguna menggulir halaman ke bawah.
-- **PWA Prompt & Standalone Mode**: Banner instalasi aplikasi instan (`beforeinstallprompt`), dukungan penuh layar `viewport-fit=cover`, penanganan area poni/notch & home bar (`safe-area-insets`), dan Service Worker (`salary-calc-v9`).
+- **PWA Prompt & Standalone Mode**: Banner instalasi aplikasi instan (`beforeinstallprompt`), dukungan penuh layar `viewport-fit=cover`, penanganan area poni/notch & home bar (`safe-area-insets`), dan Service Worker (`salary-calc-v13`).
 
-### 9. 🔒 Mode Privasi & Utilitas Tambahan
+### 9. 🔒 Mode Privasi & Arsitektur Keamanan
+- **100% Client-Side Calculation (Zero Data Transmission)**: Seluruh nominal gaji, tunjangan, status PTKP, dan simulasi negosiasi dihitung murni di memori browser pengguna—tidak ada satu byte pun data finansial yang dikirim ke server/backend.
 - **Mode Privasi (Sensor Angka)**: Mengaburkan seluruh nominal rupiah dengan efek blur interaktif (cukup sentuh atau arahkan kursor untuk melihat angka), aman saat digunakan di ruang publik / kantor.
-- **Salin Ringkasan (Copy Summary)**: Menyalin format ringkasan negosiasi siap kirim ke clipboard sesuai bahasa yang aktif (ID/EN).
-- **Ekspor / Cetak PDF**: Format cetak bersih (`@media print`) yang menghilangkan elemen navigasi dan tombol.
-- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`salary-calc-v9`) dan manifest untuk instalasi di smartphone / desktop dan dapat diakses saat offline.
+- **Strict CSP & HTTP Security Headers**: Dilengkapi `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, dan `Permissions-Policy` pada [`nginx.conf`](nginx.conf), [`security-headers.conf`](security-headers.conf), dan [`public/_headers`](public/_headers).
+- **Hardened Non-Root Container & State Validation**: Image produksi Docker berjalan sebagai *non-root user* (`USER nginx`), serta penyimpanan `localStorage` dilindungi validasi skema & batas numerik (*bounds sanitization*) untuk mencegah korupsi state di sisi klien.
+- **Salin Ringkasan & Ekspor PDF**: Menyalin ringkasan negosiasi ke clipboard (ID/EN) dan format cetak bersih (`@media print`).
+- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`salary-calc-v13`) dengan validasi cache same-origin untuk akses offline yang aman.
 
 ---
 
@@ -105,9 +107,9 @@ Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di 
 - **Frontend Core**: [React 18](https://react.dev/), [Vite 6](https://vite.dev/)
 - **Styling**: [Tailwind CSS 3](https://tailwindcss.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Deployment & Server**: Multi-stage [Docker](https://www.docker.com/) (Node.js Alpine builder + Nginx Alpine)
+- **Deployment & Server**: Multi-stage Non-Root [Docker](https://www.docker.com/) (Node.js Alpine builder + Nginx Alpine) & Cloudflare Edge
 - **Container Port**: `3000`
-- **Reverse Proxy / Tunnel**: Cloudflare Tunnel (`gaji.ritonga.xyz`)
+- **Live Domain**: `https://gaji.ritonga.ai.id`
 
 ---
 
