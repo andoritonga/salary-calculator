@@ -60,7 +60,7 @@ export default function SalaryModals({
             if (e.target === e.currentTarget) setShowNegotiateModal(false)
           }}
         >
-          <div className="bg-slate-900 rounded-t-2xl sm:rounded-2xl border border-slate-800 shadow-2xl w-full max-w-xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
+          <div className="glass-modal rounded-t-3xl sm:rounded-3xl w-full max-w-xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
             {/* Modal Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
@@ -231,7 +231,7 @@ export default function SalaryModals({
             if (e.target === e.currentTarget) setShowSpecialSlipsModal(false)
           }}
         >
-          <div className="bg-slate-900 rounded-t-2xl sm:rounded-2xl border border-slate-800 shadow-2xl w-full max-w-3xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
+          <div className="glass-modal rounded-t-3xl sm:rounded-3xl w-full max-w-3xl overflow-hidden animate-slideUp max-h-[92vh] flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
@@ -549,7 +549,7 @@ export default function SalaryModals({
             if (e.target === e.currentTarget) setShowResetModal(false)
           }}
         >
-          <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl w-full max-w-md overflow-hidden animate-slideUp p-6">
+          <div className="glass-modal rounded-3xl w-full max-w-md overflow-hidden animate-slideUp p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-amber-500/15 text-amber-400 border border-amber-500/30 rounded-xl">

@@ -17,10 +17,104 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: -webkit-fill-available;
-  background-color: #0B0F19;
+  background-color: #070b14;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(16, 185, 129, 0.16) 0%, transparent 45%),
+    radial-gradient(circle at 86% 16%, rgba(14, 165, 233, 0.16) 0%, transparent 46%),
+    radial-gradient(circle at 50% 92%, rgba(99, 102, 241, 0.14) 0%, transparent 50%);
+  background-attachment: fixed;
   color: #f1f5f9;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .glass-surface {
+    background: rgba(15, 23, 42, 0.58);
+    -webkit-backdrop-filter: blur(22px) saturate(165%);
+    backdrop-filter: blur(22px) saturate(165%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-surface-emerald {
+    background: rgba(15, 23, 42, 0.62);
+    -webkit-backdrop-filter: blur(22px) saturate(165%);
+    backdrop-filter: blur(22px) saturate(165%);
+    border: 1px solid rgba(16, 185, 129, 0.34);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.42), 0 0 24px rgba(16, 185, 129, 0.08), inset 0 1px 0 rgba(167, 243, 208, 0.12);
+  }
+
+  .glass-pill {
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.62);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-modal {
+    background: rgba(15, 23, 42, 0.84);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-card-enter {
+  opacity: 0;
+  animation: cardEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn,
+  .animate-slideUp,
+  .animate-card-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* Safe area padding utilities for iOS / Android PWA */

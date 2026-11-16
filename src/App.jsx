@@ -572,11 +572,11 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0B0F19] text-slate-100 pb-24 lg:pb-12">
+    <div className="min-h-screen flex flex-col text-slate-100 pb-28 lg:pb-12">
       {/* =====================================================================
-          1. CLEAN STICKY HEADER
+          1. CLEAN STICKY GLASS HEADER
       ===================================================================== */}
-      <header className="bg-[#0B0F19]/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-30 no-print pt-safe">
+      <header className="glass-surface border-x-0 border-t-0 sticky top-0 z-30 no-print pt-safe">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-3">
             {/* Brand Title */}
@@ -603,15 +603,15 @@ export default function App() {
             <div className="flex items-center gap-1.5 sm:gap-2">
               {/* Language Switcher */}
               <div
-                className="flex items-center bg-slate-900 p-0.5 rounded-xl border border-slate-800"
+                className="flex items-center glass-pill p-0.5"
                 title={t('langToggleTitle')}
               >
                 <button
                   type="button"
                   onClick={() => setLang('id')}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all active:scale-95 ${
                     lang === 'id'
-                      ? 'bg-emerald-500 text-slate-950'
+                      ? 'bg-emerald-500 text-slate-950 shadow-sm'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -620,9 +620,9 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setLang('en')}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all active:scale-95 ${
                     lang === 'en'
-                      ? 'bg-emerald-500 text-slate-950'
+                      ? 'bg-emerald-500 text-slate-950 shadow-sm'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -635,10 +635,10 @@ export default function App() {
                 type="button"
                 onClick={() => setIsPrivate(!isPrivate)}
                 title={isPrivate ? t('privacyTitleOn') : t('privacyTitleOff')}
-                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border transition-all active:scale-95 ${
                   isPrivate
-                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                    ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300 shadow-sm shadow-emerald-500/15'
+                    : 'glass-pill text-slate-300 hover:bg-slate-800/70'
                 }`}
               >
                 {isPrivate ? (
@@ -656,7 +656,7 @@ export default function App() {
                 type="button"
                 onClick={() => window.print()}
                 title={t('pdfTitle')}
-                className="hidden sm:inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-all"
+                className="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-semibold text-slate-300 glass-pill hover:bg-slate-800/70 transition-all active:scale-95"
               >
                 <Printer className="w-4 h-4 lg:mr-1.5" />
                 <span className="hidden lg:inline">{t('pdf')}</span>
@@ -667,10 +667,10 @@ export default function App() {
                 type="button"
                 onClick={handleCopySummary}
                 title={t('copyTitle')}
-                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border transition-all active:scale-95 ${
                   copiedSummary
-                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                    ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300 shadow-sm shadow-emerald-500/15'
+                    : 'glass-pill text-slate-300 hover:bg-slate-800/70'
                 }`}
               >
                 {copiedSummary ? (
@@ -691,7 +691,7 @@ export default function App() {
                 type="button"
                 onClick={() => setShowResetModal(true)}
                 title={t('resetTitle')}
-                className="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-all"
+                className="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-slate-300 glass-pill hover:bg-slate-800/70 transition-all active:scale-95"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
@@ -701,10 +701,10 @@ export default function App() {
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 title={t('optionsTitle')}
-                className={`inline-flex items-center px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full border transition-all active:scale-95 ${
                   showAdvanced
-                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold'
-                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold shadow-sm shadow-emerald-500/25'
+                    : 'glass-pill text-slate-300 hover:bg-slate-800/70'
                 }`}
               >
                 <Sliders className="w-4 h-4 sm:mr-1.5" />
@@ -798,7 +798,7 @@ export default function App() {
         {/* ===================================================================
             2. CLEAN HERO SUMMARY CARD
         =================================================================== */}
-        <section className="rounded-2xl overflow-hidden border border-slate-800/80 bg-gradient-to-br from-slate-900/95 via-slate-900/85 to-slate-900/70 shadow-xl">
+        <section className="animate-card-enter glass-surface rounded-2xl overflow-hidden">
           <div className="p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
             {/* LEFT 7 COLS: Monthly THP Difference & Retention Bar */}
             <div className="lg:col-span-7 space-y-4">
@@ -929,7 +929,7 @@ export default function App() {
         {/* ===================================================================
             3. UNIFIED CONTROL BAR (OFFER TABS, QUICK TOOLS, PTKP SELECTOR)
         =================================================================== */}
-        <section className="bg-slate-900/75 rounded-2xl border border-slate-800/80 p-4 space-y-4 no-print">
+        <section className="animate-card-enter glass-surface rounded-2xl p-4 space-y-4 no-print" style={{ animationDelay: '70ms' }}>
           {/* Top Row: Multi-Offer Tabs & Modal Triggers */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-800/80 pb-3.5">
             {/* Multi-Offer Tabs */}
@@ -1085,7 +1085,7 @@ export default function App() {
               CARD 1: EXISTING SALARY
           ================================================================= */}
           <div
-            className={`bg-slate-900/75 rounded-2xl border border-slate-800/80 shadow-lg overflow-hidden flex flex-col justify-between ${
+            className={`animate-card-enter glass-surface rounded-2xl overflow-hidden flex flex-col justify-between ${
               mobileInputView === 'offering' ? 'hidden lg:flex' : 'flex'
             }`}
           >
@@ -1202,7 +1202,7 @@ export default function App() {
               CARD 2: PROPOSED OFFERING
           ================================================================= */}
           <div
-            className={`bg-slate-900/75 rounded-2xl border border-emerald-500/35 shadow-lg overflow-hidden flex flex-col justify-between ${
+            className={`animate-card-enter glass-surface-emerald rounded-2xl overflow-hidden flex flex-col justify-between ${
               mobileInputView === 'existing' ? 'hidden lg:flex' : 'flex'
             }`}
           >
@@ -1395,7 +1395,7 @@ export default function App() {
       {/* =====================================================================
           MOBILE BOTTOM NAVIGATION DOCK
       ===================================================================== */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] grid grid-cols-4 gap-1 items-center text-slate-300 no-print shadow-[0_-8px_20px_rgba(0,0,0,0.4)]">
+      <nav className="lg:hidden fixed bottom-[max(0.65rem,env(safe-area-inset-bottom))] left-3 right-3 z-40 glass-surface rounded-[22px] px-2 py-2 grid grid-cols-4 gap-1 items-center text-slate-300 no-print">
         <button
           type="button"
           onClick={() => setShowNegotiateModal(true)}

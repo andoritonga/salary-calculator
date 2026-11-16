@@ -188,7 +188,7 @@ export default function ComparisonAuditMatrix({
 
       {/* CARD 1: ARUS KAS BULANAN (MONTHLY ROUTINE) */}
       {(tablePeriod === 'both' || tablePeriod === 'monthly') && (
-        <div className="bg-slate-900/75 border border-slate-800/80 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+        <div className="animate-card-enter glass-surface rounded-2xl overflow-hidden" style={{ animationDelay: '120ms' }}>
           {/* Card Subheader */}
           <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-slate-950/50 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5">
@@ -621,7 +621,7 @@ export default function ComparisonAuditMatrix({
 
       {/* CARD 2: PROYEKSI AKUMULASI TAHUNAN (ANNUALIZED PACKAGE) */}
       {(tablePeriod === 'both' || tablePeriod === 'annual') && (
-        <div className="bg-slate-900/75 border border-slate-800/80 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+        <div className="animate-card-enter glass-surface rounded-2xl overflow-hidden" style={{ animationDelay: '120ms' }}>
           {/* Card Subheader */}
           <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-slate-950/50 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5">
