@@ -8,6 +8,9 @@ export const translations = {
     privacyInactive: 'Privasi',
     privacyTitleOn: 'Matikan Mode Privasi',
     privacyTitleOff: 'Aktifkan Mode Privasi (Sensor Angka)',
+    privacyBannerText: 'Mode Privasi aktif: nominal disensor di layar.',
+    privacyPeekBtn: 'Intip Angka (8 dtk)',
+    privacyHideNowBtn: 'Sembunyikan Lagi',
     themeDark: 'Gelap',
     themeLight: 'Terang',
     themeToggleAriaToDark: 'Aktifkan tema gelap (Obsidian Ledger)',
@@ -21,11 +24,16 @@ export const translations = {
     reset: 'Reset',
     resetTitle: 'Reset atau kosongkan data input',
     options: 'Opsi',
-    optionsTitle: 'Pengaturan BPJS & Pengali Tahunan',
+    optionsTitle: 'Pengaturan BPJS, pengali THR & ekspor',
     langToggleAria: 'Pilihan bahasa aplikasi',
     langToggleTitle: 'Ubah bahasa ke English',
 
-    // Advanced Drawer
+    // Options Sheet Modal
+    optionsModalTitle: 'Pengaturan Pajak, BPJS & Aksi',
+    optionsModalSubtitle: 'Sesuaikan komponen iuran wajib, pengali THR, atau ekspor laporan',
+    quickActionsTitle: 'Ekspor & Pengelolaan Data',
+    printPdfBtn: 'Cetak / Simpan PDF',
+    openResetBtn: 'Reset / Kosongkan Data...',
     bpjsComponentTitle: 'Komponen BPJS',
     bpjsKesLabel: 'BPJS Kesehatan (1% Karyawan, 4% Perusahaan)',
     bpjsTkLabel: 'BPJS TK (JHT 2%, JP 1% Plafon Rp 10,04 Jt)',
@@ -39,7 +47,7 @@ export const translations = {
     printHeaderTitle: 'Ringkasan Komparasi Gaji & Offering',
 
     // Demo Data Banner & Empty State
-    demoBannerText: 'Sedang menampilkan data simulasi contoh bawaan. Ubah angka di bawah atau kosongkan form untuk menghitung gaji Anda sendiri.',
+    demoBannerText: 'Menampilkan data simulasi contoh bawaan. Ubah angka atau kosongkan form untuk menghitung gaji Anda.',
     demoClearAction: 'Kosongkan Form',
     emptyStateTitle: 'Belum Ada Nominal Gaji yang Diisi',
     emptyStateDesc: 'Semua komponen gaji saat ini bernilai Rp 0. Masukkan gaji pokok saat ini dan tawaran baru untuk melihat perbandingan Take Home Pay serta potongan PPh 21 TER.',
@@ -233,7 +241,7 @@ export const translations = {
     mobileTabSlips: 'Slip THR',
     mobileFilterExisting: 'Saat Ini',
     mobileFilterOffering: 'Penawaran',
-    mobileFilterBoth: 'Berdampingan',
+    mobileFilterBoth: 'Keduanya',
   },
   en: {
     // Header & Global Controls
@@ -244,6 +252,9 @@ export const translations = {
     privacyInactive: 'Privacy',
     privacyTitleOn: 'Disable Privacy Mode',
     privacyTitleOff: 'Enable Privacy Mode (Blur Numbers)',
+    privacyBannerText: 'Privacy Mode is on: figures are blurred on screen.',
+    privacyPeekBtn: 'Peek Figures (8s)',
+    privacyHideNowBtn: 'Blur Again',
     themeDark: 'Dark',
     themeLight: 'Light',
     themeToggleAriaToDark: 'Switch to dark theme (Obsidian Ledger)',
@@ -257,11 +268,16 @@ export const translations = {
     reset: 'Reset',
     resetTitle: 'Reset or clear input data',
     options: 'Options',
-    optionsTitle: 'BPJS & Annual Multiplier Settings',
+    optionsTitle: 'BPJS, Annual Multiplier & Export Options',
     langToggleAria: 'Application language switcher',
     langToggleTitle: 'Switch language to Bahasa Indonesia',
 
-    // Advanced Drawer
+    // Options Sheet Modal
+    optionsModalTitle: 'Tax, BPJS & Quick Actions',
+    optionsModalSubtitle: 'Configure statutory contributions, THR multiplier, or export report',
+    quickActionsTitle: 'Export & Data Management',
+    printPdfBtn: 'Print / Save PDF',
+    openResetBtn: 'Reset / Clear Data...',
     bpjsComponentTitle: 'BPJS Components',
     bpjsKesLabel: 'BPJS Healthcare (1% Employee, 4% Employer)',
     bpjsTkLabel: 'BPJS Employment (JHT 2%, JP 1% Cap Rp 10.04M)',
@@ -469,7 +485,7 @@ export const translations = {
     mobileTabSlips: 'THR Slips',
     mobileFilterExisting: 'Current',
     mobileFilterOffering: 'Offering',
-    mobileFilterBoth: 'Side-by-Side',
+    mobileFilterBoth: 'Both',
   },
 }
 

@@ -49,22 +49,22 @@ function MobileCleanAuditRow({
         <div className="shrink-0 pt-0.5">{deltaBadge}</div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-xl px-3 py-2">
-          <div className="text-[11px] font-medium text-[var(--text-muted)] truncate">
+      <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2">
+        <div className="bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 min-w-0">
+          <div className="text-[11px] font-medium text-[var(--text-muted)] break-words">
             {currentLabel}
           </div>
-          <div className={`text-xs font-semibold tabular-nums mt-0.5 ${currentValStyle}`}>
+          <div className={`text-xs font-semibold tabular-nums mt-0.5 break-words ${currentValStyle}`}>
             {valuePrefix}
             {currentValue}
           </div>
         </div>
 
-        <div className={`border rounded-xl px-3 py-2 ${offeringCardStyle}`}>
-          <div className={`text-[11px] font-semibold truncate ${offeringLabelStyle}`}>
+        <div className={`border rounded-xl px-3 py-2 min-w-0 ${offeringCardStyle}`}>
+          <div className={`text-[11px] font-semibold break-words ${offeringLabelStyle}`}>
             {offeringLabel}
           </div>
-          <div className={`text-xs font-bold tabular-nums mt-0.5 ${offeringValStyle}`}>
+          <div className={`text-xs font-bold tabular-nums mt-0.5 break-words ${offeringValStyle}`}>
             {valuePrefix}
             {offeringValue}
           </div>
@@ -99,20 +99,20 @@ function MobileCleanSubtotalRow({
         <div className="shrink-0">{deltaBadge}</div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl px-3 py-2">
-          <div className="text-[11px] text-[var(--text-muted)] truncate">{currentLabel}</div>
-          <div className="text-xs font-bold tabular-nums mt-0.5 text-[var(--text-primary)]">
+      <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2">
+        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 min-w-0">
+          <div className="text-[11px] text-[var(--text-muted)] break-words">{currentLabel}</div>
+          <div className="text-xs font-bold tabular-nums mt-0.5 text-[var(--text-primary)] break-words">
             {valuePrefix}
             {currentValue}
           </div>
         </div>
 
-        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl px-3 py-2">
-          <div className={`text-[11px] font-semibold truncate ${offeringTextStyle}`}>
+        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 min-w-0">
+          <div className={`text-[11px] font-semibold break-words ${offeringTextStyle}`}>
             {offeringLabel}
           </div>
-          <div className={`text-xs font-extrabold tabular-nums mt-0.5 ${offeringTextStyle}`}>
+          <div className={`text-xs font-extrabold tabular-nums mt-0.5 break-words ${offeringTextStyle}`}>
             {valuePrefix}
             {offeringValue}
           </div>
@@ -147,7 +147,7 @@ export default function ComparisonAuditMatrix({
     <section
       id="section-breakdown"
       aria-labelledby="breakdown-heading"
-      className="space-y-5 print-clean scroll-mt-20"
+      className="space-y-3.5 sm:space-y-5 print-clean scroll-mt-20"
     >
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
@@ -160,11 +160,11 @@ export default function ComparisonAuditMatrix({
           </p>
         </div>
 
-        {/* Period Switcher */}
+        {/* Period Switcher (>= 6px gap between buttons) */}
         <div
           role="group"
           aria-label={t('periodSwitcherAria')}
-          className="grid grid-cols-3 sm:flex bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs w-full sm:w-auto gap-1 shrink-0"
+          className="grid grid-cols-3 sm:flex bg-[var(--bg-surface)] p-1.5 rounded-xl border border-[var(--border-subtle)] text-xs w-full sm:w-auto gap-1.5 shrink-0"
         >
           {[
             { id: 'monthly', label: t('periodMonthly') },
@@ -178,7 +178,7 @@ export default function ComparisonAuditMatrix({
                 type="button"
                 aria-pressed={active}
                 onClick={() => setTablePeriod(tab.id)}
-                className={`min-h-[44px] px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-center ${
+                className={`min-h-[44px] px-2.5 sm:px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-center leading-tight ${
                   active
                     ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)] font-bold'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
@@ -194,7 +194,7 @@ export default function ComparisonAuditMatrix({
       {/* CARD 1: ARUS KAS BULANAN (MONTHLY ROUTINE) */}
       {(tablePeriod === 'both' || tablePeriod === 'monthly') && (
         <div className="ledger-sheet rounded-2xl overflow-hidden">
-          <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="px-3.5 sm:px-5 py-3 sm:py-4 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div>
               <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
                 {t('card1Title')}
@@ -342,7 +342,7 @@ export default function ComparisonAuditMatrix({
             />
 
             {/* Mobile Summary Footer (Monthly THP) */}
-            <div className="bg-[var(--bg-subtle)] p-4 ledger-total-row space-y-3">
+            <div className="bg-[var(--bg-subtle)] p-3.5 sm:p-4 ledger-total-row space-y-3">
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-5 h-5 text-[var(--accent-text)] shrink-0 mt-0.5" aria-hidden="true" />
                 <div>
@@ -355,27 +355,27 @@ export default function ComparisonAuditMatrix({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-2.5">
-                  <div className="text-[11px] text-[var(--text-muted)] truncate">
+              <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2.5">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-2.5 min-w-0">
+                  <div className="text-[11px] text-[var(--text-muted)] break-words">
                     {currentHeaderLabel}
                   </div>
-                  <div className="text-sm font-bold text-[var(--text-primary)] tabular-nums mt-0.5">
+                  <div className="text-sm font-bold text-[var(--text-primary)] tabular-nums mt-0.5 break-words">
                     {renderIDR(existingCalc.monthly.netSalary)}
                   </div>
                 </div>
 
-                <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-xl p-2.5">
-                  <div className="text-[11px] font-semibold text-[var(--accent-text)] truncate">
+                <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-xl p-2.5 min-w-0">
+                  <div className="text-[11px] font-semibold text-[var(--accent-text)] break-words">
                     {offeringHeaderLabel}
                   </div>
-                  <div className="text-sm font-extrabold text-[var(--accent-text)] tabular-nums mt-0.5">
+                  <div className="text-sm font-extrabold text-[var(--accent-text)] tabular-nums mt-0.5 break-words">
                     {renderIDR(offeringCalc.monthly.netSalary)}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--border-subtle)]">
                 <span className="text-[11px] font-medium text-[var(--text-muted)]">
                   {t('thDelta')}
                 </span>
@@ -623,7 +623,7 @@ export default function ComparisonAuditMatrix({
       {/* CARD 2: PROYEKSI AKUMULASI TAHUNAN */}
       {(tablePeriod === 'both' || tablePeriod === 'annual') && (
         <div className="ledger-sheet rounded-2xl overflow-hidden">
-          <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="px-3.5 sm:px-5 py-3 sm:py-4 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div>
               <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
                 {t('card2Title', { multiplier: annualMultiplier })}
@@ -771,7 +771,7 @@ export default function ComparisonAuditMatrix({
             />
 
             {/* Mobile Summary Footer (Annual THP) */}
-            <div className="bg-[var(--bg-subtle)] p-4 ledger-total-row space-y-3">
+            <div className="bg-[var(--bg-subtle)] p-3.5 sm:p-4 ledger-total-row space-y-3">
               <div className="flex items-start gap-2.5">
                 <Calendar className="w-5 h-5 text-[var(--accent-text)] shrink-0 mt-0.5" aria-hidden="true" />
                 <div>
@@ -784,27 +784,27 @@ export default function ComparisonAuditMatrix({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-2.5">
-                  <div className="text-[11px] text-[var(--text-muted)] truncate">
+              <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2.5">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-2.5 min-w-0">
+                  <div className="text-[11px] text-[var(--text-muted)] break-words">
                     {currentHeaderLabel}
                   </div>
-                  <div className="text-sm font-bold text-[var(--text-primary)] tabular-nums mt-0.5">
+                  <div className="text-sm font-bold text-[var(--text-primary)] tabular-nums mt-0.5 break-words">
                     {renderIDR(existingCalc.annual.netSalary)}
                   </div>
                 </div>
 
-                <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-xl p-2.5">
-                  <div className="text-[11px] font-semibold text-[var(--accent-text)] truncate">
+                <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-xl p-2.5 min-w-0">
+                  <div className="text-[11px] font-semibold text-[var(--accent-text)] break-words">
                     {offeringHeaderLabel}
                   </div>
-                  <div className="text-sm font-extrabold text-[var(--accent-text)] tabular-nums mt-0.5">
+                  <div className="text-sm font-extrabold text-[var(--accent-text)] tabular-nums mt-0.5 break-words">
                     {renderIDR(offeringCalc.annual.netSalary)}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--border-subtle)]">
                 <span className="text-[11px] font-medium text-[var(--text-muted)]">
                   {t('thDelta')}
                 </span>

@@ -9,8 +9,6 @@ import {
   Trash2,
   Copy,
   Check,
-  ChevronDown,
-  ChevronUp,
   Plus,
   X,
   Eye,
@@ -35,7 +33,7 @@ import {
   calculateDecemberTrueUp,
   formatIDR,
 } from './utils/taxCalculator'
-import { translations } from './translations'
+import { translations, getPTKPLabel } from './translations'
 import CurrencyInput from './components/CurrencyInput'
 import ComparisonAuditMatrix from './components/ComparisonAuditMatrix'
 import SalaryModals from './components/SalaryModals'
@@ -186,11 +184,21 @@ export default function App() {
   const [annualMultiplier, setAnnualMultiplier] = useState(savedState?.annualMultiplier ?? 13)
 
   // UI & Modal States
-  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [showOptionsModal, setShowOptionsModal] = useState(false)
   const [tablePeriod, setTablePeriod] = useState('both') // 'both' | 'monthly' | 'annual'
   const [mobileInputView, setMobileInputView] = useState('both') // 'existing' | 'offering' | 'both'
   const [isPrivate, setIsPrivate] = useState(savedState?.isPrivate ?? false)
+  const [isPeekingPrivacy, setIsPeekingPrivacy] = useState(false)
   const [copyStatus, setCopyStatus] = useState('idle') // 'idle' | 'copied' | 'error'
+
+  const effectivePrivate = isPrivate && !isPeekingPrivacy
+
+  // Auto-blur again 8s after touch peek
+  useEffect(() => {
+    if (!isPeekingPrivacy) return undefined
+    const timer = setTimeout(() => setIsPeekingPrivacy(false), 8000)
+    return () => clearTimeout(timer)
+  }, [isPeekingPrivacy])
 
   // Modals
   const [showNegotiateModal, setShowNegotiateModal] = useState(false)
@@ -368,7 +376,6 @@ export default function App() {
       ? (deltaAnnualNet / existingCalc.annual.netSalary) * 100
       : 0
 
-  // Gross-to-Net Retention Ratio (0 when no offered monthly gross)
   const offeringRetentionPct =
     offeringCalc.monthly.cashGross > 0
       ? Math.min(
@@ -532,6 +539,11 @@ export default function App() {
     setShowResetModal(false)
   }
 
+  const togglePrivacy = () => {
+    setIsPeekingPrivacy(false)
+    setIsPrivate((prev) => !prev)
+  }
+
   const handleCopySummary = async () => {
     const signMonthly = deltaMonthlyNet >= 0 ? '+' : ''
     const signAnnual = deltaAnnualNet >= 0 ? '+' : ''
@@ -587,7 +599,7 @@ export default function App() {
 
   // Formatting Helpers
   const renderIDR = (amount) => (
-    <span className={isPrivate ? 'privacy-blur' : ''}>{formatIDR(amount)}</span>
+    <span className={effectivePrivate ? 'privacy-blur' : ''}>{formatIDR(amount)}</span>
   )
 
   const renderDeltaBadge = (val, invertColor = false) => {
@@ -611,62 +623,40 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-[var(--text-primary)] pb-28 lg:pb-12">
+    <div className="min-h-dvh flex flex-col text-[var(--text-primary)] pb-[calc(6rem+env(safe-area-inset-bottom,0px))] md:pb-10">
       {/* =====================================================================
-          1. STICKY HEADER BAR (Single backdrop-filter surface)
+          1. COMPACT SINGLE-ROW STICKY HEADER (<= 68px across viewports)
       ===================================================================== */}
       <header className="header-bar sticky top-0 z-30 no-print pt-safe">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
-          <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
+          <div className="flex items-center justify-between gap-2">
             {/* Brand Title */}
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="bg-[var(--bg-subtle)] p-2.5 rounded-xl border border-[var(--border-subtle)] text-[var(--accent-text)] shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="hidden min-[420px]:flex bg-[var(--bg-subtle)] p-2 rounded-xl border border-[var(--border-subtle)] text-[var(--accent-text)] shrink-0">
                 <Calculator className="w-5 h-5" aria-hidden="true" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-base sm:text-lg font-extrabold text-[var(--text-primary)] tracking-tight truncate">
+                <h1 className="text-fluid-h1 font-extrabold text-[var(--text-primary)] tracking-tight break-words">
                   {t('appTitle')}
                 </h1>
-                <p className="text-xs text-[var(--text-muted)] truncate hidden sm:block">
+                <p className="text-xs text-[var(--text-muted)] hidden lg:block">
                   {t('appSubtitle')}
                 </p>
               </div>
             </div>
 
-            {/* Action Controls (all >= 44px touch targets) */}
-            <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
-              {/* Language Switcher */}
-              <div
-                role="group"
-                aria-label={t('langToggleAria')}
-                className="inline-flex items-center bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-xl p-0.5"
+            {/* Action Controls (3 essential actions on < md, all 7 single-row on >= md) */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {/* Single Native Language Toggle (ID <-> EN) */}
+              <button
+                type="button"
+                aria-label={t('langToggleTitle')}
                 title={t('langToggleTitle')}
+                onClick={() => setLang((prev) => (prev === 'id' ? 'en' : 'id'))}
+                className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 text-xs font-bold rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors tabular-nums"
               >
-                <button
-                  type="button"
-                  aria-pressed={lang === 'id'}
-                  onClick={() => setLang('id')}
-                  className={`min-h-[44px] min-w-[44px] px-2.5 rounded-lg text-xs font-bold transition-colors ${
-                    lang === 'id'
-                      ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)]'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  ID
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={lang === 'en'}
-                  onClick={() => setLang('en')}
-                  className={`min-h-[44px] min-w-[44px] px-2.5 rounded-lg text-xs font-bold transition-colors ${
-                    lang === 'en'
-                      ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)]'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  EN
-                </button>
-              </div>
+                {lang.toUpperCase()}
+              </button>
 
               {/* Theme Toggle (Light / Dark) */}
               <button
@@ -675,7 +665,7 @@ export default function App() {
                 aria-label={theme === 'dark' ? t('themeToggleAriaToLight') : t('themeToggleAriaToDark')}
                 title={theme === 'dark' ? t('themeToggleAriaToLight') : t('themeToggleAriaToDark')}
                 onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
-                className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 text-xs font-semibold rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+                className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 text-xs font-semibold rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
               >
                 {theme === 'dark' ? (
                   <Sun className="w-4 h-4 xl:mr-1.5" aria-hidden="true" />
@@ -687,48 +677,48 @@ export default function App() {
                 </span>
               </button>
 
-              {/* Privacy Blur Toggle */}
+              {/* Privacy Blur Toggle (hidden on < md because Mobile Dock holds Privacy) */}
               <button
                 type="button"
                 aria-pressed={isPrivate}
                 aria-label={isPrivate ? t('privacyTitleOn') : t('privacyTitleOff')}
                 title={isPrivate ? t('privacyTitleOn') : t('privacyTitleOff')}
-                onClick={() => setIsPrivate(!isPrivate)}
-                className={`inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 text-xs font-semibold rounded-xl border transition-colors ${
+                onClick={togglePrivacy}
+                className={`hidden md:inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 text-xs font-semibold rounded-xl border transition-colors ${
                   isPrivate
                     ? 'bg-[var(--accent-surface)] border-[var(--accent-border)] text-[var(--accent-text)] font-bold'
                     : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-strong)]'
                 }`}
               >
                 {isPrivate ? (
-                  <EyeOff className="w-4 h-4 md:mr-1.5" aria-hidden="true" />
+                  <EyeOff className="w-4 h-4 xl:mr-1.5" aria-hidden="true" />
                 ) : (
-                  <Eye className="w-4 h-4 md:mr-1.5" aria-hidden="true" />
+                  <Eye className="w-4 h-4 xl:mr-1.5" aria-hidden="true" />
                 )}
-                <span className="hidden md:inline">
+                <span className="hidden xl:inline">
                   {isPrivate ? t('privacyActive') : t('privacyInactive')}
                 </span>
               </button>
 
-              {/* PDF Print */}
+              {/* PDF Print (>= md in header; available inside Options sheet on < md) */}
               <button
                 type="button"
                 onClick={() => window.print()}
                 aria-label={t('pdfTitle')}
                 title={t('pdfTitle')}
-                className="hidden sm:inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 text-xs font-semibold bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-strong)] rounded-xl transition-colors"
+                className="hidden md:inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 text-xs font-semibold bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-strong)] rounded-xl transition-colors"
               >
-                <Printer className="w-4 h-4 lg:mr-1.5" aria-hidden="true" />
-                <span className="hidden lg:inline">{t('pdf')}</span>
+                <Printer className="w-4 h-4 xl:mr-1.5" aria-hidden="true" />
+                <span className="hidden xl:inline">{t('pdf')}</span>
               </button>
 
-              {/* Copy Summary */}
+              {/* Copy Summary (hidden on < md because Mobile Dock holds Copy) */}
               <button
                 type="button"
                 onClick={handleCopySummary}
                 aria-label={copyStatus === 'copied' ? t('copied') : t('copyTitle')}
                 title={t('copyTitle')}
-                className={`inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 text-xs font-semibold rounded-xl border transition-colors ${
+                className={`hidden md:inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 text-xs font-semibold rounded-xl border transition-colors ${
                   copyStatus === 'copied'
                     ? 'bg-[var(--accent-surface)] border-[var(--accent-border)] text-[var(--accent-text)] font-bold'
                     : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-strong)]'
@@ -736,133 +726,52 @@ export default function App() {
               >
                 {copyStatus === 'copied' ? (
                   <>
-                    <Check className="w-4 h-4 sm:mr-1.5" aria-hidden="true" />
-                    <span className="hidden sm:inline">{t('copied')}</span>
+                    <Check className="w-4 h-4 xl:mr-1.5" aria-hidden="true" />
+                    <span className="hidden xl:inline">{t('copied')}</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4 sm:mr-1.5" aria-hidden="true" />
-                    <span className="hidden sm:inline">{t('copy')}</span>
+                    <Copy className="w-4 h-4 xl:mr-1.5" aria-hidden="true" />
+                    <span className="hidden xl:inline">{t('copy')}</span>
                   </>
                 )}
               </button>
 
-              {/* Reset */}
+              {/* Reset (>= md in header; available inside Options sheet on < md) */}
               <button
                 type="button"
                 onClick={() => setShowResetModal(true)}
                 aria-label={t('resetTitle')}
                 title={t('resetTitle')}
-                className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 text-xs font-semibold bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-strong)] rounded-xl transition-colors"
+                className="hidden md:inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 text-xs font-semibold bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-strong)] rounded-xl transition-colors"
               >
                 <RotateCcw className="w-4 h-4" aria-hidden="true" />
               </button>
 
-              {/* Statutory Options Drawer Toggle */}
+              {/* Options Modal / Bottom Sheet Trigger */}
               <button
                 type="button"
-                aria-expanded={showAdvanced}
-                aria-controls="statutory-options-drawer"
+                aria-expanded={showOptionsModal}
                 aria-label={t('optionsTitle')}
                 title={t('optionsTitle')}
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className={`inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 text-xs font-semibold rounded-xl border transition-colors ${
-                  showAdvanced
+                onClick={() => setShowOptionsModal(true)}
+                className={`inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 text-xs font-semibold rounded-xl border transition-colors ${
+                  showOptionsModal
                     ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)] border-[var(--neutral-active-bg)] font-bold'
                     : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-strong)]'
                 }`}
               >
-                <Sliders className="w-4 h-4 sm:mr-1.5" aria-hidden="true" />
-                <span className="hidden sm:inline">{t('options')}</span>
-                {showAdvanced ? (
-                  <ChevronUp className="w-3.5 h-3.5 ml-1" aria-hidden="true" />
-                ) : (
-                  <ChevronDown className="w-3.5 h-3.5 ml-1" aria-hidden="true" />
-                )}
+                <Sliders className="w-4 h-4 xl:mr-1.5" aria-hidden="true" />
+                <span className="hidden xl:inline">{t('options')}</span>
               </button>
             </div>
           </div>
-
-          {/* Collapsible Statutory Parameters Drawer */}
-          {showAdvanced && (
-            <div
-              id="statutory-options-drawer"
-              className="mt-3 pt-3 border-t border-[var(--border-subtle)] grid grid-cols-1 md:grid-cols-3 gap-4 bg-[var(--bg-subtle)] p-4 rounded-xl"
-            >
-              {/* BPJS Components */}
-              <div className="space-y-1.5">
-                <div className="text-xs font-bold text-[var(--text-primary)]">
-                  {t('bpjsComponentTitle')}
-                </div>
-                <label className="flex items-center gap-2.5 min-h-[44px] text-xs text-[var(--text-secondary)]">
-                  <input
-                    type="checkbox"
-                    checked={enableBpjsKes}
-                    onChange={(e) => setEnableBpjsKes(e.target.checked)}
-                    className="w-4 h-4 rounded accent-[var(--accent-solid)] shrink-0"
-                  />
-                  <span>{t('bpjsKesLabel')}</span>
-                </label>
-                <label className="flex items-center gap-2.5 min-h-[44px] text-xs text-[var(--text-secondary)]">
-                  <input
-                    type="checkbox"
-                    checked={enableBpjsTk}
-                    onChange={(e) => setEnableBpjsTk(e.target.checked)}
-                    className="w-4 h-4 rounded accent-[var(--accent-solid)] shrink-0"
-                  />
-                  <span>{t('bpjsTkLabel')}</span>
-                </label>
-              </div>
-
-              {/* Tax Base Config */}
-              <div className="space-y-1.5">
-                <div className="text-xs font-bold text-[var(--text-primary)]">
-                  {t('taxBaseTitle')}
-                </div>
-                <label className="flex items-center gap-2.5 min-h-[44px] text-xs text-[var(--text-secondary)]">
-                  <input
-                    type="checkbox"
-                    checked={includeCompanyPremiInTax}
-                    onChange={(e) => setIncludeCompanyPremiInTax(e.target.checked)}
-                    className="w-4 h-4 rounded accent-[var(--accent-solid)] shrink-0"
-                  />
-                  <span>{t('taxBaseLabel')}</span>
-                </label>
-                <p className="text-xs text-[var(--text-muted)]">{t('taxBaseNote')}</p>
-              </div>
-
-              {/* Annual Multiplier */}
-              <div className="space-y-2">
-                <div className="text-xs font-bold text-[var(--text-primary)]">
-                  {t('multiplierTitle')}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[12, 13, 14, 15].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      aria-pressed={annualMultiplier === m}
-                      onClick={() => setAnnualMultiplier(m)}
-                      className={`min-h-[44px] min-w-[48px] px-3 py-2 rounded-xl text-xs font-bold border transition-colors tabular-nums ${
-                        annualMultiplier === m
-                          ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)] border-[var(--neutral-active-bg)]'
-                          : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
-                      }`}
-                    >
-                      {m}x
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-[var(--text-muted)]">{t('multiplierNote')}</p>
-              </div>
-            </div>
-          )}
 
           {/* Clipboard Error Banner */}
           {copyStatus === 'error' && (
             <div
               role="alert"
-              className="mt-3 p-3 rounded-xl bg-[var(--danger-surface)] border border-[var(--danger-border)] text-[var(--danger-text)] flex items-center justify-between gap-3 text-xs font-medium"
+              className="mt-2 p-3 rounded-xl bg-[var(--danger-surface)] border border-[var(--danger-border)] text-[var(--danger-text)] flex items-center justify-between gap-3 text-xs font-medium"
             >
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -884,17 +793,34 @@ export default function App() {
       {/* =====================================================================
           MAIN WORKSPACE
       ===================================================================== */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-6 flex-1 w-full">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-5 lg:py-6 space-y-3.5 sm:space-y-5 lg:space-y-6 flex-1 w-full">
+        {/* Touch-friendly Privacy Peek Bar (tap equivalent for hover blur) */}
+        {isPrivate && (
+          <div className="ledger-sheet rounded-xl px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 no-print">
+            <div className="flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)]">
+              <EyeOff className="w-4 h-4 text-[var(--accent-text)] shrink-0" aria-hidden="true" />
+              <span>{t('privacyBannerText')}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsPeekingPrivacy((prev) => !prev)}
+              className="min-h-[44px] px-3.5 py-1.5 rounded-xl border border-[var(--accent-border)] bg-[var(--accent-surface)] text-[var(--accent-text)] text-xs font-bold transition-colors"
+            >
+              {isPeekingPrivacy ? t('privacyHideNowBtn') : t('privacyPeekBtn')}
+            </button>
+          </div>
+        )}
+
         {/* ===================================================================
-            2. EXECUTIVE VERDICT LEDGER TICKET (with Demo Banner & Empty State)
+            2. EXECUTIVE VERDICT LEDGER TICKET (2-col content grid, no 12-col force)
         =================================================================== */}
         <section
           aria-labelledby="verdict-heading"
           className="ledger-sheet ledger-verdict rounded-2xl overflow-hidden"
         >
           {isDemoData && !isAllEmpty && (
-            <div className="px-5 py-2.5 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2 no-print">
-              <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+            <div className="px-3.5 sm:px-5 py-2.5 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2 no-print">
+              <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] min-w-0">
                 <Info className="w-4 h-4 text-[var(--accent-text)] shrink-0" aria-hidden="true" />
                 <span>{t('demoBannerText')}</span>
               </div>
@@ -909,7 +835,7 @@ export default function App() {
           )}
 
           {isAllEmpty ? (
-            <div className="p-6 sm:p-8 text-center max-w-xl mx-auto space-y-4">
+            <div className="p-5 sm:p-8 text-center max-w-xl mx-auto space-y-4">
               <h2
                 id="verdict-heading"
                 className="text-lg sm:text-xl font-extrabold text-[var(--text-primary)]"
@@ -937,9 +863,9 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
-              {/* LEFT 7 COLS: Monthly THP Difference & Retention Bar */}
-              <div className="lg:col-span-7 space-y-4">
+            <div className="p-3.5 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-4 sm:gap-5 items-center">
+              {/* LEFT: Monthly THP Difference & Retention Bar */}
+              <div className="space-y-3.5 sm:space-y-4 min-w-0">
                 <div>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1.5">
                     <h2
@@ -952,9 +878,9 @@ export default function App() {
                       PTKP {sharedPtkp} • TER {offeringCalc.terCategory} ({offeringCalc.terPercentage}%)
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-baseline gap-2.5">
+                  <div className="flex flex-wrap items-baseline gap-2">
                     <p
-                      className={`text-2xl sm:text-4xl font-extrabold tracking-tight tabular-nums ${
+                      className={`text-fluid-hero font-extrabold tracking-tight tabular-nums ${
                         deltaMonthlyNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
                       }`}
                     >
@@ -983,7 +909,7 @@ export default function App() {
                 </div>
 
                 {/* Retention Bar & Annual Summary */}
-                <div className="bg-[var(--bg-subtle)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
+                <div className="bg-[var(--bg-subtle)] p-3 sm:p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
                   {offeringCalc.monthly.cashGross > 0 ? (
                     <>
                       <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
@@ -1035,18 +961,18 @@ export default function App() {
                 </div>
               </div>
 
-              {/* RIGHT 5 COLS: Current vs Active Offering Summary */}
-              <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-xl p-4 flex flex-col justify-between">
+              {/* RIGHT: Current vs Active Offering Summary */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+                <div className="bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-xl p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
                   <div>
                     <div className="text-xs font-medium text-[var(--text-muted)] mb-1">
                       {t('currentSalary')} (THP)
                     </div>
-                    <div className="text-lg sm:text-xl font-bold text-[var(--text-primary)] tabular-nums">
+                    <div className="text-fluid-kpi font-bold text-[var(--text-primary)] tabular-nums break-words">
                       {renderIDR(existingCalc.monthly.netSalary)}
                     </div>
                   </div>
-                  <div className="mt-3 pt-2.5 border-t border-dashed border-[var(--border-subtle)] text-xs text-[var(--text-muted)] flex justify-between">
+                  <div className="mt-2.5 pt-2 border-t border-dashed border-[var(--border-subtle)] text-xs text-[var(--text-muted)] flex flex-wrap justify-between gap-1">
                     <span>{t('grossShort')}</span>
                     <span className="text-[var(--text-primary)] font-semibold tabular-nums">
                       {renderIDR(existingCalc.monthly.cashGross)}
@@ -1054,16 +980,16 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-xl p-4 flex flex-col justify-between">
+                <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-xl p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
                   <div>
-                    <div className="text-xs font-semibold text-[var(--accent-text)] mb-1 truncate">
+                    <div className="text-xs font-semibold text-[var(--accent-text)] mb-1 break-words">
                       {activeOffering.name} (THP)
                     </div>
-                    <div className="text-lg sm:text-xl font-extrabold text-[var(--accent-text)] tabular-nums">
+                    <div className="text-fluid-kpi font-extrabold text-[var(--accent-text)] tabular-nums break-words">
                       {renderIDR(offeringCalc.monthly.netSalary)}
                     </div>
                   </div>
-                  <div className="mt-3 pt-2.5 border-t border-dashed border-[var(--accent-border)] text-xs text-[var(--text-secondary)] flex justify-between">
+                  <div className="mt-2.5 pt-2 border-t border-dashed border-[var(--accent-border)] text-xs text-[var(--text-secondary)] flex flex-wrap justify-between gap-1">
                     <span>{t('grossShort')}</span>
                     <span className="text-[var(--text-primary)] font-semibold tabular-nums">
                       {renderIDR(offeringCalc.monthly.cashGross)}
@@ -1080,13 +1006,13 @@ export default function App() {
         =================================================================== */}
         <section
           aria-labelledby="controls-heading"
-          className="ledger-sheet rounded-2xl p-4 space-y-4 no-print"
+          className="ledger-sheet rounded-2xl p-3.5 sm:p-4 space-y-3.5 sm:space-y-4 no-print"
         >
           <h2 id="controls-heading" className="sr-only">
             {t('controlsSectionHeading')}
           </h2>
 
-          {/* Top Row: Native Offer Scenario Buttons & Special Modals */}
+          {/* Top Row: Native Offer Scenario Buttons (>= 6px spacing) & Special Modals */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-3.5">
             <div className="flex items-center flex-wrap gap-2">
               <span className="text-xs font-semibold text-[var(--text-secondary)] mr-1 flex items-center gap-1.5">
@@ -1099,17 +1025,21 @@ export default function App() {
                 return (
                   <div
                     key={offer.id}
-                    className={`inline-flex items-stretch rounded-xl border overflow-hidden ${
+                    className={`inline-flex items-center gap-1.5 p-1 rounded-xl border ${
                       isActive
-                        ? 'bg-[var(--neutral-active-bg)] border-[var(--neutral-active-bg)] text-[var(--neutral-active-text)]'
-                        : 'bg-[var(--bg-subtle)] border-[var(--border-subtle)] text-[var(--text-primary)]'
+                        ? 'bg-[var(--bg-subtle)] border-[var(--border-strong)]'
+                        : 'bg-[var(--bg-surface)] border-[var(--border-subtle)]'
                     }`}
                   >
                     <button
                       type="button"
                       aria-pressed={isActive}
                       onClick={() => setActiveOfferingId(offer.id)}
-                      className="min-h-[44px] px-3.5 py-2 text-xs font-bold transition-colors text-left"
+                      className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-bold transition-colors text-left ${
+                        isActive
+                          ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)]'
+                          : 'bg-transparent text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
+                      }`}
                     >
                       {offer.name}
                     </button>
@@ -1119,7 +1049,7 @@ export default function App() {
                         onClick={() => removeOfferingTab(offer.id)}
                         aria-label={t('deleteOfferingNamed', { name: offer.name })}
                         title={t('deleteOfferingNamed', { name: offer.name })}
-                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center border-l border-current/20 hover:opacity-80 transition-opacity"
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-[var(--danger-text)] hover:bg-[var(--danger-surface)] transition-colors"
                       >
                         <X className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
@@ -1168,25 +1098,29 @@ export default function App() {
             </div>
           </div>
 
-          {/* Bottom Row: Global PTKP Selector */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[var(--accent-text)] shrink-0" aria-hidden="true" />
-              <div>
-                <span className="text-xs font-semibold text-[var(--text-primary)]">
-                  {t('ptkpLabel')}
-                </span>
-                <span className="hidden sm:inline text-xs text-[var(--text-muted)] font-medium ml-2">
-                  •{' '}
-                  {t('ptkpEffectiveRate', {
-                    cat: offeringCalc.terCategory,
-                    rate: offeringCalc.terPercentage,
-                  })}
-                </span>
+          {/* Bottom Row: Global PTKP Selector (visible description on touchscreens, no hover-only title) */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-[var(--accent-text)] shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="space-y-0.5">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <span className="text-xs font-semibold text-[var(--text-primary)]">
+                    {t('ptkpLabel')}
+                  </span>
+                  <span className="text-xs text-[var(--accent-text)] font-semibold">
+                    {t('ptkpEffectiveRate', {
+                      cat: offeringCalc.terCategory,
+                      rate: offeringCalc.terPercentage,
+                    })}
+                  </span>
+                </div>
+                <p className="text-[11px] text-[var(--text-muted)]">
+                  {getPTKPLabel(sharedPtkp, lang)}
+                </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+            <div className="grid grid-cols-2 min-[360px]:grid-cols-4 sm:grid-cols-8 gap-2">
               {PTKP_LIST.map((p) => {
                 const active = sharedPtkp === p.code
                 return (
@@ -1195,7 +1129,6 @@ export default function App() {
                     type="button"
                     aria-pressed={active}
                     onClick={() => setSharedPtkp(p.code)}
-                    title={p.label}
                     className={`min-h-[44px] py-1.5 px-2 rounded-xl border text-center transition-colors ${
                       active
                         ? 'bg-[var(--neutral-active-bg)] border-[var(--neutral-active-bg)] text-[var(--neutral-active-text)] font-bold'
@@ -1217,11 +1150,11 @@ export default function App() {
           </div>
         </section>
 
-        {/* Mobile Segmented Card Filter */}
+        {/* Mobile Segmented Card Filter (< 768px only; cards sit side-by-side starting md:768px) */}
         <div
           role="group"
           aria-label={t('mobileFilterAriaLabel')}
-          className="flex lg:hidden bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)] no-print"
+          className="flex flex-wrap md:hidden bg-[var(--bg-surface)] p-1.5 gap-1.5 rounded-xl border border-[var(--border-subtle)] no-print"
         >
           {[
             { id: 'both', label: t('mobileFilterBoth') },
@@ -1235,7 +1168,7 @@ export default function App() {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setMobileInputView(tab.id)}
-                className={`flex-1 min-h-[44px] px-2 py-2 text-xs font-semibold rounded-lg transition-colors truncate ${
+                className={`flex-1 min-h-[44px] px-2.5 py-2 text-xs font-semibold rounded-lg transition-colors text-center break-words leading-tight ${
                   active
                     ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)] font-bold'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
@@ -1248,32 +1181,32 @@ export default function App() {
         </div>
 
         {/* ===================================================================
-            4. SIDE-BY-SIDE SALARY INPUT WORKSHEETS
+            4. THREE-STATE REFLOW SALARY WORKSHEETS (1 col <768px, 2 col >=768px)
         =================================================================== */}
-        <section id="section-inputs" className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+        <section id="section-inputs" className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5 lg:gap-6">
           {/* CARD 1: EXISTING SALARY */}
           <div
-            className={`ledger-sheet rounded-2xl overflow-hidden flex flex-col justify-between ${
-              mobileInputView === 'offering' ? 'hidden lg:flex' : 'flex'
+            className={`ledger-sheet rounded-2xl overflow-hidden flex flex-col justify-between min-w-0 ${
+              mobileInputView === 'offering' ? 'hidden md:flex' : 'flex'
             }`}
           >
             <div>
-              <div className="bg-[var(--bg-subtle)] px-5 py-3.5 border-b border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2">
+              <div className="bg-[var(--bg-subtle)] px-3.5 sm:px-5 py-3 sm:py-3.5 border-b border-[var(--border-subtle)] flex flex-col xl:flex-row xl:items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] shrink-0">
                     <Building2 className="w-4 h-4" aria-hidden="true" />
                   </div>
-                  <h2 className="font-bold text-base text-[var(--text-primary)] truncate">
+                  <h2 className="font-bold text-sm sm:text-base text-[var(--text-primary)] break-words">
                     {t('existingCardTitle')}
                   </h2>
                 </div>
 
-                {/* Tax Scheme Selector + Clear Button */}
-                <div className="flex items-center gap-1.5 no-print">
+                {/* Tax Scheme Selector (>= 6px gap) + Clear Button */}
+                <div className="flex flex-wrap items-center gap-2 no-print">
                   <div
                     role="group"
                     aria-label={t('taxSchemeAriaExisting')}
-                    className="flex bg-[var(--bg-surface)] p-0.5 rounded-xl border border-[var(--border-subtle)]"
+                    className="flex flex-wrap bg-[var(--bg-surface)] p-1 gap-1.5 rounded-xl border border-[var(--border-subtle)]"
                   >
                     {[
                       { id: 'gross', label: 'Gross' },
@@ -1318,7 +1251,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="p-5 space-y-4">
+              <div className="p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
                 <div>
                   <label
                     htmlFor="input-existing-basic"
@@ -1347,7 +1280,7 @@ export default function App() {
                       }}
                       placeholder={t('currencyPlaceholder')}
                       className={`w-full min-h-[44px] pl-10 pr-3.5 py-2.5 bg-[var(--bg-subtle)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] rounded-xl text-sm font-semibold tabular-nums text-[var(--text-primary)] placeholder:text-[var(--text-muted)] placeholder:font-normal transition-colors ${
-                        isPrivate ? 'blur-[5px] select-none hover:blur-none focus:blur-none' : ''
+                        effectivePrivate ? 'blur-[5px] select-none hover:blur-none focus:blur-none' : ''
                       }`}
                     />
                   </div>
@@ -1360,7 +1293,7 @@ export default function App() {
                     setExistingFixed(v)
                   }}
                   placeholder={t('currencyPlaceholder')}
-                  isPrivate={isPrivate}
+                  isPrivate={effectivePrivate}
                 />
                 <CurrencyInput
                   label={t('bonusLabel')}
@@ -1371,19 +1304,19 @@ export default function App() {
                     setExistingBonus(v)
                   }}
                   placeholder={t('currencyPlaceholder')}
-                  isPrivate={isPrivate}
+                  isPrivate={effectivePrivate}
                 />
               </div>
             </div>
 
-            <div className="bg-[var(--bg-subtle)] border-t border-[var(--border-subtle)] px-5 py-4 space-y-2">
-              <div className="flex justify-between text-xs text-[var(--text-secondary)]">
+            <div className="bg-[var(--bg-subtle)] border-t border-[var(--border-subtle)] px-3.5 sm:px-5 py-3.5 sm:py-4 space-y-2">
+              <div className="flex justify-between text-xs text-[var(--text-secondary)] gap-2">
                 <span>{t('monthlyGrossSub')}</span>
                 <span className="font-semibold text-[var(--text-primary)] tabular-nums">
                   {renderIDR(existingCalc.monthly.cashGross)}
                 </span>
               </div>
-              <div className="flex justify-between text-xs text-[var(--danger-text)]">
+              <div className="flex justify-between text-xs text-[var(--danger-text)] gap-2">
                 <span>
                   {t('deductionsSub')} (TER {existingCalc.terPercentage}%)
                 </span>
@@ -1391,15 +1324,15 @@ export default function App() {
                   -{renderIDR(existingCalc.monthly.totalDeductions)}
                 </span>
               </div>
-              <div className="flex justify-between items-baseline ledger-total-row pt-2.5">
+              <div className="flex justify-between items-baseline ledger-total-row pt-2.5 gap-2">
                 <span className="text-xs font-bold text-[var(--text-primary)]">
                   {t('monthlyNetSub')}
                 </span>
-                <span className="text-lg sm:text-xl font-extrabold text-[var(--text-primary)] tabular-nums">
+                <span className="text-fluid-kpi font-extrabold text-[var(--text-primary)] tabular-nums">
                   {renderIDR(existingCalc.monthly.netSalary)}
                 </span>
               </div>
-              <div className="flex justify-between text-xs text-[var(--text-muted)] pt-0.5">
+              <div className="flex justify-between text-xs text-[var(--text-muted)] pt-0.5 gap-2">
                 <span>{t('annualNetSub')}</span>
                 <span className="font-semibold text-[var(--text-secondary)] tabular-nums">
                   {renderIDR(existingCalc.annual.netSalary)}
@@ -1410,27 +1343,27 @@ export default function App() {
 
           {/* CARD 2: PROPOSED OFFERING */}
           <div
-            className={`ledger-sheet-offer rounded-2xl overflow-hidden flex flex-col justify-between ${
-              mobileInputView === 'existing' ? 'hidden lg:flex' : 'flex'
+            className={`ledger-sheet-offer rounded-2xl overflow-hidden flex flex-col justify-between min-w-0 ${
+              mobileInputView === 'existing' ? 'hidden md:flex' : 'flex'
             }`}
           >
             <div>
-              <div className="bg-[var(--accent-surface)] px-5 py-3.5 border-b border-[var(--accent-border)] flex flex-wrap items-center justify-between gap-2">
+              <div className="bg-[var(--accent-surface)] px-3.5 sm:px-5 py-3 sm:py-3.5 border-b border-[var(--accent-border)] flex flex-col xl:flex-row xl:items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--accent-border)] text-[var(--accent-text)] shrink-0">
                     <Briefcase className="w-4 h-4" aria-hidden="true" />
                   </div>
-                  <h2 className="font-bold text-base text-[var(--text-primary)] truncate">
+                  <h2 className="font-bold text-sm sm:text-base text-[var(--text-primary)] break-words">
                     {activeOffering.name}
                   </h2>
                 </div>
 
-                {/* Tax Scheme Selector + Clear Button */}
-                <div className="flex items-center gap-1.5 no-print shrink-0">
+                {/* Tax Scheme Selector (>= 6px gap) + Clear Button */}
+                <div className="flex flex-wrap items-center gap-2 no-print shrink-0">
                   <div
                     role="group"
                     aria-label={t('taxSchemeAriaOffering', { name: activeOffering.name })}
-                    className="flex bg-[var(--bg-surface)] p-0.5 rounded-xl border border-[var(--border-subtle)]"
+                    className="flex flex-wrap bg-[var(--bg-surface)] p-1 gap-1.5 rounded-xl border border-[var(--border-subtle)]"
                   >
                     {[
                       { id: 'gross', label: 'Gross' },
@@ -1471,7 +1404,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="p-5 space-y-4">
+              <div className="p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
                 <div>
                   <label
                     htmlFor="offering-name-input"
@@ -1498,14 +1431,14 @@ export default function App() {
                   onChange={(v) => updateActiveOffering('basic', v)}
                   placeholder={t('currencyPlaceholder')}
                   highlight
-                  isPrivate={isPrivate}
+                  isPrivate={effectivePrivate}
                 />
                 <CurrencyInput
                   label={t('fixedAllowanceLabel')}
                   value={activeOffering.fixed}
                   onChange={(v) => updateActiveOffering('fixed', v)}
                   placeholder={t('currencyPlaceholder')}
-                  isPrivate={isPrivate}
+                  isPrivate={effectivePrivate}
                 />
                 <CurrencyInput
                   label={t('bonusLabel')}
@@ -1513,19 +1446,19 @@ export default function App() {
                   value={activeOffering.bonus}
                   onChange={(v) => updateActiveOffering('bonus', v)}
                   placeholder={t('currencyPlaceholder')}
-                  isPrivate={isPrivate}
+                  isPrivate={effectivePrivate}
                 />
               </div>
             </div>
 
-            <div className="bg-[var(--accent-surface)] border-t border-[var(--accent-border)] px-5 py-4 space-y-2">
-              <div className="flex justify-between text-xs text-[var(--text-secondary)]">
+            <div className="bg-[var(--accent-surface)] border-t border-[var(--accent-border)] px-3.5 sm:px-5 py-3.5 sm:py-4 space-y-2">
+              <div className="flex justify-between text-xs text-[var(--text-secondary)] gap-2">
                 <span>{t('monthlyGrossSub')}</span>
                 <span className="font-semibold text-[var(--text-primary)] tabular-nums">
                   {renderIDR(offeringCalc.monthly.cashGross)}
                 </span>
               </div>
-              <div className="flex justify-between text-xs text-[var(--danger-text)]">
+              <div className="flex justify-between text-xs text-[var(--danger-text)] gap-2">
                 <span>
                   {t('deductionsSub')} (TER {offeringCalc.terPercentage}%)
                 </span>
@@ -1533,15 +1466,15 @@ export default function App() {
                   -{renderIDR(offeringCalc.monthly.totalDeductions)}
                 </span>
               </div>
-              <div className="flex justify-between items-baseline ledger-total-row pt-2.5">
+              <div className="flex justify-between items-baseline ledger-total-row pt-2.5 gap-2">
                 <span className="text-xs font-bold text-[var(--text-primary)]">
                   {t('monthlyNetSub')}
                 </span>
-                <span className="text-lg sm:text-xl font-extrabold text-[var(--accent-text)] tabular-nums">
+                <span className="text-fluid-kpi font-extrabold text-[var(--accent-text)] tabular-nums">
                   {renderIDR(offeringCalc.monthly.netSalary)}
                 </span>
               </div>
-              <div className="flex justify-between text-xs text-[var(--text-secondary)] pt-0.5">
+              <div className="flex justify-between text-xs text-[var(--text-secondary)] pt-0.5 gap-2">
                 <span>{t('annualNetSub')}</span>
                 <span className="font-semibold text-[var(--text-primary)] tabular-nums">
                   {renderIDR(offeringCalc.annual.netSalary)}
@@ -1577,17 +1510,17 @@ export default function App() {
       {/* =====================================================================
            CLEAN FOOTER
       ===================================================================== */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-8 lg:py-6 border-t border-[var(--border-subtle)] text-center text-xs text-[var(--text-muted)] leading-relaxed w-full">
+      <footer className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-6 md:py-6 border-t border-[var(--border-subtle)] text-center text-xs text-[var(--text-muted)] leading-relaxed w-full">
         {t('footerText')}
       </footer>
 
       {/* =====================================================================
-          MODALS (NEGOTIATION, THR/DECEMBER SLIPS, RESET)
+          MODALS (NEGOTIATION, THR/DECEMBER SLIPS, OPTIONS SHEET, RESET)
       ===================================================================== */}
       <SalaryModals
         t={t}
         renderIDR={renderIDR}
-        isPrivate={isPrivate}
+        isPrivate={effectivePrivate}
         sharedPtkp={sharedPtkp}
         activeOffering={activeOffering}
         showNegotiateModal={showNegotiateModal}
@@ -1612,8 +1545,17 @@ export default function App() {
         existingFixed={existingFixed}
         existingBonus={existingBonus}
         annualMultiplier={annualMultiplier}
+        setAnnualMultiplier={setAnnualMultiplier}
         bonusMonthSim={bonusMonthSim}
         decemberTrueUpSim={decemberTrueUpSim}
+        showOptionsModal={showOptionsModal}
+        setShowOptionsModal={setShowOptionsModal}
+        enableBpjsKes={enableBpjsKes}
+        setEnableBpjsKes={setEnableBpjsKes}
+        enableBpjsTk={enableBpjsTk}
+        setEnableBpjsTk={setEnableBpjsTk}
+        includeCompanyPremiInTax={includeCompanyPremiInTax}
+        setIncludeCompanyPremiInTax={setIncludeCompanyPremiInTax}
         showResetModal={showResetModal}
         setShowResetModal={setShowResetModal}
         resetToDemoDefaults={resetToDemoDefaults}
@@ -1621,54 +1563,54 @@ export default function App() {
       />
 
       {/* =====================================================================
-          MOBILE BOTTOM NAVIGATION DOCK (Solid ledger surface, >= 48px targets)
+          MOBILE BOTTOM NAVIGATION DOCK (< 768px only)
       ===================================================================== */}
       <nav
         aria-label={t('mobileNavAriaLabel')}
-        className="lg:hidden fixed bottom-[max(0.65rem,env(safe-area-inset-bottom))] left-3 right-3 z-40 ledger-sheet shadow-xl rounded-2xl px-2 py-1.5 grid grid-cols-4 gap-1 items-center no-print"
+        className="md:hidden fixed bottom-[max(0.65rem,env(safe-area-inset-bottom))] left-3 right-3 z-40 ledger-sheet shadow-xl rounded-2xl px-2 py-1.5 grid grid-cols-4 gap-1.5 items-center no-print"
       >
         <button
           type="button"
           onClick={() => setShowNegotiateModal(true)}
-          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 rounded-xl text-[11px] font-bold text-[var(--accent-text)] hover:bg-[var(--bg-subtle)] transition-colors min-w-0"
+          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 px-1 rounded-xl text-[11px] font-bold text-[var(--accent-text)] hover:bg-[var(--bg-subtle)] transition-colors min-w-0"
         >
           <Target className="w-4 h-4 shrink-0" aria-hidden="true" />
-          <span className="truncate w-full text-center leading-tight">{t('mobileTabNegotiate')}</span>
+          <span className="w-full text-center leading-tight break-words">{t('mobileTabNegotiate')}</span>
         </button>
         <button
           type="button"
           onClick={() => setShowSpecialSlipsModal(true)}
-          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 rounded-xl text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors min-w-0"
+          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 px-1 rounded-xl text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors min-w-0"
         >
           <FileSpreadsheet className="w-4 h-4 shrink-0" aria-hidden="true" />
-          <span className="truncate w-full text-center leading-tight">{t('mobileTabSlips')}</span>
+          <span className="w-full text-center leading-tight break-words">{t('mobileTabSlips')}</span>
         </button>
         <button
           type="button"
           onClick={handleCopySummary}
-          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 rounded-xl text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors min-w-0"
+          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 px-1 rounded-xl text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors min-w-0"
         >
           {copyStatus === 'copied' ? (
             <Check className="w-4 h-4 text-[var(--accent-text)] shrink-0" aria-hidden="true" />
           ) : (
             <Copy className="w-4 h-4 shrink-0" aria-hidden="true" />
           )}
-          <span className="truncate w-full text-center leading-tight">
+          <span className="w-full text-center leading-tight break-words">
             {copyStatus === 'copied' ? t('copied') : t('copy')}
           </span>
         </button>
         <button
           type="button"
           aria-pressed={isPrivate}
-          onClick={() => setIsPrivate(!isPrivate)}
-          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 rounded-xl text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors min-w-0"
+          onClick={togglePrivacy}
+          className="flex flex-col items-center justify-center gap-1 min-h-[48px] py-1.5 px-1 rounded-xl text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors min-w-0"
         >
           {isPrivate ? (
             <EyeOff className="w-4 h-4 text-[var(--accent-text)] shrink-0" aria-hidden="true" />
           ) : (
             <Eye className="w-4 h-4 shrink-0" aria-hidden="true" />
           )}
-          <span className="truncate w-full text-center leading-tight">
+          <span className="w-full text-center leading-tight break-words">
             {isPrivate ? t('privacyActive') : t('privacyInactive')}
           </span>
         </button>

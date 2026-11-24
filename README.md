@@ -78,9 +78,9 @@ Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di 
 
 ### 7. Fitur Reset & Mode Privasi
 - **Global Reset Modal**: Memilih antara mengosongkan seluruh angka ke Rp 0 atau mengembalikan data simulasi contoh bawaan.
-- **Mode Privasi (Sensor Angka)**: Mengaburkan seluruh nominal rupiah dan input, terbuka sementara saat disorot kursor atau difokuskan keyboard.
+- **Mode Privasi (Sensor Angka & Intip Ketuk)**: Mengaburkan seluruh nominal rupiah dan input, dilengkapi tombol ketuk *Intip Angka (8 dtk)* untuk layar sentuh serta pengintipan sementara saat hover/fokus.
 - **100% Client-Side & Security Headers**: Seluruh kalkulasi berjalan di browser tanpa transmisi data ke server, dilengkapi CSP ketat (`script-src 'self'`) pada [`nginx.conf`](nginx.conf), [`security-headers.conf`](security-headers.conf), dan [`public/_headers`](public/_headers).
-- **Dock Navigasi Bawah Mobile & PWA Offline**: Bilah bawah 4 aksi cepat (*Negosiasi*, *Slip THR*, *Salin*, *Privasi*) ramah layar sentuh pada ponsel, cetak PDF bersih (`@media print`), serta Service Worker (`salary-calc-v14`) untuk akses offline.
+- **Layout Responsif 3-Status & PWA Offline**: Header 1 baris ringkas di ponsel (`< 768px`), komparasi 2 kolom berdampingan mulai tablet (`768px+`), dock bawah 4 aksi cepat (*Negosiasi*, *Slip THR*, *Salin*, *Privasi*) + dialog Opsi/PDF/Reset di ponsel, skala fluida `clamp()`, unit `dvh`, cetak PDF bersih (`@media print`), serta Service Worker (`salary-calc-v15`) untuk akses offline.
 
 ---
 

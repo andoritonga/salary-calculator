@@ -8,6 +8,8 @@ import {
   RotateCcw,
   Trash2,
   HelpCircle,
+  Sliders,
+  Printer,
 } from 'lucide-react'
 import CurrencyInput from './CurrencyInput'
 
@@ -15,7 +17,7 @@ const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 /**
- * Accessible modal wrapper with Escape handling, focus trapping, and focus restoration.
+ * Accessible modal / mobile bottom-sheet wrapper using dvh max-height, Escape handling, and focus trap.
  */
 function AccessibleDialog({ open, onClose, titleId, maxWidthClass = 'max-w-xl', children }) {
   const dialogRef = useRef(null)
@@ -82,7 +84,7 @@ function AccessibleDialog({ open, onClose, titleId, maxWidthClass = 'max-w-xl', 
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`ledger-modal rounded-t-3xl sm:rounded-2xl w-full ${maxWidthClass} overflow-hidden max-h-[92vh] flex flex-col focus:outline-none`}
+        className={`ledger-modal rounded-t-3xl sm:rounded-2xl w-full ${maxWidthClass} overflow-hidden modal-sheet-max-h flex flex-col focus:outline-none`}
       >
         {children}
       </div>
@@ -119,8 +121,18 @@ export default function SalaryModals({
   existingFixed = 0,
   existingBonus = 0,
   annualMultiplier = 13,
+  setAnnualMultiplier,
   bonusMonthSim,
   decemberTrueUpSim,
+  // Options Sheet Modal props
+  showOptionsModal,
+  setShowOptionsModal,
+  enableBpjsKes,
+  setEnableBpjsKes,
+  enableBpjsTk,
+  setEnableBpjsTk,
+  includeCompanyPremiInTax,
+  setIncludeCompanyPremiInTax,
   // Reset Modal props
   showResetModal,
   setShowResetModal,
@@ -129,6 +141,7 @@ export default function SalaryModals({
 }) {
   const negotiateTitleId = useId()
   const specialSlipsTitleId = useId()
+  const optionsTitleId = useId()
   const resetTitleId = useId()
 
   return (
@@ -142,8 +155,7 @@ export default function SalaryModals({
         titleId={negotiateTitleId}
         maxWidthClass="max-w-xl"
       >
-        {/* Solid High-Contrast Header */}
-        <div className="bg-[var(--bg-subtle)] px-5 sm:px-6 py-4 border-b border-[var(--border-subtle)] flex items-center justify-between gap-3 shrink-0">
+        <div className="bg-[var(--bg-subtle)] px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[var(--border-subtle)] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="p-2.5 bg-[var(--accent-surface)] text-[var(--accent-text)] border border-[var(--accent-border)] rounded-xl shrink-0">
               <Target className="w-5 h-5" aria-hidden="true" />
@@ -165,14 +177,14 @@ export default function SalaryModals({
           </button>
         </div>
 
-        {/* Mode Switcher Tabs */}
-        <div role="tablist" className="bg-[var(--bg-subtle)] px-5 sm:px-6 pt-3 border-b border-[var(--border-subtle)] flex gap-2 shrink-0">
+        {/* Mode Switcher Tabs (spaced >= 8px) */}
+        <div role="tablist" className="bg-[var(--bg-subtle)] px-4 sm:px-6 pt-3 border-b border-[var(--border-subtle)] flex flex-wrap gap-2 shrink-0">
           <button
             type="button"
             role="tab"
             aria-selected={negotiateMode === 'percentage'}
             onClick={() => setNegotiateMode('percentage')}
-            className={`min-h-[44px] px-4 py-2 text-xs font-semibold rounded-t-xl border-t border-x transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-3.5 py-2 text-xs font-semibold rounded-t-xl border-t border-x transition-colors flex items-center gap-1.5 ${
               negotiateMode === 'percentage'
                 ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] border-[var(--border-subtle)] font-bold -mb-px pb-2.5'
                 : 'bg-transparent text-[var(--text-muted)] border-transparent hover:text-[var(--text-primary)]'
@@ -186,7 +198,7 @@ export default function SalaryModals({
             role="tab"
             aria-selected={negotiateMode === 'reverse'}
             onClick={() => setNegotiateMode('reverse')}
-            className={`min-h-[44px] px-4 py-2 text-xs font-semibold rounded-t-xl border-t border-x transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-3.5 py-2 text-xs font-semibold rounded-t-xl border-t border-x transition-colors flex items-center gap-1.5 ${
               negotiateMode === 'reverse'
                 ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] border-[var(--border-subtle)] font-bold -mb-px pb-2.5'
                 : 'bg-transparent text-[var(--text-muted)] border-transparent hover:text-[var(--text-primary)]'
@@ -198,14 +210,14 @@ export default function SalaryModals({
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-6 space-y-5 overflow-y-auto">
+        <div className="p-4 sm:p-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] space-y-4 sm:space-y-5 overflow-y-auto">
           {negotiateMode === 'percentage' ? (
             <div className="space-y-4">
               <div>
                 <p className="text-xs font-semibold text-[var(--text-secondary)] mb-2">
                   {t('presetLabel')}
                 </p>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                   {[15, 20, 25, 30, 50].map((pct) => {
                     const active = targetIncrementPct === pct
                     return (
@@ -227,15 +239,15 @@ export default function SalaryModals({
                 </div>
               </div>
 
-              <div className="bg-[var(--bg-subtle)] p-4 rounded-xl border border-[var(--border-subtle)]">
-                <div className="flex justify-between items-center mb-2">
+              <div className="bg-[var(--bg-subtle)] p-3.5 sm:p-4 rounded-xl border border-[var(--border-subtle)]">
+                <div className="flex justify-between items-center mb-2 gap-2">
                   <label
                     htmlFor="negotiate-range-slider"
                     className="text-xs font-semibold text-[var(--text-secondary)]"
                   >
                     {t('sliderLabel')}
                   </label>
-                  <span className="text-sm font-bold text-[var(--accent-text)] bg-[var(--accent-surface)] px-2.5 py-0.5 rounded-lg border border-[var(--accent-border)] tabular-nums">
+                  <span className="text-sm font-bold text-[var(--accent-text)] bg-[var(--accent-surface)] px-2.5 py-0.5 rounded-lg border border-[var(--accent-border)] tabular-nums shrink-0">
                     +{targetIncrementPct}%
                   </span>
                 </div>
@@ -253,7 +265,7 @@ export default function SalaryModals({
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-[var(--bg-subtle)] p-4 rounded-xl border border-[var(--border-subtle)]">
+              <div className="bg-[var(--bg-subtle)] p-3.5 sm:p-4 rounded-xl border border-[var(--border-subtle)]">
                 <CurrencyInput
                   label={t('reverseInputLabel')}
                   subtitle={t('reverseSubtitle')}
@@ -264,11 +276,11 @@ export default function SalaryModals({
                 />
               </div>
 
-              <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] p-4 rounded-xl">
+              <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] p-3.5 sm:p-4 rounded-xl">
                 <div className="text-xs font-semibold text-[var(--accent-text)]">
                   {t('requiredGrossLabel')}
                 </div>
-                <div className="text-2xl font-extrabold text-[var(--text-primary)] mt-1 tabular-nums">
+                <div className="text-fluid-hero font-extrabold text-[var(--text-primary)] mt-1 tabular-nums">
                   {renderIDR(reverseGrossBasic)}
                 </div>
                 <div className="text-xs text-[var(--text-secondary)] mt-1">
@@ -279,20 +291,20 @@ export default function SalaryModals({
           )}
 
           {/* Simulation Summary Card */}
-          <div className="bg-[var(--bg-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-2.5">
-            <div className="flex justify-between items-center text-xs">
+          <div className="bg-[var(--bg-subtle)] p-3.5 sm:p-4 rounded-xl border border-[var(--border-subtle)] space-y-2.5">
+            <div className="flex justify-between items-center text-xs gap-2">
               <span className="text-[var(--text-muted)]">{t('targetGrossMonthly')}</span>
               <span className="font-semibold text-[var(--text-primary)] tabular-nums">
                 {renderIDR(targetSimulationCalc.monthly.cashGross)}
               </span>
             </div>
-            <div className="flex justify-between items-center text-xs border-t border-dashed border-[var(--border-subtle)] pt-2">
+            <div className="flex justify-between items-center text-xs border-t border-dashed border-[var(--border-subtle)] pt-2 gap-2">
               <span className="text-[var(--text-secondary)] font-semibold">{t('targetNetMonthly')}</span>
               <span className="font-extrabold text-base text-[var(--accent-text)] tabular-nums">
                 {renderIDR(targetSimulationCalc.monthly.netSalary)}
               </span>
             </div>
-            <div className="flex justify-between items-center text-xs border-t border-[var(--border-subtle)] pt-2">
+            <div className="flex justify-between items-center text-xs border-t border-[var(--border-subtle)] pt-2 gap-2">
               <span className="text-[var(--text-muted)]">{t('targetNetAnnual')}</span>
               <span className="font-semibold text-[var(--text-primary)] tabular-nums">
                 {renderIDR(targetSimulationCalc.annual.netSalary)}
@@ -320,7 +332,7 @@ export default function SalaryModals({
         titleId={specialSlipsTitleId}
         maxWidthClass="max-w-3xl"
       >
-        <div className="bg-[var(--bg-subtle)] px-5 sm:px-6 py-4 border-b border-[var(--border-subtle)] flex items-center justify-between gap-3 shrink-0">
+        <div className="bg-[var(--bg-subtle)] px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[var(--border-subtle)] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="p-2.5 bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl shrink-0">
               <FileSpreadsheet className="w-5 h-5" aria-hidden="true" />
@@ -342,13 +354,13 @@ export default function SalaryModals({
           </button>
         </div>
 
-        <div className="p-5 sm:p-6 space-y-5 overflow-y-auto">
-          {/* Target Selector */}
+        <div className="p-4 sm:p-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] space-y-4 sm:space-y-5 overflow-y-auto">
+          {/* Target Selector (>= 6px gap) */}
           <div className="bg-[var(--bg-subtle)] p-3.5 rounded-xl border border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
             <span className="text-xs font-semibold text-[var(--text-secondary)]">
               {t('targetSimulationLabel')}
             </span>
-            <div className="flex bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)] gap-1">
+            <div className="flex flex-wrap bg-[var(--bg-surface)] p-1.5 rounded-xl border border-[var(--border-subtle)] gap-1.5">
               <button
                 type="button"
                 aria-pressed={specialSlipTarget === 'existing'}
@@ -384,14 +396,14 @@ export default function SalaryModals({
 
           {/* Part 1: THR / Bonus Disbursed Month Simulator */}
           <div className="border border-[var(--border-subtle)] rounded-2xl overflow-hidden bg-[var(--bg-surface)]">
-            <div className="bg-[var(--bg-subtle)] px-4 py-3.5 border-b border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2">
+            <div className="bg-[var(--bg-subtle)] px-4 py-3.5 border-b border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2.5">
               <div>
                 <h3 className="font-bold text-sm text-[var(--text-primary)]">
                   1. {t('thrSectionTitle')}
                 </h3>
                 <p className="text-xs text-[var(--text-muted)]">{t('thrSectionSubtitle')}</p>
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() =>
@@ -431,7 +443,7 @@ export default function SalaryModals({
               </div>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-3.5 sm:p-4 space-y-4">
               <CurrencyInput
                 label={t('disbursedLabel')}
                 value={thrDisbursedAmount}
@@ -441,8 +453,7 @@ export default function SalaryModals({
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {/* Regular Month Slip */}
-                <div className="bg-[var(--bg-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-2 text-xs">
+                <div className="bg-[var(--bg-subtle)] p-3.5 sm:p-4 rounded-xl border border-[var(--border-subtle)] space-y-2 text-xs">
                   <div className="font-semibold text-[var(--text-secondary)] border-b border-dashed border-[var(--border-subtle)] pb-1.5">
                     {t('slipRegularTitle')}
                   </div>
@@ -468,8 +479,7 @@ export default function SalaryModals({
                   </div>
                 </div>
 
-                {/* THR / Bonus Month Slip */}
-                <div className="bg-[var(--accent-surface)] p-4 rounded-xl border border-[var(--accent-border)] space-y-2 text-xs">
+                <div className="bg-[var(--accent-surface)] p-3.5 sm:p-4 rounded-xl border border-[var(--accent-border)] space-y-2 text-xs">
                   <div className="font-semibold text-[var(--accent-text)] border-b border-dashed border-[var(--accent-border)] pb-1.5">
                     {t('slipBonusTitle')}
                   </div>
@@ -524,7 +534,7 @@ export default function SalaryModals({
               </span>
             </div>
 
-            <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div className="p-3.5 sm:p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div className="bg-[var(--bg-subtle)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-1.5">
                 <div className="font-bold text-xs text-[var(--text-secondary)]">
                   {t('decCol1Title')}
@@ -629,7 +639,139 @@ export default function SalaryModals({
       </AccessibleDialog>
 
       {/* =====================================================================
-          MODAL 3: RESET & CLEAR DATA
+          MODAL 3: STATUTORY OPTIONS, MULTIPLIER & QUICK ACTIONS
+      ===================================================================== */}
+      <AccessibleDialog
+        open={showOptionsModal}
+        onClose={() => setShowOptionsModal(false)}
+        titleId={optionsTitleId}
+        maxWidthClass="max-w-lg"
+      >
+        <div className="bg-[var(--bg-subtle)] px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[var(--border-subtle)] flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2.5 bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl shrink-0">
+              <Sliders className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <h2 id={optionsTitleId} className="text-base sm:text-lg font-bold text-[var(--text-primary)] tracking-tight">
+                {t('optionsModalTitle')}
+              </h2>
+              <p className="text-xs text-[var(--text-muted)]">{t('optionsModalSubtitle')}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowOptionsModal(false)}
+            aria-label={t('closeBtn')}
+            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] rounded-xl transition-colors shrink-0"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] space-y-5 overflow-y-auto">
+          {/* BPJS Components */}
+          <div className="space-y-1.5">
+            <h3 className="text-xs font-bold text-[var(--text-primary)]">
+              {t('bpjsComponentTitle')}
+            </h3>
+            <label className="flex items-center gap-2.5 min-h-[44px] text-xs text-[var(--text-secondary)]">
+              <input
+                type="checkbox"
+                checked={enableBpjsKes}
+                onChange={(e) => setEnableBpjsKes(e.target.checked)}
+                className="w-4 h-4 rounded accent-[var(--accent-solid)] shrink-0"
+              />
+              <span>{t('bpjsKesLabel')}</span>
+            </label>
+            <label className="flex items-center gap-2.5 min-h-[44px] text-xs text-[var(--text-secondary)]">
+              <input
+                type="checkbox"
+                checked={enableBpjsTk}
+                onChange={(e) => setEnableBpjsTk(e.target.checked)}
+                className="w-4 h-4 rounded accent-[var(--accent-solid)] shrink-0"
+              />
+              <span>{t('bpjsTkLabel')}</span>
+            </label>
+          </div>
+
+          {/* Tax Base Config */}
+          <div className="space-y-1.5 border-t border-[var(--border-subtle)] pt-4">
+            <h3 className="text-xs font-bold text-[var(--text-primary)]">
+              {t('taxBaseTitle')}
+            </h3>
+            <label className="flex items-center gap-2.5 min-h-[44px] text-xs text-[var(--text-secondary)]">
+              <input
+                type="checkbox"
+                checked={includeCompanyPremiInTax}
+                onChange={(e) => setIncludeCompanyPremiInTax(e.target.checked)}
+                className="w-4 h-4 rounded accent-[var(--accent-solid)] shrink-0"
+              />
+              <span>{t('taxBaseLabel')}</span>
+            </label>
+            <p className="text-xs text-[var(--text-muted)]">{t('taxBaseNote')}</p>
+          </div>
+
+          {/* Annual Multiplier */}
+          <div className="space-y-2 border-t border-[var(--border-subtle)] pt-4">
+            <h3 className="text-xs font-bold text-[var(--text-primary)]">
+              {t('multiplierTitle')}
+            </h3>
+            <div className="grid grid-cols-4 gap-2">
+              {[12, 13, 14, 15].map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  aria-pressed={annualMultiplier === m}
+                  onClick={() => setAnnualMultiplier(m)}
+                  className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold border transition-colors tabular-nums ${
+                    annualMultiplier === m
+                      ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)] border-[var(--neutral-active-bg)]'
+                      : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
+                  }`}
+                >
+                  {m}x
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-[var(--text-muted)]">{t('multiplierNote')}</p>
+          </div>
+
+          {/* Export & Reset Quick Actions (essential for mobile where header hides Print & Reset) */}
+          <div className="space-y-2.5 border-t border-[var(--border-subtle)] pt-4">
+            <h3 className="text-xs font-bold text-[var(--text-primary)]">
+              {t('quickActionsTitle')}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowOptionsModal(false)
+                  setTimeout(() => window.print(), 100)
+                }}
+                className="min-h-[44px] px-4 py-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] hover:border-[var(--border-strong)] text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
+              >
+                <Printer className="w-4 h-4" aria-hidden="true" />
+                <span>{t('printPdfBtn')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowOptionsModal(false)
+                  setShowResetModal(true)
+                }}
+                className="min-h-[44px] px-4 py-2 rounded-xl border border-[var(--danger-border)] bg-[var(--danger-surface)] hover:bg-[var(--danger-solid)] text-[var(--danger-text)] hover:text-[var(--danger-on-solid)] text-xs font-bold transition-colors flex items-center justify-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" aria-hidden="true" />
+                <span>{t('openResetBtn')}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </AccessibleDialog>
+
+      {/* =====================================================================
+          MODAL 4: RESET & CLEAR DATA
       ===================================================================== */}
       <AccessibleDialog
         open={showResetModal}
@@ -637,7 +779,7 @@ export default function SalaryModals({
         titleId={resetTitleId}
         maxWidthClass="max-w-md"
       >
-        <div className="p-6">
+        <div className="p-4 sm:p-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
           <div className="flex items-center justify-between mb-3 gap-2">
             <div className="flex items-center gap-3 min-w-0">
               <div className="p-2.5 bg-[var(--bg-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl shrink-0">
