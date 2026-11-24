@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salary-calc-v13'
+const CACHE_NAME = 'salary-calc-v14'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -47,7 +47,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Clone response and save to cache if valid basic same-origin response
         if (
           networkResponse &&
           networkResponse.status === 200 &&
@@ -61,7 +60,6 @@ self.addEventListener('fetch', (event) => {
         return networkResponse
       })
       .catch(() => {
-        // Fallback to cache when offline
         return caches.match(event.request).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse
           if (event.request.headers.get('accept')?.includes('text/html')) {

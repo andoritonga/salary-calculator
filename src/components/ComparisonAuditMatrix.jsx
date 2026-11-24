@@ -1,8 +1,5 @@
 import React from 'react'
-import {
-  CheckCircle2,
-  Calendar,
-} from 'lucide-react'
+import { CheckCircle2, Calendar } from 'lucide-react'
 
 function MobileCleanAuditRow({
   title,
@@ -15,60 +12,59 @@ function MobileCleanAuditRow({
   deltaBadge,
   valuePrefix = '',
   isDeduction = false,
-  accentColor = 'emerald',
 }) {
   const offeringCardStyle = isDeduction
-    ? 'bg-rose-500/[0.06] border-rose-500/20'
-    : accentColor === 'sky'
-      ? 'bg-sky-500/[0.07] border-sky-500/25'
-      : 'bg-emerald-500/[0.07] border-emerald-500/25'
+    ? 'bg-[var(--danger-surface)] border-[var(--danger-border)]'
+    : 'bg-[var(--bg-subtle)] border-[var(--border-subtle)]'
 
   const offeringLabelStyle = isDeduction
-    ? 'text-rose-400'
-    : accentColor === 'sky'
-      ? 'text-sky-400'
-      : 'text-emerald-400'
+    ? 'text-[var(--danger-text)]'
+    : 'text-[var(--accent-text)]'
 
-  const currentValStyle = isDeduction ? 'text-rose-300/90' : 'text-slate-200'
+  const currentValStyle = isDeduction
+    ? 'text-[var(--danger-text)]'
+    : 'text-[var(--text-primary)]'
   const offeringValStyle = isDeduction
-    ? 'text-rose-300'
-    : accentColor === 'sky'
-      ? 'text-sky-300'
-      : 'text-emerald-300'
+    ? 'text-[var(--danger-text)]'
+    : 'text-[var(--text-primary)]'
 
   return (
     <div className="p-3.5 sm:p-4 space-y-2.5">
       <div className="flex items-start justify-between gap-2.5">
         <div className="min-w-0 space-y-1">
           <div className="flex items-center flex-wrap gap-1.5">
-            <span className={`font-semibold text-xs ${isDeduction ? 'text-rose-100' : 'text-slate-100'}`}>
+            <span
+              className={`font-semibold text-xs ${
+                isDeduction ? 'text-[var(--danger-text)]' : 'text-[var(--text-primary)]'
+              }`}
+            >
               {title}
             </span>
             {badge}
           </div>
           {description && (
-            <p className="text-[11px] text-slate-400 leading-relaxed">{description}</p>
+            <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">{description}</p>
           )}
         </div>
         <div className="shrink-0 pt-0.5">{deltaBadge}</div>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl px-3 py-2">
-          <div className="text-[10px] font-medium text-slate-400 truncate">
+        <div className="bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-xl px-3 py-2">
+          <div className="text-[11px] font-medium text-[var(--text-muted)] truncate">
             {currentLabel}
           </div>
-          <div className={`text-xs font-semibold font-mono tabular-nums mt-0.5 ${currentValStyle}`}>
+          <div className={`text-xs font-semibold tabular-nums mt-0.5 ${currentValStyle}`}>
             {valuePrefix}
             {currentValue}
           </div>
         </div>
 
         <div className={`border rounded-xl px-3 py-2 ${offeringCardStyle}`}>
-          <div className={`text-[10px] font-semibold truncate ${offeringLabelStyle}`}>
+          <div className={`text-[11px] font-semibold truncate ${offeringLabelStyle}`}>
             {offeringLabel}
           </div>
-          <div className={`text-xs font-bold font-mono tabular-nums mt-0.5 ${offeringValStyle}`}>
+          <div className={`text-xs font-bold tabular-nums mt-0.5 ${offeringValStyle}`}>
             {valuePrefix}
             {offeringValue}
           </div>
@@ -87,17 +83,14 @@ function MobileCleanSubtotalRow({
   deltaBadge,
   valuePrefix = '',
   isDeduction = false,
-  accentColor = 'emerald',
 }) {
   const containerStyle = isDeduction
-    ? 'bg-rose-950/20 border-y border-rose-900/30 text-rose-200'
-    : 'bg-slate-950/50 border-y border-slate-800/80 text-slate-100'
+    ? 'bg-[var(--danger-surface)] border-y border-dashed border-[var(--danger-border)] text-[var(--danger-text)]'
+    : 'bg-[var(--bg-subtle)] border-y border-dashed border-[var(--border-subtle)] text-[var(--text-primary)]'
 
   const offeringTextStyle = isDeduction
-    ? 'text-rose-400'
-    : accentColor === 'sky'
-      ? 'text-sky-400'
-      : 'text-emerald-400'
+    ? 'text-[var(--danger-text)]'
+    : 'text-[var(--text-primary)]'
 
   return (
     <div className={`p-3.5 sm:p-4 space-y-2 ${containerStyle}`}>
@@ -107,19 +100,19 @@ function MobileCleanSubtotalRow({
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-slate-900/80 border border-slate-800/80 rounded-xl px-3 py-2">
-          <div className="text-[10px] text-slate-400 truncate">{currentLabel}</div>
-          <div className="text-xs font-bold font-mono tabular-nums mt-0.5">
+        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl px-3 py-2">
+          <div className="text-[11px] text-[var(--text-muted)] truncate">{currentLabel}</div>
+          <div className="text-xs font-bold tabular-nums mt-0.5 text-[var(--text-primary)]">
             {valuePrefix}
             {currentValue}
           </div>
         </div>
 
-        <div className="bg-slate-900/90 border border-slate-700/60 rounded-xl px-3 py-2">
-          <div className={`text-[10px] font-semibold truncate ${offeringTextStyle}`}>
+        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl px-3 py-2">
+          <div className={`text-[11px] font-semibold truncate ${offeringTextStyle}`}>
             {offeringLabel}
           </div>
-          <div className={`text-xs font-extrabold font-mono tabular-nums mt-0.5 ${offeringTextStyle}`}>
+          <div className={`text-xs font-extrabold tabular-nums mt-0.5 ${offeringTextStyle}`}>
             {valuePrefix}
             {offeringValue}
           </div>
@@ -151,62 +144,70 @@ export default function ComparisonAuditMatrix({
   const offeringHeaderLabel = `${activeOffering.name} (${activeOffering.taxMethod.toUpperCase()})`
 
   return (
-    <section id="section-breakdown" className="space-y-5 print-clean scroll-mt-20">
-      {/* Clean Section Header */}
+    <section
+      id="section-breakdown"
+      aria-labelledby="breakdown-heading"
+      className="space-y-5 print-clean scroll-mt-20"
+    >
+      {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
         <div>
-          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+          <h2 id="breakdown-heading" className="text-base sm:text-lg font-bold text-[var(--text-primary)] tracking-tight">
             {t('breakdownTitle')}
-          </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
+          </h2>
+          <p className="text-xs text-[var(--text-muted)] mt-0.5">
             {t('breakdownSubtitle')}
           </p>
         </div>
 
-        {/* Period Switcher Pill */}
-        <div className="grid grid-cols-3 sm:flex bg-slate-900/90 p-1 rounded-xl border border-slate-800/80 text-xs w-full sm:w-auto gap-1 shrink-0">
+        {/* Period Switcher */}
+        <div
+          role="group"
+          aria-label={t('periodSwitcherAria')}
+          className="grid grid-cols-3 sm:flex bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs w-full sm:w-auto gap-1 shrink-0"
+        >
           {[
             { id: 'monthly', label: t('periodMonthly') },
             { id: 'annual', label: t('periodAnnual') },
             { id: 'both', label: t('periodAll') },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setTablePeriod(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-center ${
-                tablePeriod === tab.id
-                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+          ].map((tab) => {
+            const active = tablePeriod === tab.id
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setTablePeriod(tab.id)}
+                className={`min-h-[44px] px-3 py-2 rounded-lg text-xs font-semibold transition-colors text-center ${
+                  active
+                    ? 'bg-[var(--neutral-active-bg)] text-[var(--neutral-active-text)] font-bold'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
         </div>
       </div>
 
       {/* CARD 1: ARUS KAS BULANAN (MONTHLY ROUTINE) */}
       {(tablePeriod === 'both' || tablePeriod === 'monthly') && (
-        <div className="animate-card-enter glass-surface rounded-2xl overflow-hidden" style={{ animationDelay: '120ms' }}>
-          {/* Card Subheader */}
-          <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-slate-950/50 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-white">
-                  {t('card1Title')}
-                </h4>
-                <p className="text-[11px] text-slate-400">{t('card1Subtitle')}</p>
-              </div>
+        <div className="ledger-sheet rounded-2xl overflow-hidden">
+          <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+                {t('card1Title')}
+              </h3>
+              <p className="text-[11px] text-[var(--text-muted)]">{t('card1Subtitle')}</p>
             </div>
 
-            <div className="flex items-center justify-between sm:justify-start gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs w-full sm:w-auto">
-              <span className="text-slate-400 text-[11px]">{t('deltaNetThp')}</span>
+            <div className="flex items-center justify-between sm:justify-start gap-2 px-3 py-1.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs w-full sm:w-auto">
+              <span className="text-[var(--text-muted)] text-[11px]">{t('deltaNetThp')}</span>
               <div className="flex items-center gap-1.5">
                 <span
-                  className={`font-extrabold font-mono tabular-nums ${
-                    deltaMonthlyNet >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                  className={`font-extrabold tabular-nums ${
+                    deltaMonthlyNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
                   }`}
                 >
                   {deltaMonthlyNet >= 0 ? '+' : ''}
@@ -214,8 +215,8 @@ export default function ComparisonAuditMatrix({
                   {t('perMonth')}
                 </span>
                 <span
-                  className={`font-bold text-[11px] ${
-                    deltaMonthlyNet >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                  className={`font-bold text-[11px] tabular-nums ${
+                    deltaMonthlyNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
                   }`}
                 >
                   ({deltaMonthlyNetPct >= 0 ? '+' : ''}
@@ -225,12 +226,10 @@ export default function ComparisonAuditMatrix({
             </div>
           </div>
 
-          {/* MOBILE / PWA STACKED COMPARISON CARDS (< md) */}
-          <div className="md:hidden divide-y divide-slate-800/60">
-            {/* Group 1 Header */}
-            <div className="py-2 px-3.5 bg-slate-950/40 text-[11px] uppercase tracking-wider text-emerald-400/90 font-semibold flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>{t('groupGrossMonthly')}</span>
+          {/* MOBILE STACKED COMPARISON (< md) */}
+          <div className="md:hidden divide-y divide-[var(--border-subtle)]">
+            <div className="py-2 px-3.5 bg-[var(--bg-subtle)] text-xs font-bold text-[var(--text-secondary)] border-b border-dashed border-[var(--border-subtle)]">
+              {t('groupGrossMonthly')}
             </div>
 
             <MobileCleanAuditRow
@@ -262,17 +261,15 @@ export default function ComparisonAuditMatrix({
               deltaBadge={renderDeltaBadge(deltaMonthlyGross)}
             />
 
-            {/* Group 2 Header */}
-            <div className="py-2 px-3.5 bg-slate-950/40 text-[11px] uppercase tracking-wider text-rose-400/90 font-semibold flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-              <span>{t('groupDeductionsMonthly')}</span>
+            <div className="py-2 px-3.5 bg-[var(--bg-subtle)] text-xs font-bold text-[var(--danger-text)] border-b border-dashed border-[var(--border-subtle)]">
+              {t('groupDeductionsMonthly')}
             </div>
 
             <MobileCleanAuditRow
               title={t('pph21TerLabel')}
               badge={
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono font-medium">
-                  {existingCalc.terCategory} {existingCalc.terPercentage}% ➔{' '}
+                <span className="text-[11px] px-2 py-0.5 rounded-md bg-[var(--danger-surface)] text-[var(--danger-text)] border border-[var(--danger-border)] tabular-nums font-medium">
+                  {existingCalc.terCategory} {existingCalc.terPercentage}% {'->'}{' '}
                   {offeringCalc.terCategory} {offeringCalc.terPercentage}%
                 </span>
               }
@@ -344,58 +341,58 @@ export default function ComparisonAuditMatrix({
               )}
             />
 
-            {/* Mobile Hero Summary Footer (Monthly THP) */}
-            <div className="bg-gradient-to-br from-emerald-950/50 via-slate-900 to-slate-950 p-4 border-t border-emerald-500/30 space-y-3">
+            {/* Mobile Summary Footer (Monthly THP) */}
+            <div className="bg-[var(--bg-subtle)] p-4 ledger-total-row space-y-3">
               <div className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-[var(--accent-text)] shrink-0 mt-0.5" aria-hidden="true" />
                 <div>
-                  <span className="text-xs font-extrabold tracking-wide text-emerald-300 uppercase block">
+                  <span className="text-xs font-extrabold text-[var(--accent-text)] block">
                     {t('heroNetMonthlyTitle')}
                   </span>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-[11px] text-[var(--text-muted)]">
                     {t('heroNetMonthlySubtitle')}
                   </span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-2.5">
-                  <div className="text-[10px] text-slate-400 truncate">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-2.5">
+                  <div className="text-[11px] text-[var(--text-muted)] truncate">
                     {currentHeaderLabel}
                   </div>
-                  <div className="font-mono text-sm font-bold text-slate-200 tabular-nums mt-0.5">
+                  <div className="text-sm font-bold text-[var(--text-primary)] tabular-nums mt-0.5">
                     {renderIDR(existingCalc.monthly.netSalary)}
                   </div>
                 </div>
 
-                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2.5">
-                  <div className="text-[10px] font-semibold text-emerald-400 truncate">
+                <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-xl p-2.5">
+                  <div className="text-[11px] font-semibold text-[var(--accent-text)] truncate">
                     {offeringHeaderLabel}
                   </div>
-                  <div className="font-mono text-sm font-extrabold text-emerald-400 tabular-nums mt-0.5">
+                  <div className="text-sm font-extrabold text-[var(--accent-text)] tabular-nums mt-0.5">
                     {renderIDR(offeringCalc.monthly.netSalary)}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                <span className="text-[11px] font-medium text-slate-400">
+              <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
+                <span className="text-[11px] font-medium text-[var(--text-muted)]">
                   {t('thDelta')}
                 </span>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-mono tabular-nums ${
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold border tabular-nums ${
                       deltaMonthlyNet >= 0
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                        ? 'bg-[var(--accent-surface)] text-[var(--accent-text)] border-[var(--accent-border)]'
+                        : 'bg-[var(--danger-surface)] text-[var(--danger-text)] border-[var(--danger-border)]'
                     }`}
                   >
                     {deltaMonthlyNet >= 0 ? '+' : ''}
                     {renderIDR(deltaMonthlyNet)}
                   </span>
                   <span
-                    className={`text-xs font-bold ${
-                      deltaMonthlyNet >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                    className={`text-xs font-bold tabular-nums ${
+                      deltaMonthlyNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
                     }`}
                   >
                     ({deltaMonthlyNetPct >= 0 ? '+' : ''}
@@ -410,17 +407,17 @@ export default function ComparisonAuditMatrix({
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 text-xs">
+                <tr className="bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] text-xs">
                   <th className="py-3 px-6 font-semibold w-5/12">{t('thComponent')}</th>
                   <th className="py-3 px-4 font-semibold text-right w-7/32">
                     {t('thCurrent')}{' '}
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[11px] text-[var(--text-muted)] font-medium">
                       ({existingTaxMethod.toUpperCase()})
                     </span>
                   </th>
-                  <th className="py-3 px-4 font-semibold text-right text-emerald-400 w-7/32">
+                  <th className="py-3 px-4 font-semibold text-right text-[var(--accent-text)] w-7/32">
                     {activeOffering.name}{' '}
-                    <span className="text-[10px] text-emerald-500/70">
+                    <span className="text-[11px] text-[var(--text-muted)] font-medium">
                       ({activeOffering.taxMethod.toUpperCase()})
                     </span>
                   </th>
@@ -429,48 +426,48 @@ export default function ComparisonAuditMatrix({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
-                  <td colSpan={4} className="py-2.5 px-6 uppercase tracking-wider text-emerald-400/90 font-semibold">
+              <tbody className="divide-y divide-[var(--border-subtle)]">
+                <tr className="bg-[var(--bg-subtle)] text-xs font-bold text-[var(--text-secondary)]">
+                  <td colSpan={4} className="py-2.5 px-6">
                     {t('groupGrossMonthly')}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-slate-200">{t('basicSalaryLabel')}</div>
-                    <div className="text-[10px] text-slate-400">{t('basicSalaryDesc')}</div>
+                    <div className="font-medium text-[var(--text-primary)]">{t('basicSalaryLabel')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('basicSalaryDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--text-secondary)] tabular-nums">
                     {renderIDR(existingCalc.basic)}
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] tabular-nums font-medium">
                     {renderIDR(offeringCalc.basic)}
                   </td>
                   <td className="py-3 px-6 text-right">
                     {renderDeltaBadge(offeringCalc.basic - existingCalc.basic)}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-slate-200">{t('fixedAllowanceLabel')}</div>
-                    <div className="text-[10px] text-slate-400">{t('fixedAllowanceDesc')}</div>
+                    <div className="font-medium text-[var(--text-primary)]">{t('fixedAllowanceLabel')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('fixedAllowanceDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--text-secondary)] tabular-nums">
                     {renderIDR(existingCalc.fixed)}
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] tabular-nums font-medium">
                     {renderIDR(offeringCalc.fixed)}
                   </td>
                   <td className="py-3 px-6 text-right">
                     {renderDeltaBadge(offeringCalc.fixed - existingCalc.fixed)}
                   </td>
                 </tr>
-                <tr className="bg-slate-950/60 border-y border-slate-800 font-semibold">
-                  <td className="py-2.5 px-6 text-slate-200">{t('subtotalGrossMonthly')}</td>
-                  <td className="py-2.5 px-4 text-right text-slate-200 font-mono tabular-nums">
+                <tr className="bg-[var(--bg-subtle)] border-y border-dashed border-[var(--border-subtle)] font-semibold">
+                  <td className="py-2.5 px-6 text-[var(--text-primary)]">{t('subtotalGrossMonthly')}</td>
+                  <td className="py-2.5 px-4 text-right text-[var(--text-primary)] tabular-nums">
                     {renderIDR(existingCalc.monthly.cashGross)}
                   </td>
-                  <td className="py-2.5 px-4 text-right text-emerald-300 font-mono tabular-nums">
+                  <td className="py-2.5 px-4 text-right text-[var(--text-primary)] tabular-nums font-bold">
                     {renderIDR(offeringCalc.monthly.cashGross)}
                   </td>
                   <td className="py-2.5 px-6 text-right">
@@ -478,26 +475,26 @@ export default function ComparisonAuditMatrix({
                   </td>
                 </tr>
 
-                <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
-                  <td colSpan={4} className="py-2.5 px-6 uppercase tracking-wider text-rose-400/90 font-semibold">
+                <tr className="bg-[var(--bg-subtle)] text-xs font-bold text-[var(--danger-text)]">
+                  <td colSpan={4} className="py-2.5 px-6">
                     {t('groupDeductionsMonthly')}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-rose-200 flex items-center gap-2">
+                    <div className="font-medium text-[var(--text-primary)] flex items-center flex-wrap gap-2">
                       <span>{t('pph21TerLabel')}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono font-medium">
+                      <span className="text-[11px] px-2 py-0.5 rounded-md bg-[var(--danger-surface)] text-[var(--danger-text)] border border-[var(--danger-border)] tabular-nums font-medium">
                         {existingCalc.terCategory} {existingCalc.terPercentage}% vs{' '}
                         {offeringCalc.terCategory} {offeringCalc.terPercentage}%
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-400">{t('pph21TerDesc')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('pph21TerDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -{renderIDR(existingCalc.monthly.pph21)}
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -{renderIDR(offeringCalc.monthly.pph21)}
                   </td>
                   <td className="py-3 px-6 text-right">
@@ -507,15 +504,15 @@ export default function ComparisonAuditMatrix({
                     )}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-rose-200">{t('bpjsKesLabelShort')}</div>
-                    <div className="text-[10px] text-slate-400">{t('bpjsKesDesc')}</div>
+                    <div className="font-medium text-[var(--text-primary)]">{t('bpjsKesLabelShort')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('bpjsKesDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -{renderIDR(existingCalc.monthly.bpjs.kesEmployee)}
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -{renderIDR(offeringCalc.monthly.bpjs.kesEmployee)}
                   </td>
                   <td className="py-3 px-6 text-right">
@@ -526,19 +523,19 @@ export default function ComparisonAuditMatrix({
                     )}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-rose-200">{t('bpjsTkLabelShort')}</div>
-                    <div className="text-[10px] text-slate-400">{t('bpjsTkDesc')}</div>
+                    <div className="font-medium text-[var(--text-primary)]">{t('bpjsTkLabelShort')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('bpjsTkDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -
                     {renderIDR(
                       existingCalc.monthly.bpjs.jhtEmployee +
                         existingCalc.monthly.bpjs.jpEmployee
                     )}
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -
                     {renderIDR(
                       offeringCalc.monthly.bpjs.jhtEmployee +
@@ -555,12 +552,12 @@ export default function ComparisonAuditMatrix({
                     )}
                   </td>
                 </tr>
-                <tr className="bg-rose-950/20 border-y border-rose-900/30 font-semibold text-rose-300">
+                <tr className="bg-[var(--danger-surface)] border-y border-dashed border-[var(--danger-border)] font-semibold text-[var(--danger-text)]">
                   <td className="py-2.5 px-6">{t('subtotalDeductionsMonthly')}</td>
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums">
+                  <td className="py-2.5 px-4 text-right tabular-nums">
                     -{renderIDR(existingCalc.monthly.totalDeductions)}
                   </td>
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums">
+                  <td className="py-2.5 px-4 text-right tabular-nums">
                     -{renderIDR(offeringCalc.monthly.totalDeductions)}
                   </td>
                   <td className="py-2.5 px-6 text-right">
@@ -574,39 +571,43 @@ export default function ComparisonAuditMatrix({
               </tbody>
 
               <tfoot>
-                <tr className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-emerald-950/60 border-t-2 border-emerald-500/40 text-white">
+                <tr className="bg-[var(--bg-subtle)] ledger-total-row text-[var(--text-primary)]">
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-2.5">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-[var(--accent-text)] shrink-0" aria-hidden="true" />
                       <div>
-                        <span className="text-xs sm:text-sm font-extrabold tracking-wide text-emerald-300 uppercase block">
+                        <span className="text-xs sm:text-sm font-extrabold text-[var(--accent-text)] block">
                           {t('heroNetMonthlyTitle')}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-normal">
+                        <span className="text-[11px] text-[var(--text-muted)] font-normal">
                           {t('heroNetMonthlySubtitle')}
                         </span>
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-right text-slate-200 font-mono tabular-nums text-xs sm:text-sm font-bold">
+                  <td className="py-4 px-4 text-right text-[var(--text-primary)] tabular-nums text-xs sm:text-sm font-bold">
                     {renderIDR(existingCalc.monthly.netSalary)}
                   </td>
-                  <td className="py-4 px-4 text-right text-emerald-400 font-mono tabular-nums text-sm sm:text-base font-extrabold">
+                  <td className="py-4 px-4 text-right text-[var(--accent-text)] tabular-nums text-sm sm:text-base font-extrabold">
                     {renderIDR(offeringCalc.monthly.netSalary)}
                   </td>
                   <td className="py-4 px-6 text-right">
                     <div className="inline-flex flex-col items-end">
                       <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border shadow-sm font-mono tabular-nums ${
+                        className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border tabular-nums ${
                           deltaMonthlyNet >= 0
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                            : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                            ? 'bg-[var(--accent-surface)] text-[var(--accent-text)] border-[var(--accent-border)]'
+                            : 'bg-[var(--danger-surface)] text-[var(--danger-text)] border-[var(--danger-border)]'
                         }`}
                       >
                         {deltaMonthlyNet >= 0 ? '+' : ''}
                         {renderIDR(deltaMonthlyNet)}
                       </span>
-                      <span className="text-[11px] font-bold text-emerald-400 mt-1">
+                      <span
+                        className={`text-[11px] font-bold mt-1 tabular-nums ${
+                          deltaMonthlyNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
+                        }`}
+                      >
                         ({deltaMonthlyNetPct >= 0 ? '+' : ''}
                         {deltaMonthlyNetPct.toFixed(1)}%)
                       </span>
@@ -619,27 +620,23 @@ export default function ComparisonAuditMatrix({
         </div>
       )}
 
-      {/* CARD 2: PROYEKSI AKUMULASI TAHUNAN (ANNUALIZED PACKAGE) */}
+      {/* CARD 2: PROYEKSI AKUMULASI TAHUNAN */}
       {(tablePeriod === 'both' || tablePeriod === 'annual') && (
-        <div className="animate-card-enter glass-surface rounded-2xl overflow-hidden" style={{ animationDelay: '120ms' }}>
-          {/* Card Subheader */}
-          <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-slate-950/50 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-2 h-2 rounded-full bg-sky-400 shrink-0" />
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-white">
-                  {t('card2Title', { multiplier: annualMultiplier })}
-                </h4>
-                <p className="text-[11px] text-slate-400">{t('card2Subtitle')}</p>
-              </div>
+        <div className="ledger-sheet rounded-2xl overflow-hidden">
+          <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+                {t('card2Title', { multiplier: annualMultiplier })}
+              </h3>
+              <p className="text-[11px] text-[var(--text-muted)]">{t('card2Subtitle')}</p>
             </div>
 
-            <div className="flex items-center justify-between sm:justify-start gap-2 px-3 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-xs w-full sm:w-auto">
-              <span className="text-slate-400 text-[11px]">{t('deltaNetAnnual')}</span>
+            <div className="flex items-center justify-between sm:justify-start gap-2 px-3 py-1.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs w-full sm:w-auto">
+              <span className="text-[var(--text-muted)] text-[11px]">{t('deltaNetAnnual')}</span>
               <div className="flex items-center gap-1.5">
                 <span
-                  className={`font-extrabold font-mono tabular-nums ${
-                    deltaAnnualNet >= 0 ? 'text-sky-400' : 'text-rose-400'
+                  className={`font-extrabold tabular-nums ${
+                    deltaAnnualNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
                   }`}
                 >
                   {deltaAnnualNet >= 0 ? '+' : ''}
@@ -647,8 +644,8 @@ export default function ComparisonAuditMatrix({
                   {t('perYear')}
                 </span>
                 <span
-                  className={`font-bold text-[11px] ${
-                    deltaAnnualNet >= 0 ? 'text-sky-400' : 'text-rose-400'
+                  className={`font-bold text-[11px] tabular-nums ${
+                    deltaAnnualNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
                   }`}
                 >
                   ({deltaAnnualNetPct >= 0 ? '+' : ''}
@@ -658,12 +655,10 @@ export default function ComparisonAuditMatrix({
             </div>
           </div>
 
-          {/* MOBILE / PWA STACKED COMPARISON CARDS (< md) */}
-          <div className="md:hidden divide-y divide-slate-800/60">
-            {/* Group 1 Header */}
-            <div className="py-2 px-3.5 bg-slate-950/40 text-[11px] uppercase tracking-wider text-sky-400/90 font-semibold flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-              <span>{t('groupGrossAnnual')}</span>
+          {/* MOBILE STACKED COMPARISON (< md) */}
+          <div className="md:hidden divide-y divide-[var(--border-subtle)]">
+            <div className="py-2 px-3.5 bg-[var(--bg-subtle)] text-xs font-bold text-[var(--text-secondary)] border-b border-dashed border-[var(--border-subtle)]">
+              {t('groupGrossAnnual')}
             </div>
 
             <MobileCleanAuditRow
@@ -679,7 +674,6 @@ export default function ComparisonAuditMatrix({
               offeringValue={renderIDR(
                 offeringCalc.monthly.cashGross * annualMultiplier
               )}
-              accentColor="sky"
               deltaBadge={renderDeltaBadge(
                 (offeringCalc.monthly.cashGross -
                   existingCalc.monthly.cashGross) *
@@ -694,7 +688,6 @@ export default function ComparisonAuditMatrix({
               offeringLabel={offeringHeaderLabel}
               currentValue={renderIDR(existingCalc.annual.bonus)}
               offeringValue={renderIDR(offeringCalc.annual.bonus)}
-              accentColor="sky"
               deltaBadge={renderDeltaBadge(
                 offeringCalc.annual.bonus - existingCalc.annual.bonus
               )}
@@ -706,14 +699,11 @@ export default function ComparisonAuditMatrix({
               offeringLabel={offeringHeaderLabel}
               currentValue={renderIDR(existingCalc.annual.cashGross)}
               offeringValue={renderIDR(offeringCalc.annual.cashGross)}
-              accentColor="sky"
               deltaBadge={renderDeltaBadge(deltaAnnualGross)}
             />
 
-            {/* Group 2 Header */}
-            <div className="py-2 px-3.5 bg-slate-950/40 text-[11px] uppercase tracking-wider text-rose-400/90 font-semibold flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-              <span>{t('groupDeductionsAnnual')}</span>
+            <div className="py-2 px-3.5 bg-[var(--bg-subtle)] text-xs font-bold text-[var(--danger-text)] border-b border-dashed border-[var(--border-subtle)]">
+              {t('groupDeductionsAnnual')}
             </div>
 
             <MobileCleanAuditRow
@@ -762,10 +752,8 @@ export default function ComparisonAuditMatrix({
               )}
             />
 
-            {/* Group 3 Header */}
-            <div className="py-2 px-3.5 bg-slate-950/40 text-[11px] uppercase tracking-wider text-amber-400/90 font-semibold flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span>{t('groupEmployerBenefit')}</span>
+            <div className="py-2 px-3.5 bg-[var(--bg-subtle)] text-xs font-bold text-[var(--text-secondary)] border-b border-dashed border-[var(--border-subtle)]">
+              {t('groupEmployerBenefit')}
             </div>
 
             <MobileCleanAuditRow
@@ -776,65 +764,64 @@ export default function ComparisonAuditMatrix({
               currentValue={renderIDR(existingCalc.annual.bpjs.totalEmployer)}
               offeringValue={renderIDR(offeringCalc.annual.bpjs.totalEmployer)}
               valuePrefix="+"
-              accentColor="sky"
               deltaBadge={renderDeltaBadge(
                 offeringCalc.annual.bpjs.totalEmployer -
                   existingCalc.annual.bpjs.totalEmployer
               )}
             />
 
-            {/* Mobile Hero Summary Footer (Annual THP) */}
-            <div className="bg-gradient-to-br from-sky-950/50 via-slate-900 to-slate-950 p-4 border-t border-sky-500/30 space-y-3">
+            {/* Mobile Summary Footer (Annual THP) */}
+            <div className="bg-[var(--bg-subtle)] p-4 ledger-total-row space-y-3">
               <div className="flex items-start gap-2.5">
-                <Calendar className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
+                <Calendar className="w-5 h-5 text-[var(--accent-text)] shrink-0 mt-0.5" aria-hidden="true" />
                 <div>
-                  <span className="text-xs font-extrabold tracking-wide text-sky-300 uppercase block">
+                  <span className="text-xs font-extrabold text-[var(--accent-text)] block">
                     {t('heroNetAnnualTitle')}
                   </span>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-[11px] text-[var(--text-muted)]">
                     {t('heroNetAnnualSubtitle')}
                   </span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-2.5">
-                  <div className="text-[10px] text-slate-400 truncate">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-2.5">
+                  <div className="text-[11px] text-[var(--text-muted)] truncate">
                     {currentHeaderLabel}
                   </div>
-                  <div className="font-mono text-sm font-bold text-slate-200 tabular-nums mt-0.5">
+                  <div className="text-sm font-bold text-[var(--text-primary)] tabular-nums mt-0.5">
                     {renderIDR(existingCalc.annual.netSalary)}
                   </div>
                 </div>
 
-                <div className="bg-sky-500/10 border border-sky-500/30 rounded-xl p-2.5">
-                  <div className="text-[10px] font-semibold text-sky-400 truncate">
+                <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-xl p-2.5">
+                  <div className="text-[11px] font-semibold text-[var(--accent-text)] truncate">
                     {offeringHeaderLabel}
                   </div>
-                  <div className="font-mono text-sm font-extrabold text-sky-400 tabular-nums mt-0.5">
+                  <div className="text-sm font-extrabold text-[var(--accent-text)] tabular-nums mt-0.5">
                     {renderIDR(offeringCalc.annual.netSalary)}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                <span className="text-[11px] font-medium text-slate-400">
+              <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
+                <span className="text-[11px] font-medium text-[var(--text-muted)]">
                   {t('thDelta')}
                 </span>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border font-mono tabular-nums ${
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold border tabular-nums ${
                       deltaAnnualNet >= 0
-                        ? 'bg-sky-500/20 text-sky-300 border-sky-500/40'
-                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                        ? 'bg-[var(--accent-surface)] text-[var(--accent-text)] border-[var(--accent-border)]'
+                        : 'bg-[var(--danger-surface)] text-[var(--danger-text)] border-[var(--danger-border)]'
                     }`}
                   >
                     {deltaAnnualNet >= 0 ? '+' : ''}
                     {renderIDR(deltaAnnualNet)}
                   </span>
                   <span
-                    className={`text-xs font-bold ${
-                      deltaAnnualNet >= 0 ? 'text-sky-400' : 'text-rose-400'
+                    className={`text-xs font-bold tabular-nums ${
+                      deltaAnnualNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
                     }`}
                   >
                     ({deltaAnnualNetPct >= 0 ? '+' : ''}
@@ -849,19 +836,19 @@ export default function ComparisonAuditMatrix({
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 text-xs">
+                <tr className="bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] text-xs">
                   <th className="py-3 px-6 font-semibold w-5/12">
                     {t('thComponentAnnual')}
                   </th>
                   <th className="py-3 px-4 font-semibold text-right w-7/32">
                     {t('thCurrent')}{' '}
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[11px] text-[var(--text-muted)] font-medium">
                       ({existingTaxMethod.toUpperCase()})
                     </span>
                   </th>
-                  <th className="py-3 px-4 font-semibold text-right text-sky-400 w-7/32">
+                  <th className="py-3 px-4 font-semibold text-right text-[var(--accent-text)] w-7/32">
                     {activeOffering.name}{' '}
-                    <span className="text-[10px] text-sky-500/70">
+                    <span className="text-[11px] text-[var(--text-muted)] font-medium">
                       ({activeOffering.taxMethod.toUpperCase()})
                     </span>
                   </th>
@@ -870,27 +857,27 @@ export default function ComparisonAuditMatrix({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
-                  <td colSpan={4} className="py-2.5 px-6 uppercase tracking-wider text-sky-400/90 font-semibold">
+              <tbody className="divide-y divide-[var(--border-subtle)]">
+                <tr className="bg-[var(--bg-subtle)] text-xs font-bold text-[var(--text-secondary)]">
+                  <td colSpan={4} className="py-2.5 px-6">
                     {t('groupGrossAnnual')}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-slate-200">
+                    <div className="font-medium text-[var(--text-primary)]">
                       {t('annualRoutineSalary', { multiplier: annualMultiplier })}
                     </div>
-                    <div className="text-[10px] text-slate-400">
+                    <div className="text-[11px] text-[var(--text-muted)]">
                       {t('annualRoutineSalaryDesc', {
                         thrMonths: annualMultiplier - 12,
                       })}
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--text-secondary)] tabular-nums">
                     {renderIDR(existingCalc.monthly.cashGross * annualMultiplier)}
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] tabular-nums font-medium">
                     {renderIDR(offeringCalc.monthly.cashGross * annualMultiplier)}
                   </td>
                   <td className="py-3 px-6 text-right">
@@ -901,15 +888,15 @@ export default function ComparisonAuditMatrix({
                     )}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-slate-200">{t('bonusLabel')}</div>
-                    <div className="text-[10px] text-slate-400">{t('annualBonusDesc')}</div>
+                    <div className="font-medium text-[var(--text-primary)]">{t('bonusLabel')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('annualBonusDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--text-secondary)] tabular-nums">
                     {renderIDR(existingCalc.annual.bonus)}
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-100 font-mono tabular-nums font-medium">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] tabular-nums font-medium">
                     {renderIDR(offeringCalc.annual.bonus)}
                   </td>
                   <td className="py-3 px-6 text-right">
@@ -918,12 +905,12 @@ export default function ComparisonAuditMatrix({
                     )}
                   </td>
                 </tr>
-                <tr className="bg-slate-950/60 border-y border-slate-800 font-semibold">
-                  <td className="py-2.5 px-6 text-slate-200">{t('subtotalGrossAnnual')}</td>
-                  <td className="py-2.5 px-4 text-right text-slate-200 font-mono tabular-nums">
+                <tr className="bg-[var(--bg-subtle)] border-y border-dashed border-[var(--border-subtle)] font-semibold">
+                  <td className="py-2.5 px-6 text-[var(--text-primary)]">{t('subtotalGrossAnnual')}</td>
+                  <td className="py-2.5 px-4 text-right text-[var(--text-primary)] tabular-nums">
                     {renderIDR(existingCalc.annual.cashGross)}
                   </td>
-                  <td className="py-2.5 px-4 text-right text-sky-300 font-mono tabular-nums">
+                  <td className="py-2.5 px-4 text-right text-[var(--text-primary)] tabular-nums font-bold">
                     {renderIDR(offeringCalc.annual.cashGross)}
                   </td>
                   <td className="py-2.5 px-6 text-right">
@@ -931,20 +918,20 @@ export default function ComparisonAuditMatrix({
                   </td>
                 </tr>
 
-                <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
-                  <td colSpan={4} className="py-2.5 px-6 uppercase tracking-wider text-rose-400/90 font-semibold">
+                <tr className="bg-[var(--bg-subtle)] text-xs font-bold text-[var(--danger-text)]">
+                  <td colSpan={4} className="py-2.5 px-6">
                     {t('groupDeductionsAnnual')}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-rose-200">{t('annualPph21Label')}</div>
-                    <div className="text-[10px] text-slate-400">{t('annualPph21Desc')}</div>
+                    <div className="font-medium text-[var(--text-primary)]">{t('annualPph21Label')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('annualPph21Desc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -{renderIDR(existingCalc.annual.pph21)}
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -{renderIDR(offeringCalc.annual.pph21)}
                   </td>
                   <td className="py-3 px-6 text-right">
@@ -954,15 +941,15 @@ export default function ComparisonAuditMatrix({
                     )}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-rose-200">{t('annualBpjsEmployeeLabel')}</div>
-                    <div className="text-[10px] text-slate-400">{t('annualBpjsEmployeeDesc')}</div>
+                    <div className="font-medium text-[var(--text-primary)]">{t('annualBpjsEmployeeLabel')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('annualBpjsEmployeeDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -{renderIDR(existingCalc.annual.bpjs.totalEmployee)}
                   </td>
-                  <td className="py-3 px-4 text-right text-rose-400/90 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--danger-text)] tabular-nums">
                     -{renderIDR(offeringCalc.annual.bpjs.totalEmployee)}
                   </td>
                   <td className="py-3 px-6 text-right">
@@ -973,12 +960,12 @@ export default function ComparisonAuditMatrix({
                     )}
                   </td>
                 </tr>
-                <tr className="bg-rose-950/20 border-y border-rose-900/30 font-semibold text-rose-300">
+                <tr className="bg-[var(--danger-surface)] border-y border-dashed border-[var(--danger-border)] font-semibold text-[var(--danger-text)]">
                   <td className="py-2.5 px-6">{t('subtotalDeductionsAnnual')}</td>
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums">
+                  <td className="py-2.5 px-4 text-right tabular-nums">
                     -{renderIDR(existingCalc.annual.totalDeductions)}
                   </td>
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums">
+                  <td className="py-2.5 px-4 text-right tabular-nums">
                     -{renderIDR(offeringCalc.annual.totalDeductions)}
                   </td>
                   <td className="py-2.5 px-6 text-right">
@@ -990,20 +977,20 @@ export default function ComparisonAuditMatrix({
                   </td>
                 </tr>
 
-                <tr className="bg-slate-950/40 text-[11px] font-bold text-slate-400">
-                  <td colSpan={4} className="py-2.5 px-6 uppercase tracking-wider text-amber-400/90 font-semibold">
+                <tr className="bg-[var(--bg-subtle)] text-xs font-bold text-[var(--text-secondary)]">
+                  <td colSpan={4} className="py-2.5 px-6">
                     {t('groupEmployerBenefit')}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-800/30 transition-colors">
+                <tr className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="py-3 px-6">
-                    <div className="font-medium text-slate-200">{t('employerBpjsLabel')}</div>
-                    <div className="text-[10px] text-slate-400">{t('employerBpjsDesc')}</div>
+                    <div className="font-medium text-[var(--text-primary)]">{t('employerBpjsLabel')}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('employerBpjsDesc')}</div>
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-300 font-mono tabular-nums">
+                  <td className="py-3 px-4 text-right text-[var(--text-secondary)] tabular-nums">
                     +{renderIDR(existingCalc.annual.bpjs.totalEmployer)}
                   </td>
-                  <td className="py-3 px-4 text-right text-amber-300 font-mono tabular-nums font-medium">
+                  <td className="py-3 px-4 text-right text-[var(--text-primary)] tabular-nums font-medium">
                     +{renderIDR(offeringCalc.annual.bpjs.totalEmployer)}
                   </td>
                   <td className="py-3 px-6 text-right">
@@ -1016,39 +1003,43 @@ export default function ComparisonAuditMatrix({
               </tbody>
 
               <tfoot>
-                <tr className="bg-gradient-to-r from-sky-950/60 via-slate-900 to-sky-950/60 border-t-2 border-sky-500/40 text-white">
+                <tr className="bg-[var(--bg-subtle)] ledger-total-row text-[var(--text-primary)]">
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-2.5">
-                      <Calendar className="w-5 h-5 text-sky-400 shrink-0" />
+                      <Calendar className="w-5 h-5 text-[var(--accent-text)] shrink-0" aria-hidden="true" />
                       <div>
-                        <span className="text-xs sm:text-sm font-extrabold tracking-wide text-sky-300 uppercase block">
+                        <span className="text-xs sm:text-sm font-extrabold text-[var(--accent-text)] block">
                           {t('heroNetAnnualTitle')}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-normal">
+                        <span className="text-[11px] text-[var(--text-muted)] font-normal">
                           {t('heroNetAnnualSubtitle')}
                         </span>
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-right text-slate-200 font-mono tabular-nums text-xs sm:text-sm font-bold">
+                  <td className="py-4 px-4 text-right text-[var(--text-primary)] tabular-nums text-xs sm:text-sm font-bold">
                     {renderIDR(existingCalc.annual.netSalary)}
                   </td>
-                  <td className="py-4 px-4 text-right text-sky-400 font-mono tabular-nums text-sm sm:text-base font-extrabold">
+                  <td className="py-4 px-4 text-right text-[var(--accent-text)] tabular-nums text-sm sm:text-base font-extrabold">
                     {renderIDR(offeringCalc.annual.netSalary)}
                   </td>
                   <td className="py-4 px-6 text-right">
                     <div className="inline-flex flex-col items-end">
                       <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border shadow-sm font-mono tabular-nums ${
+                        className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border tabular-nums ${
                           deltaAnnualNet >= 0
-                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/40'
-                            : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                            ? 'bg-[var(--accent-surface)] text-[var(--accent-text)] border-[var(--accent-border)]'
+                            : 'bg-[var(--danger-surface)] text-[var(--danger-text)] border-[var(--danger-border)]'
                         }`}
                       >
                         {deltaAnnualNet >= 0 ? '+' : ''}
                         {renderIDR(deltaAnnualNet)}
                       </span>
-                      <span className="text-[11px] font-bold text-sky-400 mt-1">
+                      <span
+                        className={`text-[11px] font-bold mt-1 tabular-nums ${
+                          deltaAnnualNet >= 0 ? 'text-[var(--accent-text)]' : 'text-[var(--danger-text)]'
+                        }`}
+                      >
                         ({deltaAnnualNetPct >= 0 ? '+' : ''}
                         {deltaAnnualNetPct.toFixed(1)}%)
                       </span>

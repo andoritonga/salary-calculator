@@ -1,4 +1,4 @@
-# 💰 Kalkulator Gaji & Offering (PPh 21 TER PMK 168/2023 + BPJS)
+# Kalkulator Gaji & Offering (PPh 21 TER PMK 168/2023 + BPJS)
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-gaji.ritonga.ai.id-emerald?style=for-the-badge&logo=cloudflare)](https://gaji.ritonga.ai.id)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
@@ -6,19 +6,19 @@
 
 Aplikasi web modern untuk menghitung gaji bersih (*Take Home Pay* / THP), estimasi kenaikan negosiasi penawaran kerja (*job offering*), simulasi slip THR & Desember, dan komparasi *side-by-side* secara akurat sesuai regulasi perpajakan Indonesia terbaru.
 
-🔗 **Akses Online**: [https://gaji.ritonga.ai.id](https://gaji.ritonga.ai.id)
+Akses Online: [https://gaji.ritonga.ai.id](https://gaji.ritonga.ai.id)
 
 ---
 
-## 🏛️ Landasan Regulasi & Formula Perhitungan
+## Landasan Regulasi & Formula Perhitungan
 
 Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di Indonesia:
 
 1. **PPh 21 Bulanan (Skema TER - PP No. 58 Tahun 2023 & PMK No. 168 Tahun 2023)**:
-   - **Kategori TER A**: TK/0 (Rp 54 Jt), TK/1 (Rp 58.5 Jt), K/0 (Rp 58.5 Jt).
-   - **Kategori TER B**: TK/2 (Rp 63 Jt), TK/3 (Rp 67.5 Jt), K/1 (Rp 63 Jt), K/2 (Rp 67.5 Jt).
+   - **Kategori TER A**: TK/0 (Rp 54 Jt), TK/1 (Rp 58,5 Jt), K/0 (Rp 58,5 Jt).
+   - **Kategori TER B**: TK/2 (Rp 63 Jt), TK/3 (Rp 67,5 Jt), K/1 (Rp 63 Jt), K/2 (Rp 67,5 Jt).
    - **Kategori TER C**: K/3 (Rp 72 Jt).
-   - Tarif Efektif Rata-Rata (0% hingga 34%) diterapkan langsung terhadap Penghasilan Bruto per bulan (Januari – November).
+   - Tarif Efektif Rata-Rata (0% hingga 34%) diterapkan langsung terhadap Penghasilan Bruto per bulan (Januari - November).
 
 2. **PPh 21 Masa Desember & Tahunan (Pasal 17 UU No. 7 Tahun 2021 tentang Harmonisasi Peraturan Perpajakan / HPP)**:
    - Tarif progresif 5 lapisan:
@@ -34,75 +34,57 @@ Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di 
    - Batas plafon maksimal upah perhitungan: **Rp 12.000.000 / bulan**.
 
 4. **Iuran BPJS Ketenagakerjaan**:
-   - **JHT (Jaminan Hari Tua)**: 2% Karyawan, 3.7% Pemberi Kerja.
-   - **JP (Jaminan Pensiun)**: 1% Karyawan, 2% Pemberi Kerja (dengan batas plafon penyesuaian regulasi).
-   - **JKK (Jaminan Kecelakaan Kerja)**: 0.24% Pemberi Kerja (masuk penambah bruto pajak).
-   - **JKM (Jaminan Kematian)**: 0.30% Pemberi Kerja (masuk penambah bruto pajak).
+   - **JHT (Jaminan Hari Tua)**: 2% Karyawan, 3,7% Pemberi Kerja.
+   - **JP (Jaminan Pensiun)**: 1% Karyawan, 2% Pemberi Kerja (dengan batas plafon penyesuaian regulasi Rp 10.042.300).
+   - **JKK (Jaminan Kecelakaan Kerja)**: 0,24% Pemberi Kerja (masuk penambah bruto pajak bila opsi aktif).
+   - **JKM (Jaminan Kematian)**: 0,30% Pemberi Kerja (masuk penambah bruto pajak bila opsi aktif).
 
 ---
 
-## 🚀 Fitur Unggulan
+## Fitur Utama
 
-### 1. 🎛️ Status PTKP Global Terpadu
-- Pemilihan status PTKP (TK/0 hingga K/3) ditempatkan **1 saja di toolbar atas**.
-- Menyinkronkan perhitungan gaji saat ini (*Existing*) dan seluruh penawaran baru (*Offering*) secara *real-time*.
-- Dilengkapi badge kategori TER dinamis (A, B, C) beserta batas nominalnya secara otomatis.
+### 1. Status PTKP Global Terpadu
+- Pemilihan status PTKP (TK/0 hingga K/3) ditempatkan pada bilah kontrol utama.
+- Menyinkronkan perhitungan gaji saat ini (*Existing*) dan seluruh skenario penawaran baru (*Offering*) secara *real-time*.
+- Menampilkan kategori TER dinamis (A, B, C) dan tarif efektif secara otomatis.
 
-### 2. ⚖️ Komparasi Side-by-Side Interaktif
-- Perbandingan langsung antara gaji saat ini vs penawaran baru.
-- Dukungan **Multiple Offerings** (tambah, namai, dan hapus beberapa penawaran sekaligus).
-- Tampilan kartu ringkasan eksekutif kenaikan bulanan (*Delta Net THP*) dan akumulasi tahunan.
-- Metode pemajakan fleksibel: **Gross**, **Gross-up**, atau **Nett**.
+### 2. Komparasi Side-by-Side Interaktif
+- Perbandingan langsung antara gaji saat ini vs penawaran baru dalam bahasa desain buku besar gaji (`Lombard Paper` / `Obsidian Ledger`).
+- Dukungan **Multiple Offerings** (tambah hingga 4 skenario penawaran, ubah nama skenario, dan hapus per tab).
+- Tiket putusan eksekutif untuk kenaikan bulanan (*Delta Net THP*), rasio retensi bersih vs potongan Pajak & BPJS, dan akumulasi tahunan.
+- Penanda eksplisit saat menggunakan data simulasi contoh bawaan serta *Empty State* terpandu saat form dikosongkan ke Rp 0.
+- Metode pemajakan fleksibel: **Gross**, **Gross-Up**, atau **Nett**.
 
-### 3. 📊 Rincian Detail Komparasi (Executive Breakdown)
-- Tampilan modern terpisah antara:
-  - **Arus Kas Bulanan (Monthly Routine)**: Rincian Gaji Pokok, Tunjangan Tetap, PPh 21 TER, BPJS Kesehatan, BPJS TK, dan Net THP masuk rekening.
-  - **Proyeksi Akumulasi Tahunan**: Paket tahunan (12x, 13x THR, 14x, 15x), Tunjangan Tidak Tetap/Bonus, PPh 21 Pasal 17 progresif, dan kontribusi fasilitas BPJS perusahaan.
-- Tab selector: **Bulanan**, **Tahunan**, atau **Semua (Lengkap Berdampingan)**.
-- Desain *tabular figures* (`tabular-nums`) untuk kemudahan membaca digit nominal keuangan.
-- Pill badge selisih (*Delta Badge*) interaktif untuk memudahkan analisis.
+### 3. Rincian Detail Komparasi (Audit Matrix)
+- Tampilan terpisah antara:
+  - **Arus Kas Bulanan (Rutin)**: Rincian Gaji Pokok, Tunjangan Tetap, PPh 21 TER, BPJS Kesehatan, BPJS TK, dan Net THP masuk rekening.
+  - **Proyeksi Akumulasi Tahunan**: Paket tahunan (12x, 13x THR, 14x, 15x), Tunjangan Tidak Tetap/Bonus, PPh 21 Pasal 17 progresif, dan kontribusi BPJS perusahaan.
+- Tab selector: **Bulanan**, **Tahunan**, atau **Semua (Lengkap)**.
+- Angka *tabular figures* (`tabular-nums`) terpadu pada `Plus Jakarta Sans` untuk perataan kolom keuangan yang konsisten.
 
-### 4. 🎯 Pop-up Modal Alat Negosiasi & Target Gaji
-- **Mode Persentase (+%)**: Tombol preset cepat (+10%, +15%, +20%, +25%, +30%, +35%, +40%, +50%) dan slider interaktif target kenaikan (0% – 100%).
-- **Mode Reverse (Target Net ➔ Gross)**: Masukkan ekspektasi Take Home Pay bersih yang diinginkan, sistem otomatis mencari besaran Gaji Pokok kotor (Gross) yang harus diminta ke HRD.
-- Tombol *Terapkan ke Penawaran* untuk menerapkan hasil negosiasi ke form penawaran secara instan.
+### 4. Modal Alat Negosiasi & Target Gaji
+- **Mode Persentase (+%)**: Tombol preset cepat (+15%, +20%, +25%, +30%, +50%) dan slider interaktif target kenaikan (0% - 100%).
+- **Mode Reverse (Target Net -> Gross)**: Masukkan ekspektasi Take Home Pay bersih yang diinginkan, sistem menghitung mundur Gaji Pokok Gross yang harus diminta ke HR.
+- Mendukung penutupan via tombol `Escape`, navigasi keyboard `Tab` terperangkap di dalam dialog, dan pengembalian fokus otomatis.
 
-### 5. 📑 Pop-up Modal Simulasi Slip THR & Bulan Desember
+### 5. Modal Simulasi Slip THR & Bulan Desember
 - **Simulasi Slip Bulan THR**: Mensimulasikan lonjakan tarif TER bulanan ketika menerima gaji pokok + THR sekaligus dalam 1 bulan kalender.
-- **Simulasi Slip Bulan Desember (True-up)**: Menghitung penyesuaian pajak akhir tahun dengan rumus PPh 21 Pasal 17 setahun dikurangi kredit pajak TER yang telah dipotong (Jan–Nov).
+- **Simulasi Slip Bulan Desember (True-Up)**: Menghitung penyesuaian pajak akhir tahun dengan rumus PPh 21 Pasal 17 setahun dikurangi kredit pajak TER Jan-Nov.
 
-### 6. 🔄 Fitur Reset & Clear All (Kosongkan Data)
-- **Global Reset Modal**: Tombol `Reset` di bilah atas untuk memilih antara:
-  - **Kosongkan Semua Angka (0)**: Mengosongkan seluruh angka gaji saat ini dan seluruh offering ke Rp 0 untuk input baru dari awal.
-  - **Kembalikan ke Contoh Bawaan (Demo)**: Mengembalikan form ke data simulasi bawaan.
-- **Per-Card Quick Reset**: Tombol ikon *rotate/clear* di masing-masing kartu Existing dan Offering untuk pengosongan cepat secara granular.
+### 6. Tema Ganda (Terang & Gelap) + Bilingual (ID & EN) + Aksesibilitas
+- **Toggle Tema Terang / Gelap**: Pilihan tampilan *Lombard Paper* (terang) dan *Obsidian Ledger* (gelap) dengan kontras terverifikasi WCAG AA dan tersimpan di `localStorage`.
+- **Toggle Bahasa ID / EN**: Penerjemahan penuh di seluruh antarmuka dan teks salinan ringkasan, tersimpan di `localStorage`.
+- **Aksesibilitas Keyboard & Mobile**: Target sentuh tombol minimal `44px`, `<label>` tertaut pada seluruh input, kontrol native `<button>`, dan *Error State* yang jelas bila izin clipboard ditolak browser.
 
-### 7. 🌐 Pengganti Bahasa (Bilingual: Indonesia & English)
-- **Toggle ID / EN**: Terletak di bilah atas (*header action bar*) bersebelahan dengan tombol Privasi.
-- **Penerjemahan Menyeluruh**: Seluruh antarmuka—termasuk Header, Drawer Opsi, Kartu Ringkasan, Formulir Input, Rincian Komparasi Bulanan/Tahunan, Pop-up Negosiasi & Reverse Gross, Simulator Slip THR & Desember, Modal Reset, hingga teks Salin Ringkasan—diterjemahkan secara lengkap dan akurat.
-- **Penyimpanan Preferensi**: Bahasa yang dipilih tersimpan otomatis di `localStorage` (`salary_calc_lang`) sehingga tetap aktif saat halaman dimuat ulang.
-
-### 8. 📱 Pengalaman Mobile & PWA Layaknya Aplikasi Native
-- **Header Mobile Bersih & Bebas Geser Samping**: Header ringkas bebas luapan (*zero overflow / no horizontal scroll*), menyembunyikan teks deskripsi panjang dan tombol desktop sekunder pada layar ponsel kecil agar tampilan tetap lega dan rapi layaknya aplikasi iOS/Android.
-- **Kontrol Penawaran Responsif (Tanpa Scroll Samping)**: Pilihan penawaran kerja otomatis membungkus (*flex-wrap*) dengan rapi tanpa memunculkan bilah geser horizontal (*horizontal scrollbar*), dan tombol aksi ganda di bar atas dialihkan ke bilah dock bawah.
-- **Dock Navigasi Bawah (Mobile Bottom Nav)**: Bilah navigasi bawah modern ramah jempol (*thumb-friendly*) dengan 5 menu utama: *Input Form*, *Rincian Komparasi*, *Alat Negosiasi*, *Slip Khusus*, dan *Pengaturan*.
-- **Bottom Sheet Modals**: Seluruh modal (Alat Negosiasi, Simulator Slip, Reset) bertransformasi menjadi *Bottom Sheet* dengan indikator tarikan geser (*drag handle*) dan sudut melengkung halus khas aplikasi modern.
-- **Laci Pengaturan & Aksi Cepat Mobile**: Tombol menu navigasi bawah membuka laci pengaturan yang dilengkapi tombol tutup (X) dan pintasan cepat (Cetak PDF, Salin Ringkasan, Reset).
-- **Segmented Mobile Filter Card**: Switcher praktis di atas form input (*Saat Ini / Penawaran / Berdampingan*) untuk mengurangi beban scrolling di layar ponsel.
-- **Floating Quick KPI Strip**: Bar mengambang otomatis yang menampilkan selisih kenaikan Take Home Pay saat pengguna menggulir halaman ke bawah.
-- **PWA Prompt & Standalone Mode**: Banner instalasi aplikasi instan (`beforeinstallprompt`), dukungan penuh layar `viewport-fit=cover`, penanganan area poni/notch & home bar (`safe-area-insets`), dan Service Worker (`salary-calc-v13`).
-
-### 9. 🔒 Mode Privasi & Arsitektur Keamanan
-- **100% Client-Side Calculation (Zero Data Transmission)**: Seluruh nominal gaji, tunjangan, status PTKP, dan simulasi negosiasi dihitung murni di memori browser pengguna—tidak ada satu byte pun data finansial yang dikirim ke server/backend.
-- **Mode Privasi (Sensor Angka)**: Mengaburkan seluruh nominal rupiah dengan efek blur interaktif (cukup sentuh atau arahkan kursor untuk melihat angka), aman saat digunakan di ruang publik / kantor.
-- **Strict CSP & HTTP Security Headers**: Dilengkapi `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, dan `Permissions-Policy` pada [`nginx.conf`](nginx.conf), [`security-headers.conf`](security-headers.conf), dan [`public/_headers`](public/_headers).
-- **Hardened Non-Root Container & State Validation**: Image produksi Docker berjalan sebagai *non-root user* (`USER nginx`), serta penyimpanan `localStorage` dilindungi validasi skema & batas numerik (*bounds sanitization*) untuk mencegah korupsi state di sisi klien.
-- **Salin Ringkasan & Ekspor PDF**: Menyalin ringkasan negosiasi ke clipboard (ID/EN) dan format cetak bersih (`@media print`).
-- **Progressive Web App (PWA)**: Dilengkapi Service Worker (`salary-calc-v13`) dengan validasi cache same-origin untuk akses offline yang aman.
+### 7. Fitur Reset & Mode Privasi
+- **Global Reset Modal**: Memilih antara mengosongkan seluruh angka ke Rp 0 atau mengembalikan data simulasi contoh bawaan.
+- **Mode Privasi (Sensor Angka)**: Mengaburkan seluruh nominal rupiah dan input, terbuka sementara saat disorot kursor atau difokuskan keyboard.
+- **100% Client-Side & Security Headers**: Seluruh kalkulasi berjalan di browser tanpa transmisi data ke server, dilengkapi CSP ketat (`script-src 'self'`) pada [`nginx.conf`](nginx.conf), [`security-headers.conf`](security-headers.conf), dan [`public/_headers`](public/_headers).
+- **Dock Navigasi Bawah Mobile & PWA Offline**: Bilah bawah 4 aksi cepat (*Negosiasi*, *Slip THR*, *Salin*, *Privasi*) ramah layar sentuh pada ponsel, cetak PDF bersih (`@media print`), serta Service Worker (`salary-calc-v14`) untuk akses offline.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend Core**: [React 18](https://react.dev/), [Vite 6](https://vite.dev/)
 - **Styling**: [Tailwind CSS 3](https://tailwindcss.com/)
@@ -113,7 +95,7 @@ Sistem kalkulasi mengacu pada ketentuan perpajakan dan ketenagakerjaan resmi di 
 
 ---
 
-## 📦 Menjalankan dengan Docker
+## Menjalankan dengan Docker
 
 ### 1. Menggunakan Docker Compose (Direkomendasikan)
 
@@ -140,7 +122,7 @@ docker run -d -p 3000:3000 --name salary-calculator-app salary-calculator
 
 ---
 
-## 💻 Menjalankan Secara Lokal (Development)
+## Menjalankan Secara Lokal (Development)
 
 Prasyarat: Pastikan telah menginstal **Node.js (v18+)** dan **npm**.
 
@@ -165,8 +147,8 @@ npm run build
 
 ---
 
-## 📄 Lisensi
+## Lisensi
 
 Proyek ini dilisensikan di bawah lisensi **MIT** - lihat berkas [LICENSE](LICENSE) untuk detail.
 
-Dibuat dengan ❤️ oleh [Ando Ritonga](https://github.com/andoritonga).
+Dibuat oleh [Ando Ritonga](https://github.com/andoritonga).

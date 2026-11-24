@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
 import { formatNumberWithDots, parseNumberFromDots } from '../utils/taxCalculator'
 
+/**
+ * Accessible currency input with linked <label>, tabular figures, and 44px minimum height.
+ */
 export default function CurrencyInput({
+  inputId,
   label,
   subtitle,
-  badge,
   value,
   onChange,
   placeholder = '0',
@@ -13,6 +16,9 @@ export default function CurrencyInput({
   isPrivacy = false,
   isPrivate = false,
 }) {
+  const generatedId = useId()
+  const resolvedId = inputId || generatedId
+  const subtitleId = subtitle ? `${resolvedId}-hint` : undefined
   const [isFocused, setIsFocused] = useState(false)
   const shouldBlur = (isPrivacy || isPrivate) && !isFocused
 
@@ -26,40 +32,43 @@ export default function CurrencyInput({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1.5">
-        <label className="text-xs font-medium text-slate-300">
-          {label}
-        </label>
-        {badge && (
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-400 border border-slate-700/50">
-            {badge}
-          </span>
-        )}
-      </div>
+      <label
+        htmlFor={resolvedId}
+        className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
+      >
+        {label}
+      </label>
       <div className="relative">
-        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-500 select-none">
+        <span
+          aria-hidden="true"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-muted)] select-none"
+        >
           Rp
         </span>
         <input
+          id={resolvedId}
           type="text"
           inputMode="numeric"
+          aria-describedby={subtitleId}
           value={displayVal}
           onChange={handleChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           disabled={disabled}
           placeholder={placeholder}
-          className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-950/70 hover:bg-slate-950/90 focus:bg-slate-950 border rounded-xl text-sm font-semibold tabular-nums transition-all duration-150 focus:outline-none ${
-            shouldBlur ? 'blur-[5px] select-none hover:blur-none' : ''
+          className={`w-full min-h-[44px] pl-10 pr-3.5 py-2.5 bg-[var(--bg-subtle)] border rounded-xl text-sm font-semibold tabular-nums transition-colors duration-150 placeholder:text-[var(--text-muted)] placeholder:font-normal ${
+            shouldBlur ? 'blur-[5px] select-none hover:blur-none focus:blur-none' : ''
           } ${
             highlight
-              ? 'border-emerald-500/40 text-emerald-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 shadow-sm shadow-emerald-500/5'
-              : 'border-slate-800 text-slate-100 hover:border-slate-700 focus:border-emerald-500/70 focus:ring-2 focus:ring-emerald-500/20'
+              ? 'border-[var(--accent-border)] text-[var(--accent-text)]'
+              : 'border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-strong)]'
           }`}
         />
       </div>
       {subtitle && (
-        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{subtitle}</p>
+        <p id={subtitleId} className="text-[11px] text-[var(--text-muted)] mt-1 leading-relaxed">
+          {subtitle}
+        </p>
       )}
     </div>
   )
