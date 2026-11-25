@@ -22,16 +22,18 @@ const FOCUSABLE_SELECTOR =
 function AccessibleDialog({ open, onClose, titleId, maxWidthClass = 'max-w-xl', children }) {
   const dialogRef = useRef(null)
   const previousFocusRef = useRef(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return undefined
 
     previousFocusRef.current = document.activeElement
     const container = dialogRef.current
-    if (container) {
-      const focusables = container.querySelectorAll(FOCUSABLE_SELECTOR)
-      if (focusables.length > 0) {
-        focusables[0].focus()
+    if (container && !container.contains(document.activeElement)) {
+      const autoFocusEl = container.querySelector('[data-autofocus]')
+      if (autoFocusEl && typeof autoFocusEl.focus === 'function') {
+        autoFocusEl.focus()
       } else {
         container.focus()
       }
@@ -40,7 +42,7 @@ function AccessibleDialog({ open, onClose, titleId, maxWidthClass = 'max-w-xl', 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault()
-        onClose()
+        onCloseRef.current?.()
         return
       }
       if (e.key === 'Tab' && dialogRef.current) {
@@ -67,7 +69,7 @@ function AccessibleDialog({ open, onClose, titleId, maxWidthClass = 'max-w-xl', 
         previousFocusRef.current.focus()
       }
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
